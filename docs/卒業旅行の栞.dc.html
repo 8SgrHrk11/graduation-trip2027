@@ -20,16 +20,32 @@
   @keyframes floatUp { from { opacity:0; transform: translateY(14px); } to { opacity:1; transform:none; } }
   @keyframes drift { 0%,100% { transform: translate(0,0) } 50% { transform: translate(-14px,10px) } }
   .om-hide-scroll::-webkit-scrollbar { display:none; }
+  .om-page { overflow-x: clip !important; }
+  @media (min-width: 780px) {
+    .om-page { background: var(--color-surface) !important; padding: 28px 0 56px; align-items: flex-start; }
+    .om-shell { max-width: 700px !important; background: var(--color-bg); border-radius: 34px;
+                box-shadow: 0 18px 44px color-mix(in srgb, #2e2b25 16%, transparent);
+                padding-bottom: 8px; }
+    .om-blobs { border-radius: 34px; }
+    .om-head { padding: 40px 40px 16px !important; }
+    .om-head h1 { font-size: 40px !important; }
+    .om-nav { padding: 12px 0 12px !important; }
+    .om-nav > div { padding: 0 40px !important; }
+    .om-main { padding: 8px 40px 0 !important; }
+    .om-foot { padding: 28px 40px 40px !important; }
+  }
 </style>
 </helmet>
 
-<div style="min-height:100vh; background:var(--color-bg); color:var(--color-text); display:flex; justify-content:center; overflow-x:hidden">
-<div style="width:100%; max-width:440px; position:relative; padding-bottom:40px">
+<div class="om-page" style="min-height:100vh; background:var(--color-bg); color:var(--color-text); display:flex; justify-content:center; overflow-x:hidden">
+<div class="om-shell" style="width:100%; max-width:440px; position:relative; padding-bottom:40px">
 
-  <div style="position:absolute; top:-90px; right:-90px; width:280px; height:280px; border-radius:50%; background:var(--color-accent-200); opacity:.55; animation:drift 14s ease-in-out infinite; pointer-events:none"></div>
-  <div style="position:absolute; top:180px; left:-120px; width:220px; height:220px; border-radius:50%; background:var(--color-accent-2-200); opacity:.5; animation:drift 19s ease-in-out infinite reverse; pointer-events:none"></div>
+  <div class="om-blobs" style="position:absolute; inset:0; overflow:hidden; pointer-events:none">
+    <div style="position:absolute; top:-90px; right:-90px; width:280px; height:280px; border-radius:50%; background:var(--color-accent-200); opacity:.55; animation:drift 14s ease-in-out infinite"></div>
+    <div style="position:absolute; top:180px; left:-120px; width:220px; height:220px; border-radius:50%; background:var(--color-accent-2-200); opacity:.5; animation:drift 19s ease-in-out infinite reverse"></div>
+  </div>
 
-  <header style="position:relative; padding:26px 20px 12px">
+  <header class="om-head" style="position:relative; padding:26px 20px 12px">
     <div style="font-family:var(--font-body); font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--color-accent-700); font-weight:700">Graduation Trip · Europe</div>
     <h1 style="font-size:31px; line-height:1.25; margin:8px 0 6px">ヨーロッパ<br>卒業旅行の栞</h1>
     <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700)">
@@ -41,13 +57,13 @@
     </div>
   </header>
 
-  <nav style="position:sticky; top:0; z-index:9; background:var(--color-bg); padding:10px 0 10px; box-shadow:0 8px 12px -10px rgba(46,43,37,.35)">
+  <nav class="om-nav" style="position:sticky; top:0; z-index:9; background:var(--color-bg); padding:10px 0 10px; box-shadow:0 8px 12px -10px rgba(46,43,37,.35)">
     <div class="om-hide-scroll" style="display:flex; gap:8px; overflow-x:auto; padding:0 20px; scrollbar-width:none">
       <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="6">
         <button type="button" onClick="{{ t.go }}" style="{{ t.style }}">{{ t.label }}</button>
       </sc-for>
     </div>
-  </nav><main style="position:relative; padding:6px 20px 0">
+  </nav><main class="om-main" style="position:relative; padding:6px 20px 0">
 
   <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
   <section style="animation:floatUp .45s ease both">
