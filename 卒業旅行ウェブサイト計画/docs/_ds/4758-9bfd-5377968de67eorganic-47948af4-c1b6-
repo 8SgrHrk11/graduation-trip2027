@@ -1,0 +1,502 @@
+{
+  "plugins": [
+    "react",
+    "import"
+  ],
+  "rules": {
+    "react/forbid-elements": [
+      "warn",
+      {
+        "forbid": []
+      }
+    ],
+    "no-restricted-imports": [
+      "warn",
+      {
+        "patterns": []
+      }
+    ],
+    "no-restricted-syntax": [
+      "warn",
+      {
+        "selector": "Literal[value=/#[0-9a-fA-F]{3,8}\\b/]",
+        "message": "Raw hex color — use a design-system color token via var()."
+      },
+      {
+        "selector": "Literal[value=/\\b\\d+px\\b/]",
+        "message": "Raw px value — use a design-system spacing token via var()."
+      },
+      {
+        "selector": "Literal[value=/font-family\\s*:\\s*(?!['\\\"]?(?:Caprasimo|Figtree))/i]",
+        "message": "Font not provided by the design system. Available: Caprasimo, Figtree."
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/index.js"
+      ],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    }
+  ],
+  "x-omelette": {
+    "components": {},
+    "tokens": [
+      "--color-accent",
+      "--color-accent-100",
+      "--color-accent-2",
+      "--color-accent-2-100",
+      "--color-accent-2-200",
+      "--color-accent-2-300",
+      "--color-accent-2-400",
+      "--color-accent-2-500",
+      "--color-accent-2-600",
+      "--color-accent-2-700",
+      "--color-accent-2-800",
+      "--color-accent-2-900",
+      "--color-accent-200",
+      "--color-accent-300",
+      "--color-accent-400",
+      "--color-accent-500",
+      "--color-accent-600",
+      "--color-accent-700",
+      "--color-accent-800",
+      "--color-accent-900",
+      "--color-bg",
+      "--color-divider",
+      "--color-neutral-100",
+      "--color-neutral-200",
+      "--color-neutral-300",
+      "--color-neutral-400",
+      "--color-neutral-500",
+      "--color-neutral-600",
+      "--color-neutral-700",
+      "--color-neutral-800",
+      "--color-neutral-900",
+      "--color-surface",
+      "--color-text",
+      "--font-body",
+      "--font-heading",
+      "--font-heading-weight",
+      "--radius-lg",
+      "--radius-md",
+      "--radius-sm",
+      "--shadow-lg",
+      "--shadow-md",
+      "--shadow-sm",
+      "--space-1",
+      "--space-2",
+      "--space-3",
+      "--space-4",
+      "--space-6",
+      "--space-8"
+    ],
+    "tokenKinds": {
+      "--color-bg": "color",
+      "--color-surface": "color",
+      "--color-text": "font",
+      "--color-accent": "color",
+      "--color-accent-2": "color",
+      "--color-divider": "color",
+      "--color-neutral-100": "color",
+      "--color-neutral-200": "color",
+      "--color-neutral-300": "color",
+      "--color-neutral-400": "color",
+      "--color-neutral-500": "color",
+      "--color-neutral-600": "color",
+      "--color-neutral-700": "color",
+      "--color-neutral-800": "color",
+      "--color-neutral-900": "color",
+      "--color-accent-100": "color",
+      "--color-accent-200": "color",
+      "--color-accent-300": "color",
+      "--color-accent-400": "color",
+      "--color-accent-500": "color",
+      "--color-accent-600": "color",
+      "--color-accent-700": "color",
+      "--color-accent-800": "color",
+      "--color-accent-900": "color",
+      "--color-accent-2-100": "color",
+      "--color-accent-2-200": "color",
+      "--color-accent-2-300": "color",
+      "--color-accent-2-400": "color",
+      "--color-accent-2-500": "color",
+      "--color-accent-2-600": "color",
+      "--color-accent-2-700": "color",
+      "--color-accent-2-800": "color",
+      "--color-accent-2-900": "color",
+      "--font-heading": "font",
+      "--font-heading-weight": "font",
+      "--font-body": "font",
+      "--space-1": "spacing",
+      "--space-2": "spacing",
+      "--space-3": "spacing",
+      "--space-4": "spacing",
+      "--space-6": "spacing",
+      "--space-8": "spacing",
+      "--radius-sm": "radius",
+      "--radius-md": "radius",
+      "--radius-lg": "radius",
+      "--shadow-sm": "shadow",
+      "--shadow-md": "shadow",
+      "--shadow-lg": "shadow"
+    },
+    "fontFamilies": [
+      "Caprasimo",
+      "Figtree"
+    ]
+  }
+}
+/* @ds-bundle: {"format":4,"namespace":"Organic_organi","components":[],"sourceHashes":{},"inlinedExternals":[],"unexposedExports":[]} */
+
+(() => {
+
+const __ds_ns = (window.Organic_organi = window.Organic_organi || {});
+
+const __ds_scope = {};
+
+(__ds_ns.__errors = __ds_ns.__errors || []);
+
+})();
+{"namespace":"Organic_organi","components":[],"startingPoints":[],"cards":[{"path":"components/buttons.html","group":"Components","viewport":"640x460","subtitle":"Solid primary actions; tags tint from the ramps","name":"Buttons & tags"},{"path":"components/cards.html","group":"Components","viewport":"640x420","subtitle":"Surface-filled cards with a kicker, title, body and meta row","name":"Cards"},{"path":"components/dialog.html","group":"Components","viewport":"640x460","subtitle":"A modal surface at the top elevation, shown here inside a static frame","name":"Dialog"},{"path":"components/forms.html","group":"Components","viewport":"640x520","subtitle":"Text inputs, a segmented control and radios — native elements, themed states","name":"Forms"},{"path":"components/navigation.html","group":"Components","viewport":"640x420","subtitle":"A header bar over a left page opening","name":"Navigation"},{"path":"components/table.html","group":"Components","viewport":"640x420","subtitle":"Rows separated by a whisper of the text color; status cells reuse the tags","name":"Table"},{"path":"foundations/color.html","group":"Foundations","viewport":"640x560","subtitle":"Role colors and the three tonal ramps, all as CSS variables","name":"Color"},{"path":"foundations/icons.html","group":"Foundations","viewport":"640x420","subtitle":"Lucide — inline SVG on currentColor","name":"Icons"},{"path":"foundations/image.html","group":"Foundations","viewport":"640x480","subtitle":"Washed — photographs are lifted and desaturated, sitting back into the page.","name":"Imagery"},{"path":"foundations/layout.html","group":"Foundations","viewport":"640x560","subtitle":"A 1.10× spacing scale, 16px radius, and three shadow levels tuned to the light ground","name":"Spacing & elevation"},{"path":"foundations/type.html","group":"Foundations","viewport":"640x640","subtitle":"Caprasimo over Figtree — a fixed scale; density moves spacing, not sizes","name":"Typography"},{"path":"theme.html","group":"Theme","viewport":"640x520","subtitle":"The parameters this system was derived from","name":"Parameters"}],"templates":[{"name":"Deck","description":"A twenty-one-slide presentation starter: cover, contents, dividers, columns, quadrants, a data table, SVG charts and timeline, bleed imagery, a quote and a close, on the theme's tokens","folder":"templates/deck","entryPath":"templates/deck/Deck.dc.html"},{"name":"Landing","description":"A one-page product landing in the system's own voice — an invented product (Little Acre: a seed-box subscription), a warm hero, a seed bed of numbered circles, a washed photograph and a sign-up patch","folder":"templates/landing","entryPath":"templates/landing/index.html"}],"hasThumbnailHtml":true,"globalCssPaths":["styles.css"],"tokens":[{"name":"--color-bg","value":"#f5ead8","kind":"color","definedIn":"styles.css"},{"name":"--color-surface","value":"#ebddc5","kind":"color","definedIn":"styles.css"},{"name":"--color-text","value":"#201e1d","kind":"font","definedIn":"styles.css"},{"name":"--color-accent","value":"#c67139","kind":"color","definedIn":"styles.css"},{"name":"--color-accent-2","value":"#7a8a5e","kind":"color","definedIn":"styles.css"},{"name":"--color-divider","value":"color-mix(in srgb, #201e1d 16%, transparent)","kind":"color","definedIn":"styles.css"},{"name":"--color-neutral-100","value":"#f9f4ed","kind":"color","definedIn":"styles.css"},{"name":"--color-neutral-200","value":"#eee7db","kind":"color","definedIn":"styles.css"},{"name":"--color-neutral-300","value":"#dcd3c4","kind":"color","definedIn":"styles.css"},{"name":"--color-neutral-400","value":"#c0b6a5","kind":"color","definedIn":"styles.css"},{"name":"--color-neutral-500","value":"#a19786","kind":"color","definedIn":"styles.css"},{"name":"--color-neutral-600","value":"#82796a","kind":"color","definedIn":"styles.css"},{"name":"--color-neutral-700","value":"#645c50","kind":"color","definedIn":"styles.css"},{"name":"--color-neutral-800","value":"#474238","kind":"color","definedIn":"styles.css"},{"name":"--color-neutral-900","value":"#2e2b25","kind":"color","definedIn":"styles.css"},{"name":"--color-accent-100","value":"#fff2eb","kind":"color","definedIn":"styles.css"},{"name":"--color-accent-200","value":"#ffe1d0","kind":"color","definedIn":"styles.css"},{"name":"--color-accent-300","value":"#ffc6a5","kind":"color","definedIn":"styles.css"},{"name":"--color-accent-400","value":"#f6a06b","kind":"color","definedIn":"styles.css"},{"name":"--color-accent-500","value":"#d67f48","kind":"color","definedIn":"styles.css"},{"name":"--color-accent-600","value":"#b2622d","kind":"color","definedIn":"styles.css"},{"name":"--color-accent-700","value":"#8c491a","kind":"color","definedIn":"styles.css"},{"name":"--color-accent-800","value":"#643312","kind":"color","definedIn":"styles.css"},{"name":"--color-accent-900","value":"#402310","kind":"color","definedIn":"styles.css"},{"name":"--color-accent-2-100","value":"#f0fae1","kind":"color","definedIn":"styles.css"},{"name":"--color-accent-2-200","value":"#e1eecc","kind":"color","definedIn":"styles.css"},{"name":"--color-accent-2-300","value":"#ccdbb2","kind":"color","definedIn":"styles.css"},{"name":"--color-accent-2-400","value":"#aebf92","kind":"color","definedIn":"styles.css"},{"name":"--color-accent-2-500","value":"#8fa073","kind":"color","definedIn":"styles.css"},{"name":"--color-accent-2-600","value":"#728157","kind":"color","definedIn":"styles.css"},{"name":"--color-accent-2-700","value":"#56633f","kind":"color","definedIn":"styles.css"},{"name":"--color-accent-2-800","value":"#3d472b","kind":"color","definedIn":"styles.css"},{"name":"--color-accent-2-900","value":"#272e1b","kind":"color","definedIn":"styles.css"},{"name":"--font-heading","value":"\"Caprasimo\", system-ui, sans-serif","kind":"font","definedIn":"styles.css"},{"name":"--font-heading-weight","value":"400","kind":"font","definedIn":"styles.css"},{"name":"--font-body","value":"\"Figtree\", system-ui, sans-serif","kind":"font","definedIn":"styles.css"},{"name":"--space-1","value":"4.4px","kind":"spacing","definedIn":"styles.css"},{"name":"--space-2","value":"8.8px","kind":"spacing","definedIn":"styles.css"},{"name":"--space-3","value":"13.2px","kind":"spacing","definedIn":"styles.css"},{"name":"--space-4","value":"17.6px","kind":"spacing","definedIn":"styles.css"},{"name":"--space-6","value":"26.4px","kind":"spacing","definedIn":"styles.css"},{"name":"--space-8","value":"35.2px","kind":"spacing","definedIn":"styles.css"},{"name":"--radius-sm","value":"8px","kind":"radius","definedIn":"styles.css"},{"name":"--radius-md","value":"16px","kind":"radius","definedIn":"styles.css"},{"name":"--radius-lg","value":"28px","kind":"radius","definedIn":"styles.css"},{"name":"--shadow-sm","value":"0 1px 2px color-mix(in srgb, #2e2b25 14%, transparent)","kind":"shadow","definedIn":"styles.css"},{"name":"--shadow-md","value":"0 3px 10px color-mix(in srgb, #2e2b25 16%, transparent)","kind":"shadow","definedIn":"styles.css"},{"name":"--shadow-lg","value":"0 12px 32px color-mix(in srgb, #2e2b25 22%, transparent)","kind":"shadow","definedIn":"styles.css"}],"themes":[],"fonts":[],"brandFonts":[{"family":"Caprasimo","status":"ok","tokens":["--font-heading"],"path":"styles.css"},{"family":"Figtree","status":"ok","tokens":["--font-body"],"path":"styles.css"}],"source":"spa"}
+# Organic design system
+
+Organic is warm, rounded and a little playful: a cream-and-sand ground with a terracotta accent and a sage second accent, Caprasimo display headings over Figtree, 16px radii that grow into pills and soft circular shapes. Photographs are washed so they sit back into the warm page instead of on top of it.
+
+## How to use this
+
+- Link the one stylesheet from every page — `<link rel="stylesheet" href="styles.css">` (adjust the relative path) — and take every color, font, spacing, radius and shadow from its variables (`var(--color-*)`, `var(--font-*)`, `var(--space-*)`, `var(--radius-*)`, `var(--shadow-*)`). Never hard-code a hex, a font name or a px value the tokens already carry.
+- Build with the classes below rather than inventing parallel ones; the component pages are plain HTML, so view source and copy the markup.
+- `templates/` holds starting points a consuming project can copy whole.
+- The whole system was derived from `theme.json`. To change the look, edit the tokens at the top of `styles.css` — every page, the thumbnail and this guide read from them — and keep `theme.json` and the written guidance in step so they don't drift from what the CSS actually does.
+
+## Direction
+
+Left-aligned, asymmetric layouts. Flush-left headings; content hugs the left edge with whitespace on the right. Lean into round shapes — over-rounded containers, pill buttons (`border-radius: 999px`), soft circular accents. Wrap hero and inline images in the `.washed` class — desaturated, lower-contrast and lifted, so they sit back into the page rather than on top of it.
+
+## Color
+
+A light ground (`--color-bg` #f5ead8) with `--color-text` #201e1d and two accents — `--color-accent` #c67139 and `--color-accent-2` #7a8a5e. Each role carries a 100–900 tonal ramp (`--color-neutral-100` … `--color-accent-2-900`) generated in OKLCH on a shared perceptual lightness scale, so the same step of any ramp has the same visual weight. Use the light steps (100–300) for tinted fills, hovers and subtle borders, 500 as the role's base, and the dark steps (700–900) for text on tinted fills and for pressed states; prefer ramp steps over ad-hoc `color-mix()`. For elevation use `--shadow-sm/md/lg` (already tuned to the ground) rather than ad-hoc box-shadows.
+
+## Type
+
+Caprasimo for headings over Figtree for body text, loaded as `--font-heading` / `--font-body`. Density 1.10× and radius 16px are already baked into the `--space-*` / `--radius-*` scales — use the variables, not raw numbers.
+
+## Icons
+
+Use Lucide icons (https://lucide.dev), at stroke-width 2.75 for a rounder, heavier look throughout.
+
+## Interaction states
+
+Interactive states are themed, never browser defaults: give every interactive element a `:hover` tint and a pressed state from the accent ramp (one step past the base — `--color-accent-600` on a light ground, `--color-accent-400` on a dark one, or a `color-mix()` tint for outlined/ghost variants), and style keyboard focus with `:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }` — never leave the default blue focus ring.
+
+## Components
+
+| Class | What it is | Shown in |
+| --- | --- | --- |
+| `.btn` with `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-icon`, `.btn-block` | Actions — the primary is a solid accent fill | components/buttons.html |
+| `.tag` with `.tag-accent`, `.tag-accent-2`, `.tag-neutral`, `.tag-outline` | Small labels tinted from the ramps | components/buttons.html |
+| `.field` + `label`, `.input`, `.radio` + `.dot`, `.seg` + `.seg-opt` | Form fields and choices on native elements — no script | components/forms.html |
+| `.card` with `.card-kicker`, `.card-title`, `.card-body`, `.card-meta`; `.elev-sm/md/lg` | Surface-filled content cards; elevation utilities | components/cards.html |
+| `.nav` + `.nav-brand` | The header bar | components/navigation.html |
+| `.table` | Data tables with themed header and row rules | components/table.html |
+| `.dialog-backdrop` + `.dialog` (+ `.dialog-title/-body/-actions`) | A modal at the top elevation | components/dialog.html |
+| `.hr` | A horizontal rule — present, but this system prefers whitespace; avoid it | — |
+| `.washed` | The image wrapper — every content photograph goes through it | foundations/image.html |
+
+States are built in: hovers and pressed states come from the accent ramp, keyboard focus is the 2px accent `:focus-visible` ring, `::selection` is an accent tint, and disabled controls drop to 45% opacity. Don't restyle them per page. The accent-to-ground pair is tuned to at least 3:1 — enough for icons, large text and interface chrome, not for body copy — so for paragraph-size text in the accent use a deep ramp step (`--color-accent-700` on this ground) rather than the accent itself.
+
+## Do
+
+- Over-round: `--radius-lg` for containers, `border-radius: 999px` for buttons and inputs.
+- Use soft shapes — circles and blobs — as decoration and imagery masks.
+- Reach for the sage `--color-accent-2-*` ramp as a genuine second voice, not just a highlight.
+- Wash photography with the `.washed` wrapper and keep its edges rounded.
+
+## Don't
+
+- Do not draw sharp corners or hairline-only geometry.
+- Do not desaturate the palette into greys — warmth is the point.
+- Do not use condensed or geometric display faces; Caprasimo is the only display voice.
+- Do not crowd elements; the rounded shapes need air to read as soft.
+
+## Files
+
+- `styles.css` — the only stylesheet: the token sheet (`:root` variables, ramps, base type) plus the component layer. Link it from every page.
+- `readme.md` — this guide.
+- `theme.json` — the parameters these files were derived from (a machine-readable record of the theme).
+- `thumbnail.html` — the project cover (brand mark + swatches).
+- `foundations/type.html` — the type scale and the heading/body pairing at real sizes.
+- `foundations/color.html` — color roles and the 100-900 tonal ramps, with usage notes.
+- `foundations/layout.html` — the spacing scale, the grid and how edges are drawn.
+- `foundations/icons.html` — the icon set at interface sizes, inline and in buttons.
+- `foundations/image.html` — how photographs and figures are treated.
+- `components/buttons.html` — buttons, icon buttons and tags in every variant and state.
+- `components/forms.html` — text fields, radios and the segmented control on native elements.
+- `components/cards.html` — content cards and the elevation steps.
+- `components/navigation.html` — the header bar pattern.
+- `components/table.html` — a data table with the themed header and row rules.
+- `components/dialog.html` — a modal over its backdrop at the top elevation.
+- `theme.html` — the theme's parameters rendered as a reference sheet.
+- `templates/landing/` — a starter page consuming the system the intended way (`index.html`, its `ds-base.js` loader, and the vendored `image-slot.js` its photograph mounts).
+- `assets/photo.jpg` — the reference photograph the imagery page treats.
+/* Organic — design-system tokens and component classes. This file is the source of truth for the system's look; retune it here and see readme.md. */
+@import url('https://fonts.googleapis.com/css2?family=Caprasimo:wght@400&family=Figtree:wght@400;600;700&display=swap');
+
+:root {
+  --color-bg: #f5ead8;
+  --color-surface: #ebddc5;
+  --color-text: #201e1d;
+  --color-accent: #c67139;
+  --color-accent-2: #7a8a5e;
+  --color-divider: color-mix(in srgb, #201e1d 16%, transparent);
+
+  /* Tonal ramps — generated in OKLCH on one shared lightness scale, so the
+     same step of any role matches the others in visual value. */
+  --color-neutral-100: #f9f4ed;
+  --color-neutral-200: #eee7db;
+  --color-neutral-300: #dcd3c4;
+  --color-neutral-400: #c0b6a5;
+  --color-neutral-500: #a19786;
+  --color-neutral-600: #82796a;
+  --color-neutral-700: #645c50;
+  --color-neutral-800: #474238;
+  --color-neutral-900: #2e2b25;
+
+  --color-accent-100: #fff2eb;
+  --color-accent-200: #ffe1d0;
+  --color-accent-300: #ffc6a5;
+  --color-accent-400: #f6a06b;
+  --color-accent-500: #d67f48;
+  --color-accent-600: #b2622d;
+  --color-accent-700: #8c491a;
+  --color-accent-800: #643312;
+  --color-accent-900: #402310;
+
+  --color-accent-2-100: #f0fae1;
+  --color-accent-2-200: #e1eecc;
+  --color-accent-2-300: #ccdbb2;
+  --color-accent-2-400: #aebf92;
+  --color-accent-2-500: #8fa073;
+  --color-accent-2-600: #728157;
+  --color-accent-2-700: #56633f;
+  --color-accent-2-800: #3d472b;
+  --color-accent-2-900: #272e1b;
+
+  --font-heading: "Caprasimo", system-ui, sans-serif;
+  --font-heading-weight: 400;
+  --font-body: "Figtree", system-ui, sans-serif;
+
+  --space-1: 4.4px;
+  --space-2: 8.8px;
+  --space-3: 13.2px;
+  --space-4: 17.6px;
+  --space-6: 26.4px;
+  --space-8: 35.2px;
+
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 28px;
+
+  /* Elevation — derived from the ground: soft ink-tinted shadows on a
+     light theme, a hairline edge + ambient darkness on a dark one. */
+  --shadow-sm: 0 1px 2px color-mix(in srgb, #2e2b25 14%, transparent);
+  --shadow-md: 0 3px 10px color-mix(in srgb, #2e2b25 16%, transparent);
+  --shadow-lg: 0 12px 32px color-mix(in srgb, #2e2b25 22%, transparent);
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+}
+h1, h2, h3, h4 { font-family: var(--font-heading); font-weight: var(--font-heading-weight); }
+
+.washed{filter:saturate(0.6) contrast(0.85) brightness(1.1) opacity(0.94)}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Components — built with the tokens above. Plain CSS
+   on plain HTML: no JavaScript, no build step. Each class is documented in
+   readme.md and demonstrated in foundations/ and components/.
+   ══════════════════════════════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; font-size: 15px; line-height: 1.55; font-weight: 400; }
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  line-height: 1.12; letter-spacing: -0.015em; margin: 0 0 var(--space-2);
+}
+h1 { font-size: 42px; }
+h2 { font-size: 32px; }
+h3 { font-size: 25px; }
+h4 { font-size: 20px; }
+h5 { font-size: 16px; }
+h6 { font-size: 13px; }
+h6 { letter-spacing: 0.08em; text-transform: uppercase; }
+p { margin: 0 0 var(--space-3); }
+a { color: var(--color-accent); text-underline-offset: 3px; }
+img { display: block; max-width: 100%; }
+figure { margin: 0; }
+figcaption {
+  font-size: 11px; margin-top: var(--space-1);
+  color: color-mix(in srgb, var(--color-text) 55%, transparent);
+}
+.text-muted { color: color-mix(in srgb, var(--color-text) 55%, transparent); }
+:focus { outline: none; }
+:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+::selection { background: color-mix(in srgb, var(--color-accent) 30%, transparent); }
+
+/* — rules — */
+.hr {
+  height: 1px; border: 0; margin: var(--space-4) 0;
+  background: var(--color-divider);
+}
+
+/* — buttons — */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  cursor: pointer; text-decoration: none;
+  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: 14px; line-height: 1.2; color: var(--color-text); /* matches the .input's 14px —
+     the pair sits side by side in sign-up rows */
+  background: transparent; border: 1px solid transparent;
+  padding: var(--space-2) calc(var(--space-3) * 1.2);
+  border-radius: var(--radius-md);
+}
+.btn svg { display: block; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-primary { background: var(--color-accent); color: var(--color-bg); }
+.btn-primary:hover { background: var(--color-accent-600); }
+.btn-primary:active { background: var(--color-accent-700); }
+.btn-secondary { border-color: var(--color-divider); }
+.btn-secondary:hover { background: color-mix(in srgb, var(--color-text) 7%, transparent); }
+.btn-secondary:active { background: color-mix(in srgb, var(--color-text) 14%, transparent); }
+.btn-ghost { color: var(--color-accent); padding-inline: var(--space-1); }
+.btn-ghost:hover { background: color-mix(in srgb, var(--color-accent) 10%, transparent); }
+.btn-ghost:active { background: color-mix(in srgb, var(--color-accent) 18%, transparent); }
+.btn-icon { width: 36px; height: 36px; padding: 0; }
+.btn-block { width: 100%; margin-top: var(--space-2); }
+
+/* — forms — */
+.field > label {
+  display: block; font-size: 12px; margin-bottom: 5px;
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
+}
+.input {
+  width: 100%; min-height: 36px; padding: 6px 10px; font: inherit;
+  font-size: 14px; color: var(--color-text); caret-color: var(--color-accent);
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider); border-radius: var(--radius-md);
+}
+.input:hover { border-color: color-mix(in srgb, var(--color-text) 45%, transparent); }
+.input:focus-visible { border-color: var(--color-accent); outline-offset: 0; }
+textarea.input { min-height: 90px; resize: vertical; }
+.radio { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; }
+.radio input, .seg-opt input {
+  position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;
+}
+.radio .dot {
+  width: 16px; height: 16px; flex: none; border-radius: 50%;
+  border: 1.5px solid var(--color-divider);
+}
+.radio:hover .dot { border-color: var(--color-accent); }
+.radio input:checked + .dot {
+  border-color: var(--color-accent); background: var(--color-accent);
+  box-shadow: inset 0 0 0 4px var(--color-bg);
+}
+.radio input:focus-visible + .dot { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.seg {
+  display: inline-flex; overflow: hidden;
+  border: 1px solid var(--color-divider); border-radius: var(--radius-md);
+}
+.seg-opt {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 12px; font-size: 13px; cursor: pointer;
+}
+.seg-opt + .seg-opt { border-left: 1px solid var(--color-divider); }
+.seg-opt:has(input:checked) { background: var(--color-accent); color: var(--color-bg); }
+.seg-opt:not(:has(input:checked)):hover { background: color-mix(in srgb, var(--color-text) 7%, transparent); }
+.seg-opt:has(input:focus-visible) { outline: 2px solid var(--color-accent); outline-offset: -2px; }
+
+/* — cards — */
+.card {
+  display: flex; flex-direction: column; gap: var(--space-2);
+  padding: var(--space-3); border-radius: var(--radius-md); background: var(--color-surface);
+}
+.card-kicker { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-accent); }
+.card-title {
+  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: 17px; line-height: 1.2;
+}
+.card-body { margin: 0; font-size: 13px; opacity: 0.8; flex: 1; }
+.card-meta {
+  display: flex; align-items: center; gap: 6px; font-size: 11px;
+  color: color-mix(in srgb, var(--color-text) 50%, transparent);
+}
+.elev-sm { box-shadow: var(--shadow-sm); }
+.elev-md { box-shadow: var(--shadow-md); }
+.elev-lg { box-shadow: var(--shadow-lg); }
+
+/* — tags — */
+.tag {
+  display: inline-flex; align-items: center; font-size: 11px;
+  letter-spacing: 0.02em; padding: 3px 10px;
+  border-radius: calc(var(--radius-md) * 0.75);
+}
+.tag-accent { background: var(--color-accent-100); color: var(--color-accent-800); }
+.tag-accent-2 { background: var(--color-accent-2-100); color: var(--color-accent-2-800); }
+.tag-neutral { background: var(--color-neutral-100); color: var(--color-neutral-800); }
+.tag-outline { border: 1px solid var(--color-accent); color: var(--color-accent); }
+
+/* — navigation — */
+.nav {
+  display: flex; align-items: center; gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: none;
+}
+.nav-brand {
+  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: 18px; margin-right: auto;
+}
+.nav a { color: inherit; text-decoration: none; font-size: 14px; }
+.nav a:hover, .nav a[aria-current='page'] { color: var(--color-accent); }
+
+/* — tables — */
+.table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.table th {
+  text-align: left; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 60%, transparent);
+  padding: var(--space-2); border-bottom: 1px solid var(--color-divider);
+}
+.table td {
+  padding: var(--space-2);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
+}
+.table tbody tr:hover { background: color-mix(in srgb, var(--color-text) 4%, transparent); }
+
+/* — dialog — */
+.dialog-backdrop {
+  position: fixed; inset: 0; display: grid; place-items: center;
+  padding: var(--space-4);
+  background: color-mix(in srgb, var(--color-neutral-900) 50%, transparent);
+}
+.dialog {
+  width: min(440px, 100%); display: flex; flex-direction: column; gap: var(--space-3);
+  padding: var(--space-4); border-radius: var(--radius-lg);
+  background: var(--color-surface); box-shadow: var(--shadow-lg);
+}
+.dialog-title {
+  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: 20px;
+}
+.dialog-body { font-size: 14px; opacity: 0.85; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-2); }
+
+/* — rounded frame: everything softens, small controls go pill — */
+.card, .dialog { border-radius: calc(var(--radius-lg) * 1.15); }
+.btn, .tag, .seg, .input { border-radius: 999px; }
+.input { padding-inline: 14px; }
+
