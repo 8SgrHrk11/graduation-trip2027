@@ -11,6 +11,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="_ds/organic-47948af4-c1b6-4758-9bfd-5377968de67e/styles.css">
 <script src="_ds/organic-47948af4-c1b6-4758-9bfd-5377968de67e/_ds_bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="supabase-config.js"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&amp;display=swap">
 <style>
   body { font-family: "Zen Maru Gothic", var(--font-body); -webkit-font-smoothing: antialiased; }
@@ -118,14 +120,33 @@
 
     
 
-    <h3 style="font-size:18px; margin:26px 0 8px">メモ書きはココから<br></h3>
-    <div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:16px; box-shadow:var(--shadow-sm)">
-      <div style="font-family:var(--font-body); font-size:11.5px; font-weight:700; color:var(--color-neutral-700); margin-bottom:8px">書く人</div>
+    <h3 style="font-size:18px; margin:26px 0 8px">チャット</h3>
+    <div style="{{ syncStyle }}">{{ syncLabel }}</div>
+    <div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:14px; box-shadow:var(--shadow-sm); margin-top:10px">
+      <div style="font-family:var(--font-body); font-size:11.5px; font-weight:700; color:var(--color-neutral-700); margin-bottom:8px">話す人</div>
       <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px">
-        <sc-for list="{{ meChips }}" as="mc2" hint-placeholder-count="9">
-          <button type="button" onClick="{{ mc2.go }}" style="{{ mc2.style }}">{{ mc2.label }}</button>
+        <sc-for list="{{ meChips }}" as="mc3" hint-placeholder-count="9">
+          <button type="button" onClick="{{ mc3.go }}" style="{{ mc3.style }}">{{ mc3.label }}</button>
         </sc-for>
       </div>
+      <sc-if value="{{ hasChat }}" hint-placeholder-val="{{ true }}">
+        <div ref="{{ chatRef }}" style="display:flex; flex-direction:column; gap:8px; max-height:340px; overflow-y:auto; padding:4px 2px 10px">
+          <sc-for list="{{ chat }}" as="cm" hint-placeholder-count="4">
+            <div style="{{ cm.row }}">
+              <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-600); margin-bottom:3px">{{ cm.who }} · {{ cm.when }}</div>
+              <div style="{{ cm.bubble }}">{{ cm.body }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+      <div style="display:flex; gap:8px; align-items:flex-end; margin-top:6px">
+        <textarea class="input" style="flex:1; min-height:44px" placeholder="メッセージ" value="{{ chatDraft }}" onChange="{{ onChatDraft }}" onKeyDown="{{ onChatKey }}"></textarea>
+        <button type="button" class="btn btn-primary" onClick="{{ sendChat }}" style="flex:none; border-radius:999px; font-family:var(--font-body); font-weight:700">送信</button>
+      </div>
+    </div>
+
+    <h3 style="font-size:18px; margin:26px 0 8px">個人のメモ書きはココから<br></h3>
+    <div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:16px; box-shadow:var(--shadow-sm)">
       <textarea class="input" style="min-height:74px" placeholder="例：宿はバルセロナだけ先に取る。担当は坂本" value="{{ draft }}" onChange="{{ onDraft }}"></textarea>
       <button type="button" class="btn btn-primary btn-block" onClick="{{ addMemo }}" style="border-radius:999px; font-family:var(--font-body); font-weight:700">書き残す</button>
     </div>
@@ -135,7 +156,6 @@
         <sc-for list="{{ memos }}" as="mo2" hint-placeholder-count="3">
           <div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:14px 16px; box-shadow:var(--shadow-sm)">
             <div style="display:flex; align-items:baseline; gap:8px">
-              <div style="font-family:var(--font-body); font-size:13px; font-weight:700">{{ mo2.who }}</div>
               <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600)">{{ mo2.when }}</div>
               <button type="button" onClick="{{ mo2.del }}" style="margin-left:auto; flex:none; cursor:pointer; background:transparent; border:0; color:var(--color-neutral-600); font-family:var(--font-body); font-size:11.5px; font-weight:700">削除</button>
             </div>
@@ -145,7 +165,7 @@
       </div>
     </sc-if>
 
-    <div style="margin-top:16px; font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-600); text-wrap:pretty">このボードは書いた端末に保存されます。全員で共有するには、栞を公開してデータの置き場所を用意する必要があります（前回の案A）。</div>
+    <div style="margin-top:16px; font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-600); text-wrap:pretty">このボードは書いた端末に保存されます。<br>この端末以外ではメモは共有されないので、注意⚠️</div>
   </section>
   </sc-if>
 
@@ -809,10 +829,64 @@ const MARKS = [
   { v:0, label:"△ うーん" }
 ];
 
+const SHARED_KEYS = ["ballots","notes","deadlines","members","lineUrl"];
+
 class Component extends DCLogic {
   state = { tab:"home", route:"A", theme:"route", sel:{}, me:DEFAULT_MEMBERS[0], members:DEFAULT_MEMBERS.slice(),
             ballots:{}, notes:{}, deadlines:{}, packed:{}, done:{}, openDays:{},
-            lineUrl:"", memos:[], draft:"" };
+            lineUrl:"", memos:[], draft:"", chat:[], chatDraft:"", sync:"off" };
+
+  initSupabase() {
+    const cfg = (typeof window !== "undefined" && window.TRIP_SUPABASE) || {};
+    if (!cfg.url || !cfg.anonKey || !window.supabase) return;
+    try { this.db = window.supabase.createClient(cfg.url, cfg.anonKey); }
+    catch (e) { return; }
+    this.setState({ sync:"connecting" });
+
+    this.db.from("trip_kv").select("k,v").then(({ data, error }) => {
+      if (error) { this.setState({ sync:"error" }); return; }
+      const patch = {};
+      (data || []).forEach(r => { if (SHARED_KEYS.indexOf(r.k) >= 0) patch[r.k] = r.v; });
+      if (patch.members && (!patch.members.length)) delete patch.members;
+      this.setState(Object.assign({ sync:"on" }, patch));
+    });
+
+    this.db.from("trip_messages").select("*").order("created_at", { ascending:true }).limit(500)
+      .then(({ data }) => { if (data) this.setState({ chat:data }); });
+
+    this.db.channel("trip")
+      .on("postgres_changes", { event:"*", schema:"public", table:"trip_kv" }, p => {
+        const r = p.new;
+        if (r && SHARED_KEYS.indexOf(r.k) >= 0) this.setState({ [r.k]:r.v });
+      })
+      .on("postgres_changes", { event:"INSERT", schema:"public", table:"trip_messages" }, p => {
+        this.setState(s => (s.chat || []).some(m => m.id === p.new.id) ? null : { chat:(s.chat || []).concat(p.new) });
+      })
+      .on("postgres_changes", { event:"DELETE", schema:"public", table:"trip_messages" }, p => {
+        this.setState(s => ({ chat:(s.chat || []).filter(m => m.id !== p.old.id) }));
+      })
+      .subscribe();
+  }
+
+  push(patch) {
+    if (!this.db) return;
+    const rows = Object.keys(patch).filter(k => SHARED_KEYS.indexOf(k) >= 0)
+      .map(k => ({ k:k, v:patch[k], updated_at:new Date().toISOString() }));
+    if (rows.length) this.db.from("trip_kv").upsert(rows).then(() => {});
+  }
+
+  sendChat() {
+    const body = (this.state.chatDraft || "").trim();
+    if (!body) return;
+    const who = this.activeMe() || "名無し";
+    if (!this.db) {
+      this.setState(s => ({ chatDraft:"",
+        chat:(s.chat || []).concat({ id:"l" + Date.now(), who:who, body:body, created_at:new Date().toISOString() }) }));
+      return;
+    }
+    this.setState({ chatDraft:"" });
+    this.db.from("trip_messages").insert({ who:who, body:body }).then(() => {});
+  }
 
   componentDidMount() {
     try {
@@ -835,9 +909,11 @@ class Component extends DCLogic {
           ballots:{}, notes:{}, deadlines:{}, lineUrl:"", memos:[], draft:"" }, saved, { members:members }));
       }
     } catch (e) {}
+    try { this.initSupabase(); } catch (e) {}
   }
 
   save(patch) {
+    this.push(patch);
     this.setState(patch, () => {
       const s = this.state;
       try {
@@ -857,7 +933,14 @@ class Component extends DCLogic {
     if (f && f.contentWindow) f.contentWindow.postMessage({ type:"setRoute", route:id }, "*");
   }
 
-  componentDidUpdate() { this.postPicks(); }
+  componentDidUpdate() {
+    this.postPicks();
+    const el = this.chatEl;
+    if (el && this.lastChatLen !== (this.state.chat || []).length) {
+      this.lastChatLen = (this.state.chat || []).length;
+      el.scrollTop = el.scrollHeight;
+    }
+  }
 
   postPicks() {
     const t = THEMES.find(x => x.ukmap);
@@ -1019,6 +1102,32 @@ class Component extends DCLogic {
       isHome: !TABS.some(t => t.id === s.tab) || s.tab === "home",
       isRoute: s.tab === "route", isPlan: s.tab === "plan",
       isTalk: s.tab === "talk",
+      syncOn: s.sync === "on",
+      syncLabel: s.sync === "on" ? "共有中 · 9人の入力がリアルタイムで反映されます"
+               : s.sync === "connecting" ? "接続中…"
+               : s.sync === "error" ? "接続できません。supabase-config.js の設定を確認してください"
+               : "この端末のみ · 共有するには supabase-config.js を設定してください",
+      syncStyle: "font-family:var(--font-body); font-size:11.5px; font-weight:700; border-radius:999px; padding:5px 13px; display:inline-block; "
+        + (s.sync === "on" ? "background:var(--color-accent-2-200); color:var(--color-accent-2-800)"
+           : s.sync === "error" ? "background:var(--color-accent-200); color:var(--color-accent-800)"
+           : "background:var(--color-neutral-200); color:var(--color-neutral-800)"),
+      chatDraft: s.chatDraft || "",
+      onChatDraft: e => this.setState({ chatDraft:e.target.value }),
+      onChatKey: e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); this.sendChat(); } },
+      sendChat: () => this.sendChat(),
+      chatRef: el => { this.chatEl = el; },
+      hasChat: (s.chat || []).length > 0,
+      chat: (s.chat || []).map(m => {
+        const d = new Date(m.created_at);
+        const own = m.who === this.activeMe();
+        return {
+          who:m.who, body:m.body,
+          when: (d.getMonth()+1) + "/" + d.getDate() + " " + String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0"),
+          row: "display:flex; flex-direction:column; max-width:80%; " + (own ? "align-self:flex-end; align-items:flex-end" : "align-self:flex-start"),
+          bubble: "border-radius:var(--radius-lg); padding:9px 14px; font-family:var(--font-body); font-size:13.5px; white-space:pre-wrap; text-wrap:pretty; "
+            + (own ? "background:var(--color-accent-2-600); color:var(--color-bg)" : "background:var(--color-bg); color:var(--color-text)")
+        };
+      }),
       lineUrl: s.lineUrl || "",
       onLineUrl: e => this.save({ lineUrl:e.target.value.trim() }),
       hasLine: !!(s.lineUrl || "").trim(),
@@ -1027,7 +1136,7 @@ class Component extends DCLogic {
       addMemo: () => {
         const txt = (this.state.draft || "").trim();
         if (!txt) return;
-        const m = { id:String(Date.now()), who:this.activeMe(), text:txt, at:new Date().toISOString() };
+        const m = { id:String(Date.now()), who:"", text:txt, at:new Date().toISOString() };
         this.save({ memos:[m].concat(this.state.memos || []), draft:"" });
       },
       memos: (s.memos || []).map(m => {
