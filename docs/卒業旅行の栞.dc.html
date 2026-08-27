@@ -39,6 +39,21 @@
 </style>
 </helmet>
 
+<sc-if value="{{ needsId }}" hint-placeholder-val="{{ true }}">
+<div style="position:fixed; inset:0; z-index:99; background:var(--color-bg); display:flex; align-items:center; justify-content:center; padding:24px; overflow-y:auto">
+  <div style="width:100%; max-width:380px">
+    <div style="font-family:var(--font-body); font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--color-accent-700); font-weight:700">Graduation Trip · Europe</div>
+    <h1 style="font-size:27px; line-height:1.3; margin:8px 0 6px">ヨーロッパ<br>卒業旅行の栞</h1>
+    <p style="font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700); margin:0 0 20px; text-wrap:pretty">端末ごとに、次回ログイン以降、個人を識別します。</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:9px">
+      <sc-for list="{{ idChips }}" as="ic" hint-placeholder-count="9">
+        <button type="button" onClick="{{ ic.go }}" style="{{ ic.style }}">{{ ic.label }}</button>
+      </sc-for>
+    </div>
+  </div>
+</div>
+</sc-if>
+
 <div class="om-page" style="min-height:100vh; background:var(--color-bg); color:var(--color-text); display:flex; justify-content:center; overflow-x:hidden">
 <div class="om-shell" style="width:100%; max-width:440px; position:relative; padding-bottom:40px">
 
@@ -53,9 +68,10 @@
     <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700)">
       <span>2027年 2/13 ~ 2/25</span><span>·</span><span>9人</span><span>·</span><span>10泊13日</span>
     </div>
+
     <div style="margin-top:16px; display:flex; align-items:center; gap:12px; background:var(--color-surface); border-radius:var(--radius-lg); padding:14px 18px; box-shadow:var(--shadow-sm)">
       <div style="font-family:var(--font-heading); font-size:38px; line-height:1; color:var(--color-accent-700)">{{ countdown }}</div>
-      <div style="font-family:var(--font-body); font-size:12px; line-height:1.4; color:var(--color-neutral-700)">日後に<br>関空を出発</div>
+      <div style="font-family:var(--font-body); font-size:12px; line-height:1.4; color:var(--color-neutral-700); white-space:pre-line">{{ countdownUnit }}</div>
     </div>
   </header>
 
@@ -69,7 +85,100 @@
 
   <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
   <section style="animation:floatUp .45s ease both">
-    <h2 style="font-size:22px; margin:18px 0 4px">タイムライン</h2>
+
+    <sc-if value="{{ isDuring }}" hint-placeholder-val="{{ true }}">
+      <div style="background:var(--color-accent-2-600); color:var(--color-bg); border-radius:var(--radius-lg); padding:20px; margin:16px 0 4px">
+        <div style="display:flex; align-items:baseline; gap:10px">
+          <div style="font-family:var(--font-body); font-size:11px; letter-spacing:.18em; text-transform:uppercase; font-weight:700; opacity:.85">Today</div>
+          <div style="margin-left:auto; font-family:var(--font-body); font-size:11px; opacity:.85">{{ todayCard.clock }} · {{ todayCard.nth }}</div>
+        </div>
+        <div style="display:flex; align-items:baseline; gap:10px; margin-top:8px">
+          <div style="font-family:var(--font-heading); font-size:30px; line-height:1">{{ todayCard.date }}</div>
+          <div style="font-family:var(--font-body); font-size:13px; opacity:.9">{{ todayCard.dow }}</div>
+          <div style="margin-left:auto; font-family:var(--font-body); font-size:12px; font-weight:700; background:rgba(255,255,255,.22); border-radius:999px; padding:4px 12px">{{ todayCard.stay }}</div>
+        </div>
+        <div style="font-family:var(--font-body); font-size:16px; font-weight:700; margin-top:12px; text-wrap:pretty">{{ todayCard.title }}</div>
+
+        <div style="background:rgba(255,255,255,.18); border-radius:var(--radius-md); padding:12px 14px; margin-top:14px">
+          <div style="font-family:var(--font-body); font-size:11px; font-weight:700; opacity:.85; margin-bottom:6px">きょうの集合</div>
+          <input class="input" placeholder="例：08:00 宿のロビー" value="{{ todayCard.meet }}" onChange="{{ todayCard.onMeet }}" style="background:rgba(255,255,255,.92)">
+          <div style="font-family:var(--font-body); font-size:10.5px; opacity:.8; margin-top:6px">9人全員に同じ内容が表示されます。</div>
+        </div>
+
+        <sc-if value="{{ todayCard.hasPlan }}" hint-placeholder-val="{{ true }}">
+          <div style="display:grid; gap:9px; margin-top:16px">
+            <sc-for list="{{ todayCard.plan }}" as="tp" hint-placeholder-count="6">
+              <div style="{{ tp.rowStyle }}">
+                <div style="{{ tp.timeStyle }}">{{ tp.t }}</div>
+                <div style="{{ tp.dotStyle }}"></div>
+                <div style="flex:1">
+                  <div style="{{ tp.textStyle }}">{{ tp.x }}</div>
+                  <sc-if value="{{ tp.hasNote }}" hint-placeholder-val="{{ true }}">
+                    <div style="font-family:var(--font-body); font-size:10px; opacity:.75; margin-top:2px">{{ tp.note }}</div>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+
+      <sc-if value="{{ todayCard.hasLodge }}" hint-placeholder-val="{{ true }}">
+        <div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:16px; box-shadow:var(--shadow-sm); margin-top:10px">
+          <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--color-accent-700); margin-bottom:6px">今夜の宿</div>
+          <div style="font-family:var(--font-body); font-size:14px; font-weight:700">{{ todayCard.lodgeName }}</div>
+          <div style="font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700); margin-top:4px; text-wrap:pretty">{{ todayCard.lodgeAddr }}</div>
+          <div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-600); margin-top:4px">チェックイン {{ todayCard.lodgeIn }}</div>
+          <sc-if value="{{ todayCard.hasLodgeMap }}" hint-placeholder-val="{{ true }}">
+            <a href="{{ todayCard.lodgeMap }}" target="_blank" rel="noopener" style="display:inline-block; margin-top:10px; font-family:var(--font-body); font-size:12.5px; font-weight:700">地図で開く</a>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <div style="display:grid; gap:8px; margin-top:10px">
+        <sc-if value="{{ todayCard.hasWeather }}" hint-placeholder-val="{{ true }}">
+          <div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:14px 16px; box-shadow:var(--shadow-sm)">
+            <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--color-accent-700); margin-bottom:4px">きょうの気温</div>
+            <div style="font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700); text-wrap:pretty">{{ todayCard.weather }}</div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ todayCard.hasTransit }}" hint-placeholder-val="{{ true }}">
+          <div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:14px 16px; box-shadow:var(--shadow-sm)">
+            <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--color-accent-700); margin-bottom:4px">この街の交通</div>
+            <div style="font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700); text-wrap:pretty">{{ todayCard.transit }}</div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ todayCard.hasNext }}" hint-placeholder-val="{{ true }}">
+          <div style="background:var(--color-accent-100); border-radius:var(--radius-lg); padding:14px 16px">
+            <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--color-accent-700); margin-bottom:4px">あした</div>
+            <div style="font-family:var(--font-body); font-size:13px; text-wrap:pretty">{{ todayCard.next }}</div>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isBefore }}" hint-placeholder-val="{{ true }}">
+      <div style="margin:18px 0 4px">
+        <div style="font-family:var(--font-body); font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--color-accent-700); font-weight:700">{{ todayLabel }} · To Do List</div>
+        <div style="display:grid; gap:8px; margin-top:10px">
+          <sc-for list="{{ todo }}" as="td2" hint-placeholder-count="3">
+            <div onClick="{{ td2.go }}" style="cursor:pointer; background:var(--color-surface); border-radius:var(--radius-lg); padding:14px 16px; box-shadow:var(--shadow-sm)">
+              <div style="font-family:var(--font-body); font-size:13.5px; font-weight:700; text-wrap:pretty">{{ td2.x }}</div>
+              <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-600); margin-top:3px; text-wrap:pretty">{{ td2.sub }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isAfter }}" hint-placeholder-val="{{ true }}">
+      <div style="background:var(--color-accent-100); border-radius:var(--radius-lg); padding:22px; margin:18px 0 4px">
+        <div style="font-family:var(--font-heading); font-size:22px; margin-bottom:6px">おかえりなさい</div>
+        <div style="font-family:var(--font-body); font-size:13.5px; color:var(--color-neutral-700); text-wrap:pretty">13日間の記録はこの栞に残っています。写真が揃ったら、TALKに置いていってください。</div>
+      </div>
+    </sc-if>
+
+    <h2 style="font-size:22px; margin:26px 0 4px">タイムライン</h2>
     
 
     <div style="display:grid; gap:12px; margin-top:20px">
@@ -113,6 +222,63 @@
   </section>
   </sc-if>
 
+  <sc-if value="{{ isConfig }}" hint-placeholder-val="{{ true }}">
+  <section style="animation:floatUp .45s ease both">
+    <h2 style="font-size:22px; margin:18px 0 4px">設定</h2>
+
+    <div style="margin-top:16px; {{ cfgCard }}">
+      <div onClick="{{ cfgGo }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
+        <div style="{{ cfgCaret }}">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
+        <div style="flex:1; min-width:0">
+          <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700">個人情報</div>
+          
+        </div>
+        <div style="flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; background:var(--color-accent-2-200); color:var(--color-accent-2-800); border-radius:999px; padding:3px 10px">{{ whoAmI }}</div>
+      </div>
+      <sc-if value="{{ cfgOpen }}" hint-placeholder-val="{{ true }}">
+        <div style="padding:0 16px 16px; animation:floatUp .28s ease both">
+          <div style="display:flex; align-items:center; gap:10px; background:var(--color-bg); border-radius:999px; padding:11px 16px">
+            <div style="font-family:var(--font-body); font-size:12.5px; color:var(--color-neutral-700)">この端末は</div>
+            <div style="font-family:var(--font-body); font-size:14px; font-weight:700">{{ whoAmI }}</div>
+            <button type="button" onClick="{{ changeId }}" style="margin-left:auto; flex:none; cursor:pointer; background:transparent; border:0; color:var(--color-accent-700); font-family:var(--font-body); font-size:11.5px; font-weight:700">変更</button>
+          </div>
+          <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-600); margin-top:10px; text-wrap:pretty">投票とチャットはこの名前で記録されます。端末を貸し借りするときだけ変更してください。</div>
+        </div>
+      </sc-if>
+    </div>
+
+    <div style="margin-top:8px; {{ cfgLodgeCard }}">
+      <div onClick="{{ cfgLodgeGo }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
+        <div style="{{ cfgLodgeCaret }}">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
+        <div style="flex:1; min-width:0">
+          <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700">宿情報</div>
+          <div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-600); margin-top:2px">入れるとホームの「今夜の宿」に出ます</div>
+        </div>
+      </div>
+      <sc-if value="{{ cfgLodgeOpen }}" hint-placeholder-val="{{ true }}">
+        <div style="padding:0 16px 16px; display:grid; gap:14px; animation:floatUp .28s ease both">
+          <sc-for list="{{ lodgeFields }}" as="lf" hint-placeholder-count="9">
+            <div style="background:var(--color-bg); border-radius:var(--radius-md); padding:14px">
+              <div style="font-family:var(--font-body); font-size:13px; font-weight:700; margin-bottom:9px">{{ lf.city }}</div>
+              <div style="display:grid; gap:7px">
+                <input class="input" placeholder="宿の名前" value="{{ lf.name }}" onChange="{{ lf.onName }}">
+                <input class="input" placeholder="住所（現地語表記も）" value="{{ lf.addr }}" onChange="{{ lf.onAddr }}">
+                <input class="input" placeholder="チェックイン時刻・鍵の受け取り" value="{{ lf.checkin }}" onChange="{{ lf.onCheckin }}">
+                <input class="input" placeholder="地図のURL" value="{{ lf.map }}" onChange="{{ lf.onMap }}">
+              </div>
+            </div>
+          </sc-for>
+          <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-600); text-wrap:pretty">入力は9人全員に共有されます。</div>
+        </div>
+      </sc-if>
+    </div>
+  </section>
+  </sc-if>
+
   <sc-if value="{{ isTalk }}" hint-placeholder-val="{{ true }}">
   <section style="animation:floatUp .45s ease both">
     
@@ -123,29 +289,23 @@
     <h3 style="font-size:18px; margin:26px 0 8px">チャット</h3>
     <div style="{{ syncStyle }}">{{ syncLabel }}</div>
     <div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:14px; box-shadow:var(--shadow-sm); margin-top:10px">
-      <div style="font-family:var(--font-body); font-size:11.5px; font-weight:700; color:var(--color-neutral-700); margin-bottom:8px">話す人</div>
-      <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px">
-        <sc-for list="{{ meChips }}" as="mc3" hint-placeholder-count="9">
-          <button type="button" onClick="{{ mc3.go }}" style="{{ mc3.style }}">{{ mc3.label }}</button>
+      <div ref="{{ chatRef }}" style="display:flex; flex-direction:column; gap:8px; height:380px; overflow-y:auto; overscroll-behavior-y:auto; -webkit-overflow-scrolling:touch; padding:4px 2px 10px; background:var(--color-bg); border-radius:var(--radius-md)">
+        <sc-for list="{{ chat }}" as="cm" hint-placeholder-count="4">
+          <div style="{{ cm.row }}">
+            <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-600); margin-bottom:3px">{{ cm.who }} · {{ cm.when }}</div>
+            <div style="{{ cm.bubble }}">{{ cm.body }}</div>
+            <div style="{{ cm.readStyle }}">{{ cm.readLabel }}</div>
+          </div>
         </sc-for>
       </div>
-      <sc-if value="{{ hasChat }}" hint-placeholder-val="{{ true }}">
-        <div ref="{{ chatRef }}" style="display:flex; flex-direction:column; gap:8px; max-height:340px; overflow-y:auto; padding:4px 2px 10px">
-          <sc-for list="{{ chat }}" as="cm" hint-placeholder-count="4">
-            <div style="{{ cm.row }}">
-              <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-600); margin-bottom:3px">{{ cm.who }} · {{ cm.when }}</div>
-              <div style="{{ cm.bubble }}">{{ cm.body }}</div>
-            </div>
-          </sc-for>
-        </div>
-      </sc-if>
+      <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); margin-top:8px; text-wrap:pretty">{{ unreadLabel }}</div>
       <div style="display:flex; gap:8px; align-items:flex-end; margin-top:6px">
         <textarea class="input" style="flex:1; min-height:44px" placeholder="メッセージ" value="{{ chatDraft }}" onChange="{{ onChatDraft }}" onKeyDown="{{ onChatKey }}"></textarea>
         <button type="button" class="btn btn-primary" onClick="{{ sendChat }}" style="flex:none; border-radius:999px; font-family:var(--font-body); font-weight:700">送信</button>
       </div>
     </div>
 
-    <h3 style="font-size:18px; margin:26px 0 8px">個人のメモ書きはココから<br></h3>
+    <h3 style="font-size:18px; margin:26px 0 8px">プライベート</h3>
     <div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:16px; box-shadow:var(--shadow-sm)">
       <textarea class="input" style="min-height:74px" placeholder="例：宿はバルセロナだけ先に取る。担当は坂本" value="{{ draft }}" onChange="{{ onDraft }}"></textarea>
       <button type="button" class="btn btn-primary btn-block" onClick="{{ addMemo }}" style="border-radius:999px; font-family:var(--font-body); font-weight:700">書き残す</button>
@@ -165,7 +325,7 @@
       </div>
     </sc-if>
 
-    <div style="margin-top:16px; font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-600); text-wrap:pretty">このボードは書いた端末に保存されます。<br>この端末以外ではメモは共有されないので、注意⚠️</div>
+    
   </section>
   </sc-if>
 
@@ -174,13 +334,10 @@
     <h2 style="font-size:22px; margin:18px 0 4px">検討・投票</h2>
     <p style="font-family:var(--font-body); font-size:14px; color:var(--color-neutral-700); text-wrap:pretty">検討テーマをタップして参照。それぞれに投票が必要。<br>期限を過ぎると、投票できないので注意。</p>
 
-    <div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:14px 16px; margin-top:16px; box-shadow:var(--shadow-sm)">
-      <div style="font-family:var(--font-body); font-size:11.5px; font-weight:700; color:var(--color-neutral-700); margin-bottom:8px">いま投票する人</div>
-      <div style="display:flex; flex-wrap:wrap; gap:6px">
-        <sc-for list="{{ meChips }}" as="mc" hint-placeholder-count="9">
-          <button type="button" onClick="{{ mc.go }}" style="{{ mc.style }}">{{ mc.label }}</button>
-        </sc-for>
-      </div>
+    <div style="display:flex; align-items:center; gap:10px; background:var(--color-surface); border-radius:999px; padding:9px 16px; margin-top:16px; box-shadow:var(--shadow-sm)">
+      <div style="font-family:var(--font-body); font-size:12.5px; color:var(--color-neutral-700)">投票するのは</div>
+      <div style="font-family:var(--font-body); font-size:14px; font-weight:700">{{ whoAmI }}</div>
+      <button type="button" onClick="{{ changeId }}" style="margin-left:auto; flex:none; cursor:pointer; background:transparent; border:0; color:var(--color-accent-700); font-family:var(--font-body); font-size:11.5px; font-weight:700">変更</button>
     </div>
 
     <div style="display:grid; gap:8px; margin-top:16px">
@@ -373,6 +530,36 @@
               <sc-for list="{{ d.notes }}" as="n" hint-placeholder-count="2">
                 <div style="font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700); display:flex; gap:8px"><span style="flex:none; width:5px; height:5px; border-radius:50%; background:var(--color-accent-400); margin-top:7px"></span><span style="text-wrap:pretty">{{ n }}</span></div>
               </sc-for>
+              <div style="border-top:1px solid var(--color-divider); margin-top:8px; padding-top:10px">
+                <sc-if value="{{ d.notEditing }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:grid; gap:7px">
+                    <sc-for list="{{ d.plan }}" as="dp" hint-placeholder-count="6">
+                      <div style="display:flex; gap:10px">
+                        <div style="flex:none; width:44px; font-family:var(--font-heading); font-size:13px; color:var(--color-accent-700); line-height:1.4">{{ dp.t }}</div>
+                        <div style="font-family:var(--font-body); font-size:12.5px; line-height:1.45; text-wrap:pretty">{{ dp.x }}</div>
+                      </div>
+                    </sc-for>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ d.editing }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:grid; gap:9px">
+                    <sc-for list="{{ d.editRows }}" as="er" hint-placeholder-count="6">
+                      <div style="display:flex; gap:7px; align-items:flex-start">
+                        <input type="time" class="input" value="{{ er.t }}" onChange="{{ er.onTime }}" style="flex:none; width:104px; text-align:center; font-family:var(--font-heading)">
+                        <textarea class="input" value="{{ er.x }}" onChange="{{ er.onText }}" placeholder="予定" style="flex:1; min-height:40px; font-size:12.5px"></textarea>
+                        <button type="button" onClick="{{ er.del }}" style="flex:none; cursor:pointer; background:transparent; border:0; color:var(--color-neutral-600); font-family:var(--font-body); font-size:11px; font-weight:700; padding-top:11px">削除</button>
+                      </div>
+                    </sc-for>
+                    <div style="display:flex; gap:7px; flex-wrap:wrap">
+                      <button type="button" class="btn btn-secondary" onClick="{{ d.addRow }}" style="border-radius:999px; font-family:var(--font-body); font-size:12px; font-weight:700">行を追加</button>
+                      <button type="button" class="btn btn-ghost" onClick="{{ d.sortRows }}" style="border-radius:999px; font-family:var(--font-body); font-size:12px; font-weight:700">時刻順に並べる</button>
+                      <button type="button" class="btn btn-ghost" onClick="{{ d.resetRows }}" style="border-radius:999px; font-family:var(--font-body); font-size:12px; font-weight:700">元に戻す</button>
+                    </div>
+                    <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); text-wrap:pretty">変更は9人全員に共有されます。</div>
+                  </div>
+                </sc-if>
+                <button type="button" onClick="{{ d.editGo }}" style="margin-top:10px; cursor:pointer; background:transparent; border:0; padding:0; color:var(--color-accent-700); font-family:var(--font-body); font-size:11.5px; font-weight:700">{{ d.editLabel }}</button>
+              </div>
             </div>
           </sc-if>
         </div>
@@ -383,27 +570,112 @@
 
   <sc-if value="{{ isPrep }}" hint-placeholder-val="{{ true }}">
   <section style="animation:floatUp .45s ease both">
-    <h2 style="font-size:22px; margin:18px 0 4px">出発までの準備</h2>
-    <div style="font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700); margin-bottom:16px">チェックは各自の端末に保存されます。{{ prepDone }}</div>
+    <h2 style="font-size:22px; margin:18px 0 12px">準備</h2>
 
-    <div style="display:grid; gap:10px">
-      <sc-for list="{{ todos }}" as="td" hint-placeholder-count="6">
-        <div onClick="{{ td.go }}" style="{{ td.card }}">
-          <div style="display:flex; gap:12px; align-items:flex-start">
-            <div style="{{ td.box }}">{{ td.tick }}</div>
-            <div style="flex:1">
-              <div style="display:flex; gap:8px; align-items:baseline; flex-wrap:wrap">
-                <div style="font-family:var(--font-body); font-size:14px; font-weight:700">{{ td.title }}</div>
-                <span style="font-family:var(--font-body); font-size:10.5px; font-weight:700; background:var(--color-accent-200); color:var(--color-accent-800); border-radius:999px; padding:2px 9px">{{ td.when }}</span>
-              </div>
-              <div style="font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700); margin-top:5px; text-wrap:pretty">{{ td.x }}</div>
-            </div>
-          </div>
+    <div style="{{ sec.prep.card }}">
+      <div onClick="{{ sec.prep.go }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
+        <div style="{{ sec.prep.caret }}">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </div>
-      </sc-for>
+        <div style="flex:1; min-width:0">
+          <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700">確認リスト</div>
+          <div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-600); margin-top:2px">渡航認証・保険・予約</div>
+        </div>
+        <div style="flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; background:var(--color-accent-2-200); color:var(--color-accent-2-800); border-radius:999px; padding:3px 10px">{{ prepDone }}</div>
+      </div>
+      <sc-if value="{{ sec.prep.open }}" hint-placeholder-val="{{ true }}">
+        <div style="padding:0 16px 16px; animation:floatUp .28s ease both">
+          <div style="display:grid; gap:8px">
+            <sc-for list="{{ todos }}" as="td" hint-placeholder-count="6">
+              <div onClick="{{ td.go }}" style="{{ td.card }}">
+                <div style="display:flex; gap:12px; align-items:flex-start">
+                  <div style="{{ td.box }}">{{ td.tick }}</div>
+                  <div style="flex:1">
+                    <div style="display:flex; gap:8px; align-items:baseline; flex-wrap:wrap">
+                      <div style="font-family:var(--font-body); font-size:14px; font-weight:700">{{ td.title }}</div>
+                      <span style="font-family:var(--font-body); font-size:10.5px; font-weight:700; background:var(--color-accent-200); color:var(--color-accent-800); border-radius:999px; padding:2px 9px">{{ td.when }}</span>
+                    </div>
+                    <div style="font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700); margin-top:5px; text-wrap:pretty">{{ td.x }}</div>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="font-family:var(--font-body); font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; color:var(--color-accent-700); margin:18px 0 8px">自分で追加したもの</div>
+          <sc-if value="{{ hasMyTodos }}" hint-placeholder-val="{{ true }}">
+            <div style="display:grid; gap:7px; margin-bottom:10px">
+              <sc-for list="{{ myTodos }}" as="mt2" hint-placeholder-count="2">
+                <div style="{{ mt2.card }}">
+                  <div style="display:flex; gap:11px; align-items:center">
+                    <div onClick="{{ mt2.go }}" style="{{ mt2.box }}">{{ mt2.tick }}</div>
+                    <input class="input" value="{{ mt2.title }}" onChange="{{ mt2.onEdit }}" style="flex:1; min-width:0; font-size:13px">
+                    <button type="button" onClick="{{ mt2.del }}" style="flex:none; cursor:pointer; background:transparent; border:0; color:var(--color-neutral-600); font-family:var(--font-body); font-size:11px; font-weight:700">削除</button>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <div style="display:flex; gap:7px">
+            <input class="input" placeholder="やることを追加" value="{{ newTodo }}" onChange="{{ onNewTodo }}" style="flex:1; min-width:0; font-size:13px">
+            <button type="button" class="btn btn-primary" onClick="{{ addTodo }}" style="flex:none; border-radius:999px; font-family:var(--font-body); font-size:12.5px; font-weight:700">追加</button>
+          </div>
+          <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); margin-top:8px">追加したものは自分の端末にだけ残ります。</div>
+        </div>
+      </sc-if>
     </div>
 
-    <h3 style="font-size:18px; margin:26px 0 8px">事前予約が要るところ</h3>
+    <div style="margin-top:8px; {{ sec.pack.card }}">
+      <div onClick="{{ sec.pack.go }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
+        <div style="{{ sec.pack.caret }}">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
+        <div style="flex:1; min-width:0">
+          <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700">持ち物リスト</div>
+          <div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-600); margin-top:2px">タップでチェック</div>
+        </div>
+        <div style="flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; background:var(--color-accent-2-200); color:var(--color-accent-2-800); border-radius:999px; padding:3px 10px">{{ packBadge }}</div>
+      </div>
+      <sc-if value="{{ sec.pack.open }}" hint-placeholder-val="{{ true }}">
+        <div style="padding:0 16px 16px; animation:floatUp .28s ease both">
+          <div style="display:grid; gap:16px">
+            <sc-for list="{{ packing }}" as="pg" hint-placeholder-count="4">
+              <div>
+                <div style="font-family:var(--font-body); font-size:11px; letter-spacing:.16em; text-transform:uppercase; font-weight:700; color:var(--color-accent-700); margin-bottom:8px">{{ pg.g }}</div>
+                <div style="display:flex; flex-wrap:wrap; gap:7px">
+                  <sc-for list="{{ pg.items }}" as="it" hint-placeholder-count="6">
+                    <button type="button" onClick="{{ it.go }}" style="{{ it.style }}">{{ it.label }}</button>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="font-family:var(--font-body); font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; color:var(--color-accent-700); margin:18px 0 8px">自分で追加したもの</div>
+          <sc-if value="{{ hasMyPack }}" hint-placeholder-val="{{ true }}">
+            <div style="display:grid; gap:7px; margin-bottom:10px">
+              <sc-for list="{{ myPack }}" as="mp" hint-placeholder-count="2">
+                <div style="display:flex; gap:10px; align-items:center; background:var(--color-bg); border-radius:var(--radius-md); padding:8px 12px">
+                  <div onClick="{{ mp.go }}" style="{{ mp.box }}">{{ mp.tick }}</div>
+                  <input class="input" value="{{ mp.label }}" onChange="{{ mp.onEdit }}" style="flex:1; min-width:0; font-size:13px">
+                  <button type="button" onClick="{{ mp.del }}" style="flex:none; cursor:pointer; background:transparent; border:0; color:var(--color-neutral-600); font-family:var(--font-body); font-size:11px; font-weight:700">削除</button>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <div style="display:flex; gap:7px">
+            <input class="input" placeholder="持ち物を追加" value="{{ newPack }}" onChange="{{ onNewPack }}" style="flex:1; min-width:0; font-size:13px">
+            <button type="button" class="btn btn-primary" onClick="{{ addPack }}" style="flex:none; border-radius:999px; font-family:var(--font-body); font-size:12.5px; font-weight:700">追加</button>
+          </div>
+
+          <div style="margin-top:16px; background:var(--color-accent-2-100); border-radius:var(--radius-lg); padding:14px; font-family:var(--font-body); font-size:12.5px; text-wrap:pretty">
+            受託手荷物はシンガポール航空の規定を各自で確認してください。都市間で格安航空を使う場合、機内持ち込みのサイズと重量の方が厳しく、超過料金が空港で高くつきます。<b>スーツケースは機内持ち込みサイズ＋小さめのバックパック</b>にすると、どの区間でも詰まりません。
+          </div>
+        </div>
+      </sc-if>
+    </div>
+
+    <h3 style="font-size:18px; margin:28px 0 8px">事前予約が要るところ</h3>
     <div style="display:grid; gap:10px">
       <sc-for list="{{ booking }}" as="bk" hint-placeholder-count="5">
         <div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:14px 16px; box-shadow:var(--shadow-sm)">
@@ -415,41 +687,38 @@
         </div>
       </sc-for>
     </div>
-
-    <h3 style="font-size:18px; margin:26px 0 8px">2月の気温と服装</h3>
-    <div style="display:grid; gap:8px">
-      <sc-for list="{{ weather }}" as="w" hint-placeholder-count="5">
-        <div style="display:flex; align-items:center; gap:12px; border-bottom:1px solid var(--color-divider); padding-bottom:8px">
-          <div style="flex:none; width:74px; font-family:var(--font-body); font-size:13px; font-weight:700">{{ w.c }}</div>
-          <div style="flex:none; font-family:var(--font-heading); font-size:14px; color:var(--color-accent-700)">{{ w.t }}</div>
-          <div style="font-family:var(--font-body); font-size:12.5px; color:var(--color-neutral-700)">{{ w.x }}</div>
-        </div>
-      </sc-for>
-    </div>
-    <div style="margin-top:12px; font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700); text-wrap:pretty">クラクフとバルセロナの差が20℃近くあります。厚手のコート1枚で通すより、薄い中綿＋重ね着で調整するほうが荷物が減ります。</div>
-
-    <h3 style="font-size:18px; margin:26px 0 8px">持ち物</h3>
-    <div style="font-family:var(--font-body); font-size:12.5px; color:var(--color-neutral-700); margin-bottom:10px">{{ packDone }}</div>
-    <div style="display:grid; gap:18px">
-      <sc-for list="{{ packing }}" as="pg" hint-placeholder-count="4">
-        <div>
-          <div style="font-family:var(--font-body); font-size:11px; letter-spacing:.16em; text-transform:uppercase; font-weight:700; color:var(--color-accent-700); margin-bottom:8px">{{ pg.g }}</div>
-          <div style="display:flex; flex-wrap:wrap; gap:7px">
-            <sc-for list="{{ pg.items }}" as="it" hint-placeholder-count="6">
-              <button type="button" onClick="{{ it.go }}" style="{{ it.style }}">{{ it.label }}</button>
-            </sc-for>
-          </div>
-        </div>
-      </sc-for>
-    </div>
-    <div style="margin-top:16px; background:var(--color-accent-2-100); border-radius:var(--radius-lg); padding:16px; font-family:var(--font-body); font-size:13px; text-wrap:pretty">
-      受託手荷物はシンガポール航空の規定を各自で確認してください。都市間で格安航空を使う場合、機内持ち込みのサイズと重量の方が厳しく、超過料金が空港で高くつきます。<b>スーツケースは機内持ち込みサイズ＋小さめのバックパック</b>にすると、どの区間でも詰まりません。
-    </div>
   </section>
   </sc-if>
 
   <sc-if value="{{ isLocal }}" hint-placeholder-val="{{ true }}">
   <section style="animation:floatUp .45s ease both">
+
+    <div style="margin-top:16px; {{ sec.wx.card }}">
+      <div onClick="{{ sec.wx.go }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
+        <div style="{{ sec.wx.caret }}">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
+        <div style="flex:1; min-width:0">
+          <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700">2月の気温と服装</div>
+          <div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-600); margin-top:2px">都市ごとの目安</div>
+        </div>
+      </div>
+      <sc-if value="{{ sec.wx.open }}" hint-placeholder-val="{{ true }}">
+        <div style="padding:0 16px 16px; animation:floatUp .28s ease both">
+          <div style="display:grid; gap:8px">
+            <sc-for list="{{ weather }}" as="w" hint-placeholder-count="5">
+              <div style="display:flex; align-items:center; gap:12px; border-bottom:1px solid var(--color-divider); padding-bottom:8px">
+                <div style="flex:none; width:74px; font-family:var(--font-body); font-size:13px; font-weight:700">{{ w.c }}</div>
+                <div style="flex:none; font-family:var(--font-heading); font-size:14px; color:var(--color-accent-700)">{{ w.t }}</div>
+                <div style="font-family:var(--font-body); font-size:12.5px; color:var(--color-neutral-700)">{{ w.x }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin-top:12px; font-family:var(--font-body); font-size:12.5px; color:var(--color-neutral-700); text-wrap:pretty">クラクフとバルセロナの差が20℃近くあります。厚手のコート1枚で通すより、薄い中綿＋重ね着で調整するほうが荷物が減ります。</div>
+        </div>
+      </sc-if>
+    </div>
+
     
 
     
@@ -513,7 +782,7 @@
 const KEY = "sotsuryo-eu-v1";
 
 const BASE_HEAD = [
-  { date:"2/13", dow:"土", stay:"機内", title:"関空発 → シンガポール乗継", notes:["SQ619 KIX 10:05発 → SIN 16:00着","SIN 01:55発 SQ366 に乗り継ぎ。搭乗口付近に00:55集合","機内で寝られるかが翌日を決める"] },
+  { date:"2/13", dow:"土", stay:"機内", title:"関空発 → シンガポール乗継", notes:["SQ619 KIX 10:05発 → SIN 16:00着","SIN 01:55発 SQ366 に乗り継ぎ。搭乗口付近に00:55集合","機内で寝るための装備必須"] },
   { date:"2/14", dow:"日", stay:"ミラノ", title:"ローマ着 → 高速鉄道でミラノ", notes:["08:10 FCO着。入国審査（EESの顔写真・指紋登録あり）。9人で30〜60分見る","レオナルド・エクスプレスでテルミニ 32分","Frecciarossaでミラノ 約3時間。到着は午後","夕方 ドゥオモ周辺。初日は無理をしない"] },
   { date:"2/15", dow:"月", stay:"バルセロナ", title:"ミラノ半日 → バルセロナへ", notes:["午前 ドゥオモ屋上、ガッレリア、スフォルツェスコ城","最後の晩餐は要予約。取れなければ諦める前提で組む","夕方の便でバルセロナ（約2時間）"] },
   { date:"2/16", dow:"火", stay:"バルセロナ", title:"サグラダ・ファミリアとゴシック地区", notes:["サグラダ・ファミリアは時間指定の事前予約","9人で細い道を歩くと分断される。集合場所を先に決める","夜はボケリア市場周辺かグラシア地区"] },
@@ -606,10 +875,287 @@ const OPTIONS = [
   }
 ];
 
+const TZ_CITY = {
+  "機内":"Asia/Tokyo", "帰国":"Asia/Tokyo",
+  "ミラノ":"Europe/Rome", "ローマ":"Europe/Rome",
+  "バルセロナ":"Europe/Madrid", "ロンドン":"Europe/London",
+  "クラクフ":"Europe/Warsaw", "ニース":"Europe/Paris",
+  "アムステルダム":"Europe/Amsterdam", "ポルト":"Europe/Lisbon",
+  "フランクフルト":"Europe/Berlin"
+};
+const TZ_DATE = { "2/24":"Europe/Rome" };
+
+const PLANS = {
+  "2/13": [
+    { t:"07:00", x:"関空 第1ターミナル 出発ロビー 集合", k:1 },
+    { t:"07:15", x:"SQ619 チェックイン・受託手荷物" },
+    { t:"08:30", x:"保安検査・出国審査" },
+    { t:"09:25", x:"チェックイン締切" },
+    { t:"09:45", x:"搭乗口閉鎖" },
+    { t:"10:05", x:"KIX 離陸（SIN まで約7時間）" },
+    { t:"16:00", x:"SIN 着（現地時間）。乗継。ターミナル移動がある場合はスカイトレイン" },
+    { t:"00:55", x:"翌日未明。SQ366 の搭乗口付近に集合", k:1 },
+    { t:"01:55", x:"SIN 発（FCO まで約13時間）" }
+  ],
+  "2/14": [
+    { t:"08:10", x:"FCO 着" },
+    { t:"08:30", x:"入国審査。EESの顔写真・指紋登録があるので9人で30〜60分" },
+    { t:"09:30", x:"荷物受取。eSIMの通信を全員で確認" },
+    { t:"10:15", x:"レオナルド・エクスプレスでテルミニへ（32分）" },
+    { t:"11:00", x:"テルミニ着。軽く食べて切符を確認" },
+    { t:"12:00", x:"Frecciarossa でミラノへ（約3時間）", n:"目安" },
+    { t:"15:00", x:"ミラノ中央駅 着" },
+    { t:"16:00", x:"宿にチェックイン" },
+    { t:"17:30", x:"ドゥオモ周辺を歩く" },
+    { t:"19:30", x:"夕食" }
+  ],
+  "2/15": [
+    { t:"08:00", x:"朝食。荷物は宿に預ける" },
+    { t:"09:00", x:"ドゥオモ 屋上テラス" },
+    { t:"10:30", x:"ガッレリア・ヴィットーリオ・エマヌエーレ2世" },
+    { t:"11:30", x:"スフォルツェスコ城（最後の晩餐が取れていればこの枠）" },
+    { t:"13:00", x:"昼食" },
+    { t:"14:30", x:"空港へ移動" },
+    { t:"17:00", x:"ミラノ発 バルセロナ行き（約2時間）", n:"目安" },
+    { t:"19:00", x:"バルセロナ 着" },
+    { t:"20:30", x:"宿にチェックイン" },
+    { t:"21:30", x:"夕食" }
+  ],
+  "2/16": [
+    { t:"08:30", x:"朝食" },
+    { t:"09:30", x:"サグラダ・ファミリア（時間指定の予約）" },
+    { t:"11:30", x:"カサ・バトリョ／カサ・ミラ の外観" },
+    { t:"13:00", x:"昼食（ボケリア市場周辺）" },
+    { t:"15:00", x:"ゴシック地区・カテドラル。細い道なので集合場所を先に決める", k:1 },
+    { t:"17:00", x:"自由行動" },
+    { t:"20:30", x:"夕食" }
+  ],
+  "2/17": [
+    { t:"09:00", x:"グエル公園（有料エリアは時間指定）" },
+    { t:"11:30", x:"モンジュイックの丘" },
+    { t:"13:00", x:"昼食" },
+    { t:"14:30", x:"自由行動。ピカソ美術館、ジローナ日帰りなど" },
+    { t:"20:30", x:"夕食" },
+    { t:"22:00", x:"宿で翌日の移動を全員で確認", k:1 }
+  ],
+  "2/21": [
+    { t:"09:00", x:"朝食" },
+    { t:"10:00", x:"大英博物館（入場無料。時間予約を取っておくと確実）" },
+    { t:"13:00", x:"昼食（ボロー・マーケット）" },
+    { t:"15:00", x:"自由行動。カムデン、コヴェント・ガーデン" },
+    { t:"18:00", x:"集合", k:1 },
+    { t:"19:00", x:"夕食（パブ）" }
+  ],
+  "2/22": [
+    { t:"07:00", x:"宿を出る", k:1 },
+    { t:"08:00", x:"空港着。9人のチェックインは2時間前から" },
+    { t:"10:00", x:"ロンドン発 ローマ行き（約2時間30分）", n:"目安" },
+    { t:"13:30", x:"FCO 着（時差 +1時間）" },
+    { t:"14:30", x:"レオナルド・エクスプレスでテルミニ" },
+    { t:"15:30", x:"宿にチェックイン" },
+    { t:"17:00", x:"トレヴィの泉・パンテオン" },
+    { t:"19:30", x:"夕食" }
+  ],
+  "2/23": [
+    { t:"08:00", x:"朝食" },
+    { t:"08:45", x:"コロッセオ（時間指定の予約）" },
+    { t:"11:00", x:"フォロ・ロマーノ・パラティーノ" },
+    { t:"13:00", x:"昼食" },
+    { t:"14:30", x:"バチカン美術館・システィーナ礼拝堂（時間指定）" },
+    { t:"17:00", x:"サン・ピエトロ大聖堂" },
+    { t:"19:00", x:"夕食" },
+    { t:"21:00", x:"荷造り。Visit Japan Web の登録を全員で済ませる" },
+    { t:"22:00", x:"翌朝のタクシーを確認（早朝は配車アプリが掴まらない）" }
+  ],
+  "2/24": [
+    { t:"06:30", x:"宿を出る。タクシー2〜3台", k:1 },
+    { t:"07:50", x:"FCO 着（3時間前）" },
+    { t:"08:00", x:"チェックイン・受託手荷物。VAT還付がある人は先に税関へ" },
+    { t:"09:00", x:"保安検査・出国審査（EESの出域記録）" },
+    { t:"10:20", x:"搭乗開始" },
+    { t:"10:50", x:"SQ365 FCO 発（SIN まで約12時間）" }
+  ],
+  "2/25": [
+    { t:"05:40", x:"SIN 着" },
+    { t:"07:25", x:"SQ620 の搭乗口付近に集合", k:1 },
+    { t:"08:25", x:"SIN 発（KIX まで約6時間30分）" },
+    { t:"15:30", x:"KIX 着" },
+    { t:"16:00", x:"入国審査。Visit Japan Web のQRを提示" },
+    { t:"16:30", x:"解散" }
+  ],
+
+  "A:2/18": [
+    { t:"07:00", x:"宿を出る", k:1 },
+    { t:"08:00", x:"バルセロナ空港 着" },
+    { t:"10:00", x:"バルセロナ発 クラクフ行き（約2時間45分）", n:"目安" },
+    { t:"13:45", x:"クラクフ 着（時差 +0時間）" },
+    { t:"14:30", x:"空港から中央駅へ（電車20分）" },
+    { t:"15:30", x:"宿にチェックイン" },
+    { t:"16:30", x:"旧市街広場・ヴァヴェル城の外観" },
+    { t:"19:00", x:"夕食（ピエロギ）" },
+    { t:"21:30", x:"翌日は終日ツアー。早めに休む" }
+  ],
+  "A:2/19": [
+    { t:"07:00", x:"朝食" },
+    { t:"07:45", x:"送迎の集合。遅れると全員が入場枠を失う", k:1 },
+    { t:"08:00", x:"出発（車で約1時間30分）" },
+    { t:"09:30", x:"アウシュビッツ第一収容所 日本語ガイド開始" },
+    { t:"12:00", x:"ビルケナウへ移動" },
+    { t:"14:00", x:"見学終了" },
+    { t:"15:30", x:"クラクフ市内へ戻る" },
+    { t:"17:00", x:"自由行動" },
+    { t:"19:30", x:"夕食" }
+  ],
+  "A:2/20": [
+    { t:"06:30", x:"宿を出る", k:1 },
+    { t:"07:30", x:"クラクフ空港 着" },
+    { t:"09:30", x:"クラクフ発 ロンドン行き（約2時間30分）", n:"目安" },
+    { t:"11:00", x:"ロンドン 着（時差 −1時間）。UK ETA の承認画面を出せるように" },
+    { t:"12:00", x:"市内へ（STN/LTN から約1時間）" },
+    { t:"13:30", x:"宿にチェックイン" },
+    { t:"15:00", x:"ウェストミンスター・ビッグベン" },
+    { t:"16:30", x:"テムズ川沿い" },
+    { t:"19:00", x:"夕食" }
+  ],
+
+  "B:2/18": [
+    { t:"08:00", x:"宿を出る", k:1 },
+    { t:"09:00", x:"バルセロナ空港 着" },
+    { t:"11:00", x:"バルセロナ発 ニース行き（約1時間20分）", n:"目安" },
+    { t:"12:20", x:"ニース 着" },
+    { t:"13:00", x:"空港から市内へ（トラム1本で20分）" },
+    { t:"14:00", x:"宿にチェックイン" },
+    { t:"15:30", x:"プロムナード・デ・ザングレ" },
+    { t:"17:00", x:"旧市街・市場周辺" },
+    { t:"19:30", x:"夕食（ソッカ、ニース風サラダ）" }
+  ],
+  "B:2/19": [
+    { t:"08:30", x:"朝食" },
+    { t:"09:30", x:"ニース駅 集合", k:1 },
+    { t:"10:00", x:"電車でモナコへ（25分）" },
+    { t:"10:30", x:"カジノ広場・大公宮殿" },
+    { t:"12:30", x:"昼食（モナコは高いので市場か軽食）" },
+    { t:"14:00", x:"海洋博物館・F1コースの市街地" },
+    { t:"16:30", x:"帰りにエズ村を挟む（任意）" },
+    { t:"19:30", x:"ニースで夕食" }
+  ],
+  "B:2/20": [
+    { t:"07:30", x:"宿を出る", k:1 },
+    { t:"08:30", x:"ニース空港 着" },
+    { t:"10:30", x:"ニース発 ロンドン行き（約2時間）", n:"目安" },
+    { t:"11:30", x:"ロンドン 着（時差 −1時間）。UK ETA の承認画面を出せるように" },
+    { t:"12:30", x:"市内へ" },
+    { t:"14:00", x:"宿にチェックイン" },
+    { t:"15:30", x:"ウェストミンスター・ビッグベン" },
+    { t:"17:00", x:"テムズ川沿い" },
+    { t:"19:30", x:"夕食" }
+  ],
+
+  "C:2/18": [
+    { t:"07:00", x:"宿を出る", k:1 },
+    { t:"08:00", x:"バルセロナ空港 着" },
+    { t:"10:00", x:"バルセロナ発 アムステルダム行き（約2時間20分）", n:"目安" },
+    { t:"12:20", x:"スキポール空港 着" },
+    { t:"13:00", x:"中央駅へ（電車15分）" },
+    { t:"14:00", x:"宿にチェックイン" },
+    { t:"15:30", x:"運河沿いを歩く。自転車レーンの上を歩かない" },
+    { t:"17:30", x:"ダム広場・西教会" },
+    { t:"19:30", x:"夕食" }
+  ],
+  "C:2/19": [
+    { t:"08:30", x:"朝食" },
+    { t:"09:30", x:"国立美術館（時間指定の予約）" },
+    { t:"12:00", x:"昼食" },
+    { t:"13:30", x:"ゴッホ美術館（時間指定の予約）" },
+    { t:"16:00", x:"アンネ・フランクの家（取れていればこの枠）" },
+    { t:"17:30", x:"自由行動。運河クルーズなど" },
+    { t:"19:30", x:"夕食" }
+  ],
+  "C:2/20": [
+    { t:"08:00", x:"宿を出る", k:1 },
+    { t:"09:00", x:"スキポール空港 着" },
+    { t:"11:00", x:"アムステルダム発 ロンドン行き（約1時間15分）", n:"目安" },
+    { t:"11:15", x:"ロンドン 着（時差 −1時間）。UK ETA の承認画面を出せるように" },
+    { t:"12:30", x:"市内へ" },
+    { t:"14:00", x:"宿にチェックイン" },
+    { t:"15:30", x:"ウェストミンスター・ビッグベン" },
+    { t:"17:00", x:"テムズ川沿い" },
+    { t:"19:30", x:"夕食" }
+  ],
+
+  "D:2/18": [
+    { t:"07:00", x:"宿を出る", k:1 },
+    { t:"08:00", x:"バルセロナ空港 着" },
+    { t:"10:00", x:"バルセロナ発 ポルト行き（約2時間）", n:"目安" },
+    { t:"11:00", x:"ポルト 着（時差 −1時間）" },
+    { t:"11:45", x:"空港から市内へ（地下鉄30分）" },
+    { t:"12:45", x:"宿にチェックイン" },
+    { t:"14:00", x:"サン・ベント駅のアズレージョ" },
+    { t:"15:30", x:"ドン・ルイス1世橋・リベイラ地区" },
+    { t:"19:00", x:"夕食（フランセジーニャ）" }
+  ],
+  "D:2/19": [
+    { t:"09:00", x:"レロ書店（入場は有料・時間制）" },
+    { t:"10:30", x:"クレリゴス教会の塔" },
+    { t:"12:30", x:"昼食" },
+    { t:"14:00", x:"ドウロ川を渡ってヴィラ・ノヴァ・デ・ガイアへ" },
+    { t:"14:30", x:"ポートワインのセラー見学" },
+    { t:"17:00", x:"川沿いで自由行動" },
+    { t:"19:30", x:"夕食" }
+  ],
+  "D:2/20": [
+    { t:"06:30", x:"宿を出る", k:1 },
+    { t:"07:30", x:"ポルト空港 着" },
+    { t:"09:30", x:"ポルト発 ロンドン行き（約2時間30分）", n:"目安" },
+    { t:"13:00", x:"ロンドン 着（時差 +0時間）。UK ETA の承認画面を出せるように" },
+    { t:"14:00", x:"市内へ" },
+    { t:"15:00", x:"宿にチェックイン" },
+    { t:"16:30", x:"ウェストミンスター・ビッグベン" },
+    { t:"18:00", x:"テムズ川沿い" },
+    { t:"19:30", x:"夕食" }
+  ],
+
+  "E:2/18": [
+    { t:"07:00", x:"宿を出る", k:1 },
+    { t:"08:00", x:"バルセロナ空港 着" },
+    { t:"10:00", x:"バルセロナ発 フランクフルト行き（約2時間15分）", n:"目安" },
+    { t:"12:15", x:"フランクフルト空港 着" },
+    { t:"12:45", x:"中央駅へ（電車15分）" },
+    { t:"13:30", x:"宿にチェックイン" },
+    { t:"15:00", x:"レーマー広場・大聖堂" },
+    { t:"17:00", x:"マイン川沿い" },
+    { t:"19:30", x:"夕食（ザクセンハウゼン）" }
+  ],
+  "E:2/19": [
+    { t:"08:00", x:"中央駅 集合", k:1 },
+    { t:"08:30", x:"高速鉄道でハイデルベルクへ（約1時間）" },
+    { t:"10:00", x:"ハイデルベルク城" },
+    { t:"12:00", x:"旧市街・カール・テオドール橋" },
+    { t:"13:00", x:"昼食" },
+    { t:"15:00", x:"自由行動（ライン川方面へ回るなら早めに出る）" },
+    { t:"18:00", x:"フランクフルトへ戻る" },
+    { t:"19:30", x:"夕食" }
+  ],
+  "E:2/20": [
+    { t:"07:30", x:"宿を出る", k:1 },
+    { t:"08:15", x:"フランクフルト空港 着" },
+    { t:"10:15", x:"フランクフルト発 ロンドン行き（約1時間40分）", n:"目安" },
+    { t:"11:00", x:"ロンドン 着（時差 −1時間）。UK ETA の承認画面を出せるように" },
+    { t:"12:00", x:"市内へ" },
+    { t:"13:30", x:"宿にチェックイン" },
+    { t:"15:00", x:"ウェストミンスター・ビッグベン" },
+    { t:"16:30", x:"テムズ川沿い" },
+    { t:"19:00", x:"夕食" }
+  ]
+};
+
 const ROUTES = OPTIONS.map(o => ({
   id:o.id, name:o.name, tagline:o.tagline, pros:o.pros, cons:o.cons,
   chain:["ミラノ 1泊","バルセロナ 3泊", o.slot + " 2泊","ロンドン 2泊","ローマ 2泊"],
-  days: BASE_HEAD.concat(o.days, BASE_TAIL)
+  days: BASE_HEAD.concat(o.days, BASE_TAIL).map(d => Object.assign({}, d, {
+    tz: TZ_DATE[d.date] || TZ_CITY[d.stay] || "Europe/Rome",
+    plan: PLANS[o.id + ":" + d.date] || PLANS[d.date] || []
+  }))
 }));
 
 const THEMES = [
@@ -642,11 +1188,12 @@ const CIRC = ["⓪","①","②","③","④","⑤","⑥","⑦","⑧","⑨","⑩"]
 
 const TABS = [
   { id:"home",  label:"ホーム" },
-  { id:"talk",  label:"NOTES" },
+  { id:"talk",  label:"チャット" },
   { id:"route", label:"検討・投票" },
   { id:"plan",  label:"日程表" },
   { id:"prep",  label:"準備" },
-  { id:"local", label:"現地のこと" }
+  { id:"local", label:"現地のこと" },
+  { id:"config", label:"設定" }
 ];
 
 const OUTBOUND = [
@@ -679,7 +1226,10 @@ const TRANSIT = [
   { city:"バルセロナ", x:"T-casual（10回券）が定番。1枚を複数人で回し打ちできる仕様かは購入時に確認。空港はAerobúsで市内35分" },
   { city:"ロンドン", x:"クレジットカードのタッチで乗れる。1日・1週間の上限額が自動適用されるので切符は不要。各自別のカードで" },
   { city:"クラクフ", x:"旧市街は徒歩圏。空港から中央駅は電車20分。アウシュビッツは往復送迎付きツアーが確実" },
-  { city:"パリ", x:"Navigo Easyかメトロの回数券。空港からはRER Bかロワシーバス。RER Bは荷物が多いと不便" }
+  { city:"ニース", x:"市内はトラムとバス。空港からはトラム2号線で20分。モナコは国鉄の普通列車で25分で、切符を人数分まとめて買える" },
+  { city:"アムステルダム", x:"GVBの1日・複日券が安い。スキポール空港から中央駅は電車15分。自転車が歩行者より強いのでレーンに入らない" },
+  { city:"ポルト", x:"Andanteカードにチャージして地下鉄とバス。空港から市内はE線で30分。坂が多くスーツケースは重い" },
+  { city:"フランクフルト", x:"RMVの市内券。空港から中央駅はSバーンで15分。中央駅の北側は夜の治安が良くない" }
 ];
 
 const LODGING = [
@@ -725,7 +1275,8 @@ const WEATHER = [
   { c:"クラクフ", t:"−4〜3℃", x:"案A。雪と氷。手袋・帽子・滑らない靴は必須" },
   { c:"ニース", t:"6〜14℃", x:"案B。行程のなかでは過ごしやすい" },
   { c:"アムステルダム", t:"1〜7℃", x:"案C。風が強い。ロンドンと同じ装備で足りる" },
-  { c:"ポルト", t:"8〜16℃", x:"案D。いちばん暖かいが雨は多い" }
+  { c:"ポルト", t:"8〜16℃", x:"案D。いちばん暖かいが雨は多い" },
+  { c:"フランクフルト", t:"0〜7℃", x:"案E。日が短く、夕方には暗い" }
 ];
 
 const PACKING = [
@@ -829,12 +1380,59 @@ const MARKS = [
   { v:0, label:"△ うーん" }
 ];
 
-const SHARED_KEYS = ["ballots","notes","deadlines","members","lineUrl"];
+const SHARED_KEYS = ["ballots","notes","deadlines","members","lineUrl","reads","meets","lodging","plans"];
+const TRIP_YEAR = 2027;
+const TRIP_START = "2027-02-13";
+const TRIP_END = "2027-02-25";
+const isoOf = d => d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+const isoIn = tz => {
+  try { return new Intl.DateTimeFormat("en-CA", { timeZone:tz, year:"numeric", month:"2-digit", day:"2-digit" }).format(new Date()); }
+  catch (e) { return isoOf(new Date()); }
+};
+const clockIn = tz => {
+  try { return new Intl.DateTimeFormat("ja-JP", { timeZone:tz, hour:"2-digit", minute:"2-digit", hour12:false }).format(new Date()); }
+  catch (e) { return ""; }
+};
+const LODGING_CITIES = ["ミラノ","バルセロナ","ロンドン","ローマ","クラクフ","ニース","アムステルダム","ポルト","フランクフルト"];
 
 class Component extends DCLogic {
   state = { tab:"home", route:"A", theme:"route", sel:{}, me:DEFAULT_MEMBERS[0], members:DEFAULT_MEMBERS.slice(),
             ballots:{}, notes:{}, deadlines:{}, packed:{}, done:{}, openDays:{},
-            lineUrl:"", memos:[], draft:"", chat:[], chatDraft:"", sync:"off" };
+            lineUrl:"", memos:[], draft:"", chat:[], chatDraft:"", sync:"off", reads:{}, identified:false,
+            meets:{}, lodging:{}, plans:{}, editDay:"",
+            prepOpen:{}, myTodos:[], myPack:[], newTodo:"", newPack:"" };
+
+  planKey(rid, d) { return rid + ":" + d.date; }
+
+  planOf(rid, d) {
+    const ov = (this.state.plans || {})[this.planKey(rid, d)];
+    return ov ? ov : (d.plan || []);
+  }
+
+  setPlan(rid, d, rows) {
+    const key = this.planKey(rid, d);
+    this.save({ plans:Object.assign({}, this.state.plans, { [key]:rows }) });
+  }
+
+  resetPlan(rid, d) {
+    const next = Object.assign({}, this.state.plans);
+    delete next[this.planKey(rid, d)];
+    this.save({ plans:next });
+  }
+
+  chatSeq() {
+    const ids = (this.state.chat || []).map(m => Number(m.id)).filter(n => !isNaN(n));
+    return ids.length ? Math.max.apply(null, ids) : 0;
+  }
+
+  markRead() {
+    const me = this.activeMe();
+    const seq = this.chatSeq();
+    if (!me || !seq) return;
+    const reads = this.state.reads || {};
+    if (reads[me] === seq) return;
+    this.save({ reads:Object.assign({}, reads, { [me]:seq }) });
+  }
 
   initSupabase() {
     const cfg = (typeof window !== "undefined" && window.TRIP_SUPABASE) || {};
@@ -857,7 +1455,10 @@ class Component extends DCLogic {
     this.db.channel("trip")
       .on("postgres_changes", { event:"*", schema:"public", table:"trip_kv" }, p => {
         const r = p.new;
-        if (r && SHARED_KEYS.indexOf(r.k) >= 0) this.setState({ [r.k]:r.v });
+        if (!r || SHARED_KEYS.indexOf(r.k) < 0) return;
+        const mineAt = (this.sentAt || {})[r.k];
+        if (mineAt && r.updated_at && r.updated_at <= mineAt) return;
+        this.setState({ [r.k]:r.v });
       })
       .on("postgres_changes", { event:"INSERT", schema:"public", table:"trip_messages" }, p => {
         this.setState(s => (s.chat || []).some(m => m.id === p.new.id) ? null : { chat:(s.chat || []).concat(p.new) });
@@ -870,8 +1471,10 @@ class Component extends DCLogic {
 
   push(patch) {
     if (!this.db) return;
+    this.sentAt = this.sentAt || {};
+    const stamp = new Date().toISOString();
     const rows = Object.keys(patch).filter(k => SHARED_KEYS.indexOf(k) >= 0)
-      .map(k => ({ k:k, v:patch[k], updated_at:new Date().toISOString() }));
+      .map(k => { this.sentAt[k] = stamp; return { k:k, v:patch[k], updated_at:stamp }; });
     if (rows.length) this.db.from("trip_kv").upsert(rows).then(() => {});
   }
 
@@ -906,7 +1509,9 @@ class Component extends DCLogic {
           saved.me = (members.map(m => (m||"").trim()).filter(Boolean)[0]) || "";
         }
         this.setState(Object.assign({ openDays:{}, packed:{}, done:{}, sel:{}, theme:"route",
-          ballots:{}, notes:{}, deadlines:{}, lineUrl:"", memos:[], draft:"" }, saved, { members:members }));
+          ballots:{}, notes:{}, deadlines:{}, lineUrl:"", memos:[], draft:"",
+          meets:{}, lodging:{}, reads:{}, plans:{},
+          prepOpen:{}, myTodos:[], myPack:[], newTodo:"", newPack:"" }, saved, { members:members }));
       }
     } catch (e) {}
     try { this.initSupabase(); } catch (e) {}
@@ -921,7 +1526,9 @@ class Component extends DCLogic {
           tab:s.tab, route:s.route, me:s.me, votes:s.votes, comment:s.comment,
           packed:s.packed, done:s.done, openDays:s.openDays, theme:s.theme, sel:s.sel,
           members:s.members, ballots:s.ballots, notes:s.notes, deadlines:s.deadlines,
-          lineUrl:s.lineUrl, memos:s.memos
+          lineUrl:s.lineUrl, memos:s.memos, identified:s.identified,
+          meets:s.meets, lodging:s.lodging, reads:s.reads, plans:s.plans,
+          prepOpen:s.prepOpen, myTodos:s.myTodos, myPack:s.myPack
         }));
       } catch (e) {}
     });
@@ -939,6 +1546,10 @@ class Component extends DCLogic {
     if (el && this.lastChatLen !== (this.state.chat || []).length) {
       this.lastChatLen = (this.state.chat || []).length;
       el.scrollTop = el.scrollHeight;
+    }
+    if (this.state.tab === "talk") {
+      clearTimeout(this.readTimer);
+      this.readTimer = setTimeout(() => this.markRead(), 700);
     }
   }
 
@@ -988,6 +1599,12 @@ class Component extends DCLogic {
 
     const roster = this.roster();
     const me = this.activeMe();
+
+    const now = new Date();
+    const dayIso = d => TRIP_YEAR + "-" + String(Number(d.date.split("/")[0])).padStart(2,"0") + "-" + String(Number(d.date.split("/")[1])).padStart(2,"0");
+    const todayIdx = route.days.findIndex(d => isoIn(d.tz) === dayIso(d));
+    const today = todayIdx >= 0 ? dayIso(route.days[todayIdx]) : isoIn("Asia/Tokyo");
+    const phase = todayIdx >= 0 ? "during" : (today < TRIP_START ? "before" : "after");
     const ballots = roster.map(n => ({ n:n, v:(s.ballots || {})[n] || {} }));
     const mine = this.myVotes();
     const tallyFor = (t) => t.options.map(o => {
@@ -1092,16 +1709,112 @@ class Component extends DCLogic {
 
     const notesList = ballots.filter(b => ((s.notes || {})[b.n] || "").trim()).map(b => ({ n:b.n, c:s.notes[b.n] }));
 
-    const doneCount = TODOS.filter(t => s.done[t.id]).length;
-    const packedCount = PACKING.reduce((a,g) => a + g.items.filter(i => s.packed[i]).length, 0);
-    const packTotal = PACKING.reduce((a,g) => a + g.items.length, 0);
+    const doneCount = TODOS.filter(t => s.done[t.id]).length + (s.myTodos || []).filter(t => s.done[t.id]).length;
+    const packedCount = PACKING.reduce((a,g) => a + g.items.filter(i => s.packed[i]).length, 0)
+      + (s.myPack || []).filter(p => s.packed[p.id]).length;
+    const packTotal = PACKING.reduce((a,g) => a + g.items.length, 0) + (s.myPack || []).length;
 
     return {
-      countdown: Math.max(0, Math.ceil((new Date("2027-02-13T10:05:00+09:00") - new Date()) / 86400000)),
+      countdown: phase === "before" ? String(Math.max(1, Math.ceil((new Date("2027-02-13T10:05:00+09:00") - now) / 86400000)))
+                : phase === "during" ? String(todayIdx + 1) : "13",
+      countdownUnit: phase === "before" ? "日後に\n関空を出発" : phase === "during" ? "日目\n旅行中" : "日間の\n旅は終わりました",
       tabs: TABS.map(t => ({ label:t.label, style:pill(s.tab === t.id), go:() => this.save({ tab:t.id }) })),
       isHome: !TABS.some(t => t.id === s.tab) || s.tab === "home",
       isRoute: s.tab === "route", isPlan: s.tab === "plan",
       isTalk: s.tab === "talk",
+      isConfig: s.tab === "config",
+      cfgOpen: s.cfg === "me",
+      cfgCard: "background:var(--color-surface); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); transition:background .2s"
+        + (s.cfg === "me" ? "; background:var(--color-accent-100)" : ""),
+      cfgCaret: "flex:none; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; color:var(--color-accent-700); "
+        + "background:" + (s.cfg === "me" ? "var(--color-accent-200)" : "transparent")
+        + "; transition:transform .22s ease, background .2s; transform:rotate(" + (s.cfg === "me" ? "90deg" : "0deg") + ")",
+      cfgGo: () => this.setState({ cfg: s.cfg === "me" ? "" : "me" }),
+
+      needsId: !s.identified,
+      idChips: DEFAULT_MEMBERS.map((n, i) => {
+        const nm = (s.members && s.members[i]) ? s.members[i] : n;
+        return {
+          label:nm,
+          style: "cursor:pointer; font-family:var(--font-body); font-size:15px; font-weight:700; border-radius:999px; "
+            + "padding:13px 10px; border:1px solid var(--color-divider); background:var(--color-surface); color:var(--color-text); transition:all .18s",
+          go: () => this.save({ me:nm, identified:true })
+        };
+      }),
+      whoAmI: me || "未設定",
+      changeId: () => this.save({ identified:false }),
+
+      isBefore: phase === "before",
+      isDuring: phase === "during",
+      isAfter: phase === "after",
+      todayLabel: (now.getMonth()+1) + "月" + now.getDate() + "日（" + "日月火水木金土".charAt(now.getDay()) + "）",
+      todo: (() => {
+        const out = [];
+        THEMES.forEach(t => {
+          if (this.isClosed(t.id)) return;
+          const voted = t.multi ? t.options.some(o => mine[t.id + ":" + o.id] === 1) : mine[t.id] !== undefined;
+          if (!voted) out.push({ x:"「" + t.label + "」に投票する", sub:"期限 " + this.deadlineOf(t.id).replace(/-/g,"/"), go:() => this.save({ tab:"route", theme:t.id }) });
+        });
+        const undone = TODOS.filter(t => !s.done[t.id]);
+        if (undone.length) out.push({ x:"準備が " + undone.length + "件 残っています", sub:"最初は「" + undone[0].title + "」", go:() => this.save({ tab:"prep" }) });
+        const packTotal = PACKING.reduce((a,g) => a + g.items.length, 0);
+        const packedN = PACKING.reduce((a,g) => a + g.items.filter(i => s.packed[i]).length, 0);
+        if (phase === "before" && packedN < packTotal) out.push({ x:"持ち物 " + packedN + "/" + packTotal, sub:"チェックしながら詰める", go:() => this.save({ tab:"prep" }) });
+        return out;
+      })(),
+      todayCard: (() => {
+        if (phase !== "during") return null;
+        const i = todayIdx;
+        const d = route.days[i];
+        const nx = route.days[i+1];
+        const tr = TRANSIT.find(t => t.city === d.stay);
+        const wx = WEATHER.find(w => w.c === d.stay);
+        const lg = (s.lodging || {})[d.stay] || {};
+        const nowHM = clockIn(d.tz);
+        const eff = this.planOf(route.id, d);
+        return {
+          date:d.date, dow:d.dow, stay:d.stay, title:d.title, notes:d.notes,
+          clock: nowHM ? (nowHM + " 現地時間") : "",
+          plan: eff.map(p => ({
+            t:p.t, x:p.x, note:p.n || "",
+            hasNote: !!p.n,
+            past: !!(nowHM && p.t < nowHM && !(i === 0 && p.t < "04:00")),
+            dotStyle: "flex:none; width:9px; height:9px; border-radius:50%; margin-top:6px; background:"
+              + (p.k ? "var(--color-bg)" : "rgba(255,255,255,.45)")
+              + (nowHM && p.t < nowHM ? "; opacity:.4" : ""),
+            rowStyle: "display:flex; gap:10px; " + (nowHM && p.t < nowHM ? "opacity:.5" : ""),
+            timeStyle: "flex:none; width:46px; font-family:var(--font-heading); font-size:14px; line-height:1.35",
+            textStyle: "font-family:var(--font-body); font-size:13px; line-height:1.45; text-wrap:pretty" + (p.k ? "; font-weight:700" : "")
+          })),
+          hasPlan: eff.length > 0,
+          meet: (s.meets || {})[d.date] || "",
+          onMeet: e => this.save({ meets:Object.assign({}, this.state.meets, { [d.date]:e.target.value }) }),
+          lodgeName: lg.name || "", lodgeAddr: lg.addr || "", lodgeIn: lg.checkin || "", lodgeMap: lg.map || "",
+          hasLodge: !!(lg.name || lg.addr || lg.checkin || lg.map),
+          hasLodgeMap: !!lg.map,
+          transit: tr ? tr.x : "",
+          hasTransit: !!tr,
+          weather: wx ? (wx.t + " · " + wx.x) : "",
+          hasWeather: !!wx,
+          next: nx ? (nx.date + " " + nx.dow + " · " + nx.title) : "",
+          hasNext: !!nx,
+          nth: (i + 1) + "日目 / " + route.days.length + "日"
+        };
+      })(),
+      lodgeFields: LODGING_CITIES.map(c => {
+        const lg = (s.lodging || {})[c] || {};
+        const set = (f) => e => this.save({ lodging:Object.assign({}, this.state.lodging, {
+          [c]: Object.assign({}, ((this.state.lodging || {})[c] || {}), { [f]:e.target.value }) }) });
+        return { city:c, name:lg.name || "", addr:lg.addr || "", checkin:lg.checkin || "", map:lg.map || "",
+                 onName:set("name"), onAddr:set("addr"), onCheckin:set("checkin"), onMap:set("map") };
+      }),
+      cfgLodgeOpen: s.cfg === "lodge",
+      cfgLodgeCard: "background:var(--color-surface); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); transition:background .2s"
+        + (s.cfg === "lodge" ? "; background:var(--color-accent-100)" : ""),
+      cfgLodgeCaret: "flex:none; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; color:var(--color-accent-700); "
+        + "background:" + (s.cfg === "lodge" ? "var(--color-accent-200)" : "transparent")
+        + "; transition:transform .22s ease, background .2s; transform:rotate(" + (s.cfg === "lodge" ? "90deg" : "0deg") + ")",
+      cfgLodgeGo: () => this.setState({ cfg: s.cfg === "lodge" ? "" : "lodge" }),
       syncOn: s.sync === "on",
       syncLabel: s.sync === "on" ? "共有中 · 9人の入力がリアルタイムで反映されます"
                : s.sync === "connecting" ? "接続中…"
@@ -1117,15 +1830,29 @@ class Component extends DCLogic {
       sendChat: () => this.sendChat(),
       chatRef: el => { this.chatEl = el; },
       hasChat: (s.chat || []).length > 0,
+      unreadLabel: (() => {
+        const seq = this.chatSeq();
+        if (!seq) return "まだメッセージがありません。";
+        const reads = s.reads || {};
+        const behind = roster.filter(n => (reads[n] || 0) < seq);
+        if (!behind.length) return "最新のメッセージは全員が読みました。";
+        return "未読 " + behind.length + "人 / " + roster.length + "人 · " + behind.join("・");
+      })(),
       chat: (s.chat || []).map(m => {
         const d = new Date(m.created_at);
-        const own = m.who === this.activeMe();
+        const own = m.who === me;
+        const id = Number(m.id);
+        const reads = s.reads || {};
+        const seen = isNaN(id) ? [] : roster.filter(n => n !== m.who && (reads[n] || 0) >= id);
         return {
           who:m.who, body:m.body,
           when: (d.getMonth()+1) + "/" + d.getDate() + " " + String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0"),
-          row: "display:flex; flex-direction:column; max-width:80%; " + (own ? "align-self:flex-end; align-items:flex-end" : "align-self:flex-start"),
+          row: "display:flex; flex-direction:column; max-width:82%; " + (own ? "align-self:flex-end; align-items:flex-end" : "align-self:flex-start"),
           bubble: "border-radius:var(--radius-lg); padding:9px 14px; font-family:var(--font-body); font-size:13.5px; white-space:pre-wrap; text-wrap:pretty; "
-            + (own ? "background:var(--color-accent-2-600); color:var(--color-bg)" : "background:var(--color-bg); color:var(--color-text)")
+            + (own ? "background:var(--color-accent-2-600); color:var(--color-bg)" : "background:var(--color-surface); color:var(--color-text)"),
+          readLabel: own ? ("既読 " + seen.length + "/" + Math.max(0, roster.length - 1)) : "",
+          readStyle: "font-family:var(--font-body); font-size:10px; color:var(--color-neutral-600); margin-top:3px; "
+            + (own ? "" : "display:none")
         };
       }),
       lineUrl: s.lineUrl || "",
@@ -1154,8 +1881,25 @@ class Component extends DCLogic {
       days: route.days.map(d => {
         const k = route.id + d.date;
         const on = !!s.openDays[k];
+        const pk = this.planKey(route.id, d);
+        const eff = this.planOf(route.id, d);
+        const editing = s.editDay === pk;
+        const write = rows => this.setPlan(route.id, d, rows);
         return {
           date:d.date, dow:d.dow, stay:d.stay, title:d.title, notes:d.notes, open:on,
+          plan:eff, hasPlan:eff.length > 0,
+          editing:editing, notEditing:!editing,
+          editLabel: editing ? "編集を終了" : "時刻を編集",
+          editGo: () => this.setState({ editDay: editing ? "" : pk }),
+          editRows: eff.map((p, idx) => ({
+            t:p.t, x:p.x,
+            onTime: e => { const r = eff.map(q => Object.assign({}, q)); r[idx].t = e.target.value; write(r); },
+            onText: e => { const r = eff.map(q => Object.assign({}, q)); r[idx].x = e.target.value; write(r); },
+            del: () => write(eff.filter((q, j) => j !== idx))
+          })),
+          addRow: () => write(eff.concat({ t:"12:00", x:"" })),
+          sortRows: () => write(eff.map(q => Object.assign({}, q)).sort((a, b) => a.t < b.t ? -1 : 1)),
+          resetRows: () => this.resetPlan(route.id, d),
           card: "background:var(--color-surface); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); transition:background .2s"
             + (on ? "; background:var(--color-accent-100)" : ""),
           caret: "flex:none; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; color:var(--color-accent-700); "
@@ -1210,7 +1954,73 @@ class Component extends DCLogic {
       booking: BOOKING, weather: WEATHER, currencies: CURRENCIES, money: MONEY,
       roles: ROLES, meals: MEALS, emergency: EMERGENCY, links: LINKS,
 
-      prepDone: doneCount + " / " + TODOS.length + " 完了",
+      prepDone: doneCount + " / " + (TODOS.length + (s.myTodos || []).length) + " 完了",
+      sec: (() => {
+        const mk = id => {
+          const on = !!(s.prepOpen || {})[id];
+          return {
+            open:on,
+            card: "background:var(--color-surface); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); transition:background .2s"
+              + (on ? "; background:var(--color-accent-100)" : ""),
+            caret: "flex:none; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; color:var(--color-accent-700); "
+              + "background:" + (on ? "var(--color-accent-200)" : "transparent")
+              + "; transition:transform .22s ease, background .2s; transform:rotate(" + (on ? "90deg" : "0deg") + ")",
+            go: () => this.save({ prepOpen:Object.assign({}, this.state.prepOpen, { [id]:!on }) })
+          };
+        };
+        return { prep:mk("prep"), pack:mk("pack"), wx:mk("wx") };
+      })(),
+      packBadge: packedCount + " / " + packTotal,
+      newTodo: s.newTodo || "",
+      onNewTodo: e => this.setState({ newTodo:e.target.value }),
+      addTodo: () => {
+        const t = (this.state.newTodo || "").trim();
+        if (!t) return;
+        this.save({ myTodos:(this.state.myTodos || []).concat({ id:"m" + Date.now(), title:t }), newTodo:"" });
+      },
+      newPack: s.newPack || "",
+      onNewPack: e => this.setState({ newPack:e.target.value }),
+      addPack: () => {
+        const t = (this.state.newPack || "").trim();
+        if (!t) return;
+        this.save({ myPack:(this.state.myPack || []).concat({ id:"p" + Date.now(), label:t }), newPack:"" });
+      },
+      myTodos: (s.myTodos || []).map((t, i) => {
+        const on = !!s.done[t.id];
+        return {
+          title:t.title, tick: on ? "✓" : "",
+          card: "border-radius:var(--radius-lg); padding:12px 14px; transition:background .2s; background:"
+            + (on ? "var(--color-accent-2-100)" : "var(--color-bg)"),
+          box: "cursor:pointer; flex:none; width:24px; height:24px; border-radius:50%; display:grid; place-items:center; font-size:13px; font-weight:700; "
+            + (on ? "background:var(--color-accent-2-600); color:var(--color-bg); border:1px solid transparent"
+                  : "background:transparent; color:transparent; border:1.5px solid var(--color-neutral-400)"),
+          go: () => this.save({ done:Object.assign({}, this.state.done, { [t.id]:!on }) }),
+          onEdit: e => {
+            const next = (this.state.myTodos || []).map(x => Object.assign({}, x));
+            next[i].title = e.target.value;
+            this.save({ myTodos:next });
+          },
+          del: () => this.save({ myTodos:(this.state.myTodos || []).filter(x => x.id !== t.id) })
+        };
+      }),
+      hasMyTodos: (s.myTodos || []).length > 0,
+      myPack: (s.myPack || []).map((p, i) => {
+        const on = !!s.packed[p.id];
+        return {
+          label:p.label, tick: on ? "✓" : "",
+          box: "cursor:pointer; flex:none; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; font-size:12px; font-weight:700; "
+            + (on ? "background:var(--color-accent-2-600); color:var(--color-bg); border:1px solid transparent"
+                  : "background:transparent; color:transparent; border:1.5px solid var(--color-neutral-400)"),
+          go: () => this.save({ packed:Object.assign({}, this.state.packed, { [p.id]:!on }) }),
+          onEdit: e => {
+            const next = (this.state.myPack || []).map(x => Object.assign({}, x));
+            next[i].label = e.target.value;
+            this.save({ myPack:next });
+          },
+          del: () => this.save({ myPack:(this.state.myPack || []).filter(x => x.id !== p.id) })
+        };
+      }),
+      hasMyPack: (s.myPack || []).length > 0,
       todos: TODOS.map(t => {
         const on = !!s.done[t.id];
         return {
