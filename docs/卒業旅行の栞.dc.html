@@ -87,7 +87,7 @@
   <header class="om-head" style="{{ headStyle }}">
     
     <h1 style="{{ titleStyle }}">卒業旅行の栞</h1>
-    <div data-om="mini" style="{{ miniStyle }}"><span>{{ countdown }}</span><span style="font-size:12px">{{ countdownShort }}</span></div>
+    <div data-om="mini" style="{{ miniStyle }}"><div style="{{ pillStyle }}"><span>{{ todayShort }}</span><span style="font-size:12px">{{ todayDow }}</span></div><div style="{{ pillStyle }}"><span>{{ countdown }}</span><span style="font-size:12px">{{ countdownShort }}</span></div></div>
     <div data-om="meta" style="{{ metaStyle }}">
       
     </div><div data-om="cd" style="{{ cdWrapStyle }}"><div style="margin-top: 16px; display: flex; align-items: center; gap: 16px; border-radius: var(--radius-lg); padding: 14px 18px; box-shadow: var(--shadow-sm); background-color: {{ themeColor }}; transition: background-color .25s">
@@ -1921,11 +1921,11 @@ class Component extends DCLogic {
     return el.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop;
   }
 
-  applyCondense(on, force) {
-    if (!force && on === this.condensed) return;
-    this.condensed = on;
+  applyCondense() {
+    if (false) {
     const head = document.querySelector(".om-head");
     if (!head) return;
+    const on = false;
     const mini = head.querySelector('[data-om="mini"]');
     const meta = head.querySelector('[data-om="meta"]');
     const title = head.querySelector("h1");
@@ -1950,6 +1950,7 @@ class Component extends DCLogic {
     if (mini) {
       mini.style.transform = on ? "translate3d(0,0,0)" : "translate3d(0,-64px,0)";
       mini.style.opacity = on ? "1" : "0";
+    }
     }
   }
 
@@ -2376,10 +2377,8 @@ class Component extends DCLogic {
                 : phase === "during" ? String(todayIdx + 1) : "13",
       countdownUnit: phase === "before" ? "日後\n" : phase === "during" ? "日目\n旅行中" : "日間の\n旅は終わりました",
       countdownShort: phase === "before" ? "日後" : phase === "during" ? "日目" : "日間",
-      miniStyle: "position:absolute; top:10px; right:20px; z-index:2; display:flex; align-items:baseline; gap:6px; "
-        + "font-family:'Zen Maru Gothic'; font-size:21px; line-height:1.25; color:#201E1D; "
-        + "border-radius:var(--radius-lg); padding:2px 14px; box-shadow:var(--shadow-sm); background-color:" + ((TABS.find(t => t.id === s.tab) || TABS[0]).theme) + "; "
-        + "will-change:transform, opacity; transition:transform .26s ease, opacity .2s ease; transform:translate3d(0,-64px,0); opacity:0; pointer-events:none",
+      pillStyle: "display:flex; align-items:baseline; gap:6px; font-family:'Zen Maru Gothic'; font-size:21px; line-height:1.25; color:#201E1D; border-radius:var(--radius-lg); padding:2px 14px; box-shadow:var(--shadow-sm); background-color:" + ((TABS.find(t => t.id === s.tab) || TABS[0]).theme) + "; transition:background-color .25s",
+      miniStyle: "position:absolute; top:50%; right:20px; transform:translateY(-50%); z-index:2; display:flex; align-items:center; gap:8px",
       mainRef: el => {
         if (!el) return;
         this.scroller = el;
@@ -2434,10 +2433,10 @@ class Component extends DCLogic {
         }
       },
       stickyStyle: "position:relative; z-index:11; flex:none; background:transparent",
-      headStyle: "position:relative; overflow:clip; display:flex; flex-direction:column; background-color:#FFFFFF; border-radius:var(--radius-lg) var(--radius-lg) 0 0; transition:padding .22s ease; padding:26px 20px 12px",
-      titleStyle: "order:2; line-height:1.25; font-size:31px; margin:8px 0 6px; font-family:'Zen Maru Gothic'; transform-origin:left center; will-change:transform; transition:transform .22s ease, margin .22s ease",
-      metaStyle: "order:1; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700); overflow:hidden; height:22px; opacity:1; transition:height .22s ease, opacity .16s ease",
-      cdWrapStyle: "order:3; overflow:hidden; will-change:transform, opacity; transition:height .24s ease, opacity .18s ease, transform .24s ease",
+      headStyle: "position:relative; overflow:clip; display:flex; flex-direction:column; background-color:#FFFFFF; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:14px 20px 8px",
+      titleStyle: "order:2; line-height:1.25; font-size:21px; margin:0; font-family:'Zen Maru Gothic'",
+      metaStyle: "display:none",
+      cdWrapStyle: "display:none",
       tabs: TABS.map(t => ({ label:t.label,style:pill(s.tab === t.id, t.btn || t.theme), go:() => this.save({ tab:t.id }),
         hasBadge: (t.id === "talk" && this.myUnread() > 0) || (t.id === "route" && this.openUnvotedCount() > 0),
         badge: t.id === "route" ? String(this.openUnvotedCount()) : String(this.myUnread()) })),
