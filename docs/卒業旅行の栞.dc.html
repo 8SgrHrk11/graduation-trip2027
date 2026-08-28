@@ -9,6 +9,10 @@
 <x-dc>
 <helmet>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="stylesheet" href="_ds/organic-47948af4-c1b6-4758-9bfd-5377968de67e/styles.css">
 <script src="_ds/organic-47948af4-c1b6-4758-9bfd-5377968de67e/_ds_bundle.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
@@ -183,7 +187,7 @@
         <div style="font-family: var(--font-body); font-size: 22px; letter-spacing: .18em; text-transform: uppercase; color: var(--color-neutral-900); font-weight: 700">To Do List</div>
         <div style="display:grid; gap:8px; margin-top:10px">
           <sc-for list="{{ todo }}" as="td2" hint-placeholder-count="3">
-            <div onClick="{{ td2.go }}" style="cursor:pointer; background:var(--color-surface); border-radius:var(--radius-lg); padding:14px 16px; box-shadow:var(--shadow-sm)">
+            <div onClick="{{ td2.go }}" style="{{ td2.style }}">
               <div style="font-family:var(--font-body); font-size:13.5px; font-weight:700; text-wrap:pretty">{{ td2.x }}</div>
               <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-600); margin-top:3px; text-wrap:pretty">{{ td2.sub }}</div>
             </div>
@@ -226,7 +230,7 @@
         </div>
         <div style="flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; background:var(--color-accent-2-200); color:var(--color-accent-2-800); border-radius:999px; padding:3px 10px">{{ whoAmI }}</div>
         <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
-          <div style="flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; background:var(--color-accent-200); color:var(--color-accent-800); border-radius:999px; padding:3px 10px">編集者権限</div>
+          <div style="flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; background:var(--color-accent-200); color:var(--color-accent-800); border-radius:999px; padding:3px 10px">管理者権限</div>
         </sc-if>
       </div>
       <sc-if value="{{ cfgOpen }}" hint-placeholder-val="{{ true }}">
@@ -308,17 +312,69 @@
   </sc-if>
 
   <sc-if value="{{ isRoute }}" hint-placeholder-val="{{ true }}">
-  <section style="animation:floatUp .45s ease both">
+  <section style="animation:floatUp .45s ease both; display:flex; flex-direction:column">
+    <div style="order:2">
     <h2 style="font-size:22px; margin:18px 0 4px">検討・投票</h2>
     <p style="font-family:var(--font-body); font-size:14px; color:var(--color-neutral-700); text-wrap:pretty">9人全員が「確定」をチェックした時点で、そのテーマの投票は自動的に終了します。</p>
-
-    <div style="display:flex; align-items:center; gap:10px; background:var(--color-surface); border-radius:999px; padding:9px 16px; margin-top:16px; box-shadow:var(--shadow-sm)">
-      <div style="font-family:var(--font-body); font-size:12.5px; color:var(--color-neutral-700)">投票するのは</div>
-      <div style="font-family:var(--font-body); font-size:14px; font-weight:700">{{ whoAmI }}</div>
-      <button type="button" onClick="{{ changeId }}" style="margin-left: auto; flex: none; cursor: pointer; background: transparent; border: 0; color: var(--color-neutral-900); font-family: var(--font-body); font-size: 11.5px; font-weight: 700">変更</button>
     </div>
 
-    <div style="display:grid; gap:8px; margin-top:16px">
+    <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+      <div style="order:1; margin-top:16px; {{ adminCard }}">
+        <div onClick="{{ adminGo }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
+          <div style="{{ adminCaret }}">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </div>
+          <div style="flex:1; min-width:0">
+            <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700; color:var(--color-accent-2-900)">テーマの管理</div>
+            <div style="font-family:var(--font-body); font-size:12px; color:var(--color-accent-2-800); margin-top:2px">検討テーマの追加・編集・削除</div>
+          </div>
+          <div style="flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; background:var(--color-accent-2-600); color:#FFFFFF; border-radius:999px; padding:3px 9px">管理者権限</div>
+        </div>
+        <sc-if value="{{ adminOpen }}" hint-placeholder-val="{{ true }}">
+          <div style="padding:0 16px 16px; display:grid; gap:10px; animation:floatUp .28s ease both">
+            <sc-for list="{{ adminThemes }}" as="at" hint-placeholder-count="4">
+              <div style="background:rgba(255,255,255,.72); border-radius:var(--radius-md); padding:13px 14px; display:grid; gap:8px; border:1px solid var(--color-accent-2-300)">
+                <div style="display:flex; gap:8px; align-items:center">
+                  <input class="input" value="{{ at.label }}" onChange="{{ at.onLabel }}" placeholder="テーマ名" style="flex: 1; min-width: 0; font-size: 13.5px; font-weight: 700; background-color: #FFFFFF">
+                  <div style="{{ at.statusStyle }}">{{ at.status }}</div>
+                </div>
+                <input class="input" value="{{ at.sub }}" onChange="{{ at.onSub }}" placeholder="説明（任意）" style="font-size: 12.5px; background-color: #FFFFFF">
+                <div style="display:flex; gap:9px; align-items:center">
+                  <div style="flex:none; font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-700)">投票期限</div>
+                  <input type="datetime-local" class="input" value="{{ at.deadline }}" onChange="{{ at.onDeadline }}" style="flex: 1; min-width: 0; font-size: 12.5px; background-color: #FFFFFF">
+                </div>
+                <sc-if value="{{ at.canEditOpts }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:grid; gap:6px">
+                  <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--color-accent-2-800)">選択肢</div>
+                    <sc-for list="{{ at.opts }}" as="ao" hint-placeholder-count="2">
+                      <div style="display:flex; gap:8px; align-items:center; background:var(--color-accent-2-100); border-radius:var(--radius-md); padding:6px 10px">
+                        <input class="input" value="{{ ao.name }}" onChange="{{ ao.onName }}" style="flex: 1; min-width: 0; font-size: 12.5px; background-color: #FFFFFF">
+                        <button type="button" onClick="{{ ao.del }}" style="flex:none; cursor:pointer; background:transparent; border:0; color:var(--color-accent-2-800); font-family:var(--font-body); font-size:11px; font-weight:700">削除</button>
+                      </div>
+                    </sc-for>
+                    <button type="button" onClick="{{ at.addOpt }}" style="justify-self:start; cursor:pointer; background:transparent; border:0; color:var(--color-accent-2-800); font-family:var(--font-body); font-size:11.5px; font-weight:700">＋ 選択肢を追加</button>
+                  </div>
+                </sc-if>
+                <button type="button" onClick="{{ at.del }}" style="justify-self:start; cursor:pointer; background:transparent; border:0; color:var(--color-accent-2-800); font-family:var(--font-body); font-size:11.5px; font-weight:700">このテーマを削除</button>
+              </div>
+            </sc-for>
+            <div style="background:rgba(255,255,255,.72); border-radius:var(--radius-md); padding:13px 14px; display:grid; gap:7px; border:1px dashed var(--color-accent-2-400)">
+              <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--color-accent-2-800)">テーマを追加</div>
+              <input class="input" placeholder="テーマ名" value="{{ newThemeLabel }}" onChange="{{ onNewThemeLabel }}" style="font-size: 13px; background-color: #FFFFFF">
+              <div style="display:flex; gap:7px">
+                <input class="input" placeholder="説明（任意）" value="{{ newThemeSub }}" onChange="{{ onNewThemeSub }}" style="flex: 1; min-width: 0; font-size: 12.5px; background-color: #FFFFFF">
+                <button type="button" onClick="{{ addTheme }}" style="flex:none; cursor:pointer; border:0; border-radius:999px; padding:9px 18px; background:var(--color-accent-2-600); color:#FFFFFF; font-family:var(--font-body); font-size:12.5px; font-weight:700">追加</button>
+              </div>
+              <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-accent-2-800); text-wrap:pretty">追加したテーマは案A・案Bの2選択で作られます。選択肢はあとから変えられます。</div>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    
+
+    <div style="order:4; display:grid; gap:8px; margin-top:16px">
       <sc-for list="{{ themes }}" as="th" hint-placeholder-count="6">
         <div style="{{ th.card }}">
           <div onClick="{{ th.go }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
@@ -329,7 +385,9 @@
               <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700">{{ th.label }}</div>
               <div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-600); margin-top:2px; text-wrap:pretty">{{ th.sub }}</div>
             </div>
-            
+            <sc-if value="{{ th.hasRemain }}" hint-placeholder-val="{{ true }}">
+              <div style="{{ th.remainStyle }}">{{ th.remain }}</div>
+            </sc-if>
           </div>
 
           <sc-if value="{{ th.open }}" hint-placeholder-val="{{ true }}">
@@ -417,7 +475,7 @@
               </sc-if>
 
               <sc-if value="{{ th.showConfirm }}" hint-placeholder-val="{{ true }}">
-                <div style="{{ th.confirmPanel }}">
+                <div ref="{{ th.confirmRef }}" style="{{ th.confirmPanel }}">
                   <sc-if value="{{ th.confirmNudge }}" hint-placeholder-val="{{ false }}">
                     <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:#57750E; margin-bottom:7px">変更しない人は、チェック</div>
                   </sc-if>
@@ -434,63 +492,9 @@
       </sc-for>
     </div>
 
-    <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
-      <div style="margin-top:20px; {{ adminCard }}">
-        <div onClick="{{ adminGo }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
-          <div style="{{ adminCaret }}">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-          </div>
-          <div style="flex:1; min-width:0">
-            <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700; color:var(--color-accent-2-900)">テーマの管理</div>
-            <div style="font-family:var(--font-body); font-size:12px; color:var(--color-accent-2-800); margin-top:2px">検討テーマの追加・編集・削除</div>
-          </div>
-          <div style="flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; background:var(--color-accent-2-600); color:#FFFFFF; border-radius:999px; padding:3px 9px">編集者権限</div>
-        </div>
-        <sc-if value="{{ adminOpen }}" hint-placeholder-val="{{ true }}">
-          <div style="padding:0 16px 16px; display:grid; gap:10px; animation:floatUp .28s ease both">
-            <sc-for list="{{ adminThemes }}" as="at" hint-placeholder-count="4">
-              <div style="background:rgba(255,255,255,.72); border-radius:var(--radius-md); padding:13px 14px; display:grid; gap:8px; border:1px solid var(--color-accent-2-300)">
-                <div style="display:flex; gap:8px; align-items:center">
-                  <input class="input" value="{{ at.label }}" onChange="{{ at.onLabel }}" placeholder="テーマ名" style="flex:1; min-width:0; font-size:13.5px; font-weight:700">
-                  <div style="{{ at.statusStyle }}">{{ at.status }}</div>
-                </div>
-                <input class="input" value="{{ at.sub }}" onChange="{{ at.onSub }}" placeholder="説明（任意）" style="font-size:12.5px">
-                <div style="display:flex; gap:9px; align-items:center">
-                  <div style="flex:none; font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-700)">投票期限</div>
-                  <input type="date" class="input" value="{{ at.deadline }}" onChange="{{ at.onDeadline }}" style="flex:1; min-width:0; font-size:12.5px">
-                </div>
-                <sc-if value="{{ at.canEditOpts }}" hint-placeholder-val="{{ true }}">
-                  <div style="display:grid; gap:6px">
-                  <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--color-accent-2-800)">選択肢</div>
-                    <sc-for list="{{ at.opts }}" as="ao" hint-placeholder-count="2">
-                      <div style="display:flex; gap:8px; align-items:center; background:var(--color-accent-2-100); border-radius:var(--radius-md); padding:6px 10px">
-                        <input class="input" value="{{ ao.name }}" onChange="{{ ao.onName }}" style="flex:1; min-width:0; font-size:12.5px">
-                        <button type="button" onClick="{{ ao.del }}" style="flex:none; cursor:pointer; background:transparent; border:0; color:var(--color-accent-2-800); font-family:var(--font-body); font-size:11px; font-weight:700">削除</button>
-                      </div>
-                    </sc-for>
-                    <button type="button" onClick="{{ at.addOpt }}" style="justify-self:start; cursor:pointer; background:transparent; border:0; color:var(--color-accent-2-800); font-family:var(--font-body); font-size:11.5px; font-weight:700">＋ 選択肢を追加</button>
-                  </div>
-                </sc-if>
-                <button type="button" onClick="{{ at.del }}" style="justify-self:start; cursor:pointer; background:transparent; border:0; color:var(--color-accent-2-800); font-family:var(--font-body); font-size:11.5px; font-weight:700">このテーマを削除</button>
-              </div>
-            </sc-for>
-            <div style="background:rgba(255,255,255,.72); border-radius:var(--radius-md); padding:13px 14px; display:grid; gap:7px; border:1px dashed var(--color-accent-2-400)">
-              <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--color-accent-2-800)">テーマを追加</div>
-              <input class="input" placeholder="テーマ名" value="{{ newThemeLabel }}" onChange="{{ onNewThemeLabel }}" style="font-size:13px">
-              <div style="display:flex; gap:7px">
-                <input class="input" placeholder="説明（任意）" value="{{ newThemeSub }}" onChange="{{ onNewThemeSub }}" style="flex:1; min-width:0; font-size:12.5px">
-                <button type="button" onClick="{{ addTheme }}" style="flex:none; cursor:pointer; border:0; border-radius:999px; padding:9px 18px; background:var(--color-accent-2-600); color:#FFFFFF; font-family:var(--font-body); font-size:12.5px; font-weight:700">追加</button>
-              </div>
-              <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-accent-2-800); text-wrap:pretty">追加したテーマは案A・案Bの2選択で作られます。選択肢はあとから変えられます。</div>
-            </div>
-          </div>
-        </sc-if>
-      </div>
-    </sc-if>
-
-    <h3 style="font-size:19px; margin:26px 0 4px">投票結果</h3>
+    <h3 style="order:5; font-size:19px; margin:26px 0 4px">投票結果</h3>
     
-    <div style="display:grid; gap:10px; margin-top:12px">
+    <div style="order:6; display:grid; gap:10px; margin-top:12px">
       <sc-for list="{{ results }}" as="rs" hint-placeholder-count="3">
         <div style="{{ rs.card }}">
           <div onClick="{{ rs.go }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
@@ -859,8 +863,8 @@
               <div style="font-family:var(--font-body); font-size:13px; font-weight:700; margin-bottom:9px">{{ lf.city }}</div>
               <div style="display:grid; gap:7px">
                 <input class="input" placeholder="宿の名前" value="{{ lf.name }}" onChange="{{ lf.onName }}" style="background-color: #FFFFFF">
-                <input class="input" placeholder="チェックイン時刻" value="{{ lf.addr }}" onChange="{{ lf.onAddr }}" style="background-color: #FFFFFF">
-                <input class="input" placeholder="チェックアウト時刻" value="{{ lf.checkin }}" onChange="{{ lf.onCheckin }}" style="background-color: #FFFFFF">
+                <input class="input" placeholder="チェックイン日時" value="{{ lf.addr }}" onChange="{{ lf.onAddr }}" style="background-color: #FFFFFF">
+                <input class="input" placeholder="チェックアウト日時" value="{{ lf.checkin }}" onChange="{{ lf.onCheckin }}" style="background-color: #FFFFFF">
                 <input class="input" placeholder="GoogleマップのURL (AirBnb など)" value="{{ lf.map }}" onChange="{{ lf.onMap }}" style="background-color: #FFFFFF">
               </div>
             </div>
@@ -884,14 +888,14 @@
         <div style="padding:0 16px 16px; animation:floatUp .28s ease both">
           <div style="display:grid; gap:8px">
             <sc-for list="{{ weather }}" as="w" hint-placeholder-count="5">
-              <div style="display:flex; align-items:center; gap:12px; border-bottom:1px solid var(--color-divider); padding-bottom:8px">
+              <div style="display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--color-divider); padding-bottom: 8px; background-color: #E7FCFB">
                 <div style="flex:none; width:74px; font-family:var(--font-body); font-size:13px; font-weight:700">{{ w.c }}</div>
                 <div style="flex:none; font-family:var(--font-heading); font-size:14px; color:var(--color-accent-700)">{{ w.t }}</div>
                 <div style="font-family:var(--font-body); font-size:12.5px; color:var(--color-neutral-700)">{{ w.x }}</div>
               </div>
             </sc-for>
           </div>
-          <div style="margin-top:12px; font-family:var(--font-body); font-size:12.5px; color:var(--color-neutral-700); text-wrap:pretty">クラクフとバルセロナの差が20℃近くあります。厚手のコート1枚で通すより、薄い中綿＋重ね着で調整するほうが荷物が減ります。</div>
+          
         </div>
       </sc-if>
     </div>
@@ -920,39 +924,32 @@
         </div>
       </div>
       <sc-if value="{{ sec.food.open }}" hint-placeholder-val="{{ true }}">
-        <div style="padding:0 16px 16px; display:grid; gap:7px; animation:floatUp .28s ease both">
+        <div style="padding:0 16px 16px; display:grid; gap:14px; animation:floatUp .28s ease both">
           <sc-for list="{{ foodCities }}" as="fc" hint-placeholder-count="9">
-            <div style="background-color:#FFFFFF; border-radius:var(--radius-md); overflow:hidden">
-              <div onClick="{{ fc.go }}" style="cursor:pointer; display:flex; align-items:center; gap:9px; padding:11px 14px">
-                <div style="{{ fc.caret }}">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                </div>
-                <div style="flex:1; min-width:0; font-family:var(--font-body); font-size:13.5px; font-weight:700">{{ fc.c }}</div>
+            <div style="border-radius: var(--radius-md); padding: 14px; background-color: #EFFEFD; border: 1px solid var(--color-divider)">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:9px">
+                <div style="flex:1; min-width:0; font-family:var(--font-body); font-size:13px; font-weight:700">{{ fc.c }}</div>
                 <sc-if value="{{ fc.hasCount }}" hint-placeholder-val="{{ false }}">
                   <div style="flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; color:var(--color-accent-800); background:var(--color-accent-200); border-radius:999px; padding:2px 9px">{{ fc.count }}</div>
                 </sc-if>
               </div>
-              <sc-if value="{{ fc.open }}" hint-placeholder-val="{{ true }}">
-                <div style="padding:0 14px 14px; animation:floatUp .24s ease both">
-                  <sc-if value="{{ fc.hasGuide }}" hint-placeholder-val="{{ true }}">
-                    <div style="font-family:var(--font-body); font-size:12.5px; color:var(--color-neutral-700); text-wrap:pretty; margin-bottom:10px">{{ fc.guide }}</div>
-                  </sc-if>
-                  <sc-if value="{{ fc.hasNotes }}" hint-placeholder-val="{{ true }}">
-                    <div style="display:grid; gap:6px; margin-bottom:9px">
-                      <sc-for list="{{ fc.notes }}" as="fn" hint-placeholder-count="2">
-                        <div style="display:flex; gap:8px; align-items:center; background:var(--color-bg); border-radius:var(--radius-md); padding:7px 11px">
-                          <input class="input" value="{{ fn.t }}" onChange="{{ fn.onEdit }}" style="flex:1; min-width:0; font-size:13px">
-                          <button type="button" onClick="{{ fn.del }}" style="flex:none; cursor:pointer; background:transparent; border:0; color:var(--color-neutral-600); font-family:var(--font-body); font-size:11px; font-weight:700">削除</button>
-                        </div>
-                      </sc-for>
-                    </div>
-                  </sc-if>
-                  <div style="display:flex; gap:7px">
-                    <input class="input" placeholder="お店・食べたいものを追加" value="{{ fc.draft }}" onChange="{{ fc.onDraft }}" style="flex:1; min-width:0; font-size:13px">
-                    <button type="button" class="btn btn-primary" onClick="{{ fc.add }}" style="flex:none; border-radius:999px; font-family:var(--font-body); font-size:12.5px; font-weight:700">追加</button>
-                  </div>
-                </div>
+              <sc-if value="{{ fc.hasGuide }}" hint-placeholder-val="{{ true }}">
+                
               </sc-if>
+              <div style="display:grid; gap:7px">
+                <sc-if value="{{ fc.hasNotes }}" hint-placeholder-val="{{ true }}">
+                  <sc-for list="{{ fc.notes }}" as="fn" hint-placeholder-count="2">
+                    <div style="display:flex; gap:8px; align-items:center">
+                      <input class="input" value="{{ fn.t }}" onChange="{{ fn.onEdit }}" style="flex:1; min-width:0; font-size:13px; background-color:#FFFFFF">
+                      <button type="button" onClick="{{ fn.del }}" style="flex:none; cursor:pointer; background:transparent; border:0; color:var(--color-neutral-600); font-family:var(--font-body); font-size:11px; font-weight:700">削除</button>
+                    </div>
+                  </sc-for>
+                </sc-if>
+                <div style="display:flex; gap:7px">
+                  <input class="input" placeholder="お店・食べたいものを追加" value="{{ fc.draft }}" onChange="{{ fc.onDraft }}" style="flex:1; min-width:0; font-size:13px; background-color:#FFFFFF">
+                  <button type="button" class="btn btn-primary" onClick="{{ fc.add }}" style="flex:none; border-radius:999px; font-family:var(--font-body); font-size:12.5px; font-weight:700">追加</button>
+                </div>
+              </div>
             </div>
           </sc-for>
           <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); margin-top:4px; text-wrap:pretty">追加・編集・削除は9人全員に共有されます。</div>
@@ -972,36 +969,29 @@
         </div>
       </div>
       <sc-if value="{{ sec.spot.open }}" hint-placeholder-val="{{ true }}">
-        <div style="padding:0 16px 16px; display:grid; gap:7px; animation:floatUp .28s ease both">
+        <div style="padding:0 16px 16px; display:grid; gap:14px; animation:floatUp .28s ease both">
           <sc-for list="{{ spotCities }}" as="sp" hint-placeholder-count="9">
-            <div style="{{ sp.card }}">
-              <div onClick="{{ sp.go }}" style="cursor:pointer; display:flex; align-items:center; gap:9px; padding:11px 14px">
-                <div style="{{ sp.caret }}">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                </div>
-                <div style="flex:1; min-width:0; font-family:var(--font-body); font-size:13.5px; font-weight:700">{{ sp.c }}</div>
+            <div style="border-radius: var(--radius-md); padding: 14px; background-color: #EFFEFD; border: 1px solid var(--color-divider)">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:9px">
+                <div style="flex:1; min-width:0; font-family:var(--font-body); font-size:13px; font-weight:700">{{ sp.c }}</div>
                 <sc-if value="{{ sp.hasCount }}" hint-placeholder-val="{{ false }}">
                   <div style="flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; color:var(--color-accent-2-800); background:var(--color-accent-2-200); border-radius:999px; padding:2px 9px">{{ sp.count }}</div>
                 </sc-if>
               </div>
-              <sc-if value="{{ sp.open }}" hint-placeholder-val="{{ true }}">
-                <div style="padding:0 14px 14px; animation:floatUp .24s ease both">
-                  <sc-if value="{{ sp.hasNotes }}" hint-placeholder-val="{{ true }}">
-                    <div style="display:grid; gap:6px; margin-bottom:9px">
-                      <sc-for list="{{ sp.notes }}" as="sn" hint-placeholder-count="2">
-                        <div style="display:flex; gap:8px; align-items:center; background:var(--color-bg); border-radius:var(--radius-md); padding:7px 11px">
-                          <input class="input" value="{{ sn.t }}" onChange="{{ sn.onEdit }}" style="flex:1; min-width:0; font-size:13px">
-                          <button type="button" onClick="{{ sn.del }}" style="flex:none; cursor:pointer; background:transparent; border:0; color:var(--color-neutral-600); font-family:var(--font-body); font-size:11px; font-weight:700">削除</button>
-                        </div>
-                      </sc-for>
+              <div style="display:grid; gap:7px">
+                <sc-if value="{{ sp.hasNotes }}" hint-placeholder-val="{{ true }}">
+                  <sc-for list="{{ sp.notes }}" as="sn" hint-placeholder-count="2">
+                    <div style="display:flex; gap:8px; align-items:center">
+                      <input class="input" value="{{ sn.t }}" onChange="{{ sn.onEdit }}" style="flex:1; min-width:0; font-size:13px; background-color:#FFFFFF">
+                      <button type="button" onClick="{{ sn.del }}" style="flex:none; cursor:pointer; background:transparent; border:0; color:var(--color-neutral-600); font-family:var(--font-body); font-size:11px; font-weight:700">削除</button>
                     </div>
-                  </sc-if>
-                  <div style="display:flex; gap:7px">
-                    <input class="input" placeholder="行きたい場所を追加" value="{{ sp.draft }}" onChange="{{ sp.onDraft }}" style="flex:1; min-width:0; font-size:13px">
-                    <button type="button" class="btn btn-primary" onClick="{{ sp.add }}" style="flex:none; border-radius:999px; font-family:var(--font-body); font-size:12.5px; font-weight:700">追加</button>
-                  </div>
+                  </sc-for>
+                </sc-if>
+                <div style="display:flex; gap:7px">
+                  <input class="input" placeholder="行きたい場所を追加" value="{{ sp.draft }}" onChange="{{ sp.onDraft }}" style="flex:1; min-width:0; font-size:13px; background-color:#FFFFFF">
+                  <button type="button" class="btn btn-primary" onClick="{{ sp.add }}" style="flex:none; border-radius:999px; font-family:var(--font-body); font-size:12.5px; font-weight:700">追加</button>
                 </div>
-              </sc-if>
+              </div>
             </div>
           </sc-for>
           <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); margin-top:4px; text-wrap:pretty">追加・編集・削除は9人全員に共有されます。</div>
@@ -1540,11 +1530,11 @@ const BOOKING = [
 ];
 
 const WEATHER = [
-  { c:"ローマ", t:"4〜13℃", x:"雨が多い。折りたたみ傘と防水の靴" },
+  { c:"ローマ", t:"4〜13℃", x:"折りたたみ傘と防水の靴は必要" },
   { c:"ミラノ", t:"1〜9℃", x:"曇りがち。霧の日は体感が下がる" },
-  { c:"バルセロナ", t:"6〜15℃", x:"晴れれば昼は上着なしでも歩ける" },
-  { c:"ロンドン", t:"3〜9℃", x:"風と小雨。傘より防水フードが実用的" },
-  { c:"ポルト", t:"8〜16℃", x:"行程のなかではいちばん暖かいが、雨は多い" }
+  { c:"バルセロナ", t:"6〜15℃", x:"晴れた昼なら、服1枚で歩ける" },
+  { c:"ロンドン", t:"3〜9℃", x:"風と霧・小雨が多い" },
+  { c:"ポルト", t:"8〜16℃", x:"比較的暖かいが、雨は多い" }
 ];
 
 const PACKING = [
@@ -1830,6 +1820,11 @@ class Component extends DCLogic {
   }
 
   save(patch) {
+    if (patch.tab && patch.tab !== this.state.tab) {
+      patch = Object.assign({ openDays:{}, prepOpen:{}, foodOpen:{}, spotOpen:{}, adminOpen:false,
+                              resultOpen:{}, prepEdit:{}, linkEdit:{}, theme:null, editDay:"" }, patch);
+      this.wantTop = true;
+    }
     if (patch.tab === "talk" && this.state.tab !== "talk") {
       patch = Object.assign({}, patch, { chatBase: (this.state.reads || {})[this.activeMe()] || 0 });
       this.needScroll = true;
@@ -1880,6 +1875,17 @@ class Component extends DCLogic {
   }
 
   componentDidUpdate() {
+    if (this.wantTop) {
+      this.wantTop = false;
+      try { window.scrollTo(0, 0); } catch (e) {}
+    }
+    if (this.wantConfirm && this.confirmEl) {
+      this.wantConfirm = false;
+      try {
+        const r = this.confirmEl.getBoundingClientRect();
+        window.scrollTo({ top: window.pageYOffset + r.top - 120, behavior:"smooth" });
+      } catch (e) {}
+    }
     this.maybeResetVotes();
     this.postPicks();
     const n = this.myUnread();
@@ -1927,7 +1933,7 @@ class Component extends DCLogic {
     const me = this.activeMe();
     if (!me) return;
     const mine = Object.assign({}, this.myVotes());
-    if (val === null) { delete mine[key]; } else { mine[key] = val; }
+    if (val === null) { delete mine[key]; } else { mine[key] = val; this.wantConfirm = true; }
     this.save({ ballots:Object.assign({}, this.state.ballots, { [me]:mine }) });
   }
 
@@ -1953,10 +1959,39 @@ class Component extends DCLogic {
 
   deadlineOf(id) { return (this.state.deadlines || {})[id] || DEFAULT_DEADLINE; }
 
-  deadlinePassed(id) {
-    const d = new Date();
-    const iso = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
-    return iso > this.deadlineOf(id);
+  deadlineLocal(id) {
+    const v = this.deadlineOf(id);
+    return v.indexOf("T") > 0 ? v.slice(0,16) : (v + "T23:59");
+  }
+
+  deadlineDate(id) {
+    const v = this.deadlineLocal(id);
+    const d = new Date(v);
+    return isNaN(d.getTime()) ? new Date(DEFAULT_DEADLINE + "T23:59") : d;
+  }
+
+  deadlineText(id) {
+    const v = this.deadlineLocal(id);
+    return v.slice(0,10).replace(/-/g,"/") + " " + v.slice(11,16);
+  }
+
+  deadlinePassed(id) { return Date.now() > this.deadlineDate(id).getTime(); }
+
+  voteRemain(id) {
+    const ms = this.deadlineDate(id).getTime() - Date.now();
+    if (ms <= 0) return { label:"締切", days:0, hours:0, urgent:false };
+    const hours = Math.ceil(ms / 3600000);
+    if (hours <= 24) return { label:"あと" + hours + "時間", days:0, hours:hours, urgent:true };
+    return { label:"あと" + Math.ceil(ms / 86400000) + "日", days:Math.ceil(ms / 86400000), hours:hours, urgent:false };
+  }
+
+  hasVotedOn(t) {
+    const mine = ((this.state.ballots || {})[this.activeMe()] || {});
+    return t.multi ? t.options.some(o => mine[t.id + ":" + o.id] === 1) : mine[t.id] !== undefined;
+  }
+
+  openUnvotedCount() {
+    return this.themeList().filter(t => !this.isClosed(t.id) && !this.hasVotedOn(t)).length;
   }
 
   confirmsOf(n) { return (this.state.confirms || {})[n] || {}; }
@@ -2041,12 +2076,15 @@ class Component extends DCLogic {
       const iConfirmed = !!this.confirmsOf(me)[t.id];
       const votedMine = t.multi ? t.options.some(o => mine[t.id + ":" + o.id] === 1) : mine[t.id] !== undefined;
       const nudge = votedMine && !iConfirmed && !dPassed;
+      const rem = this.voteRemain(t.id);
+      const urgent = !closed && rem.urgent && !votedMine;
       const cCount = this.confirmCount(t.id);
       const picked = t.options.filter(o => mine[t.id + ":" + o.id] === 1);
       return {
         closed:closed,
         showConfirm: !decided,
         confirmNudge: nudge,
+        confirmRef: el => { if (el && open) this.confirmEl = el; },
         confirmPanel: "margin-top:14px; border-radius:var(--radius-md); padding:13px 15px; background-color:#FFFFFF; transition:border-color .2s; "
           + (nudge ? "border:2px solid #57750E; animation:nudge 1.7s ease-in-out infinite" : "border:2px solid transparent"),
         confirmTick: iConfirmed ? "✓" : "",
@@ -2061,8 +2099,12 @@ class Component extends DCLogic {
         confirmGo: () => { if (!dPassed) this.toggleConfirm(t.id); },
         deadlineLabel: decided ? ("案" + DECIDED_ROUTE + " に決定しました")
           : unanimous ? (roster.length + "人全員の確定により投票終了")
-          : dPassed ? ("投票は" + this.deadlineOf(t.id).replace(/-/g,"/") + "で締切")
-          : ("投票期限 " + this.deadlineOf(t.id).replace(/-/g,"/")),
+          : dPassed ? ("投票は" + this.deadlineText(t.id) + "で締切")
+          : ("投票期限 " + this.deadlineText(t.id)),
+        remain: rem.label,
+        hasRemain: !closed,
+        remainStyle: "flex:none; font-family:var(--font-body); font-size:11px; font-weight:700; border-radius:999px; padding:3px 10px; "
+          + (urgent ? "background:#57750E; color:#ffffff" : "background:var(--color-neutral-200); color:var(--color-neutral-800)"),
         label:t.label, sub:t.sub, open:open, showMap: open && !!t.map,
         isSingle: !t.multi, isMulti: !!t.multi, showUk: open && !!t.ukmap,
         picks: t.options.map(o => {
@@ -2087,7 +2129,8 @@ class Component extends DCLogic {
         ukRef: el => { this.ukEl = el; if (el) el.addEventListener("load", () => this.postPicks()); },
         badge: t.multi ? (picked.length + "件") : ("案" + selId),
         card: "background:var(--color-surface); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); transition:background .2s"
-          + (open ? "; background:var(--color-accent-100)" : ""),
+          + (open ? "; background:var(--color-accent-100)" : "")
+          + (urgent ? "; border:2px solid #57750E; animation:nudge 1.7s ease-in-out infinite" : "; border:2px solid transparent"),
         caret: "flex:none; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; color:var(--color-accent-700); "
           + "background:" + (open ? "var(--color-accent-200)" : "transparent")
           + "; transition:transform .22s ease, background .2s; transform:rotate(" + (open ? "90deg" : "0deg") + ")",
@@ -2150,7 +2193,7 @@ class Component extends DCLogic {
         caret: "flex:none; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; color:var(--color-accent-700); "
           + "background:" + (rOpen ? "var(--color-accent-200)" : "transparent")
           + "; transition:transform .22s ease, background .2s; transform:rotate(" + (rOpen ? "90deg" : "0deg") + ")",
-        deadline:this.deadlineOf(t.id),
+        deadline:this.deadlineText(t.id),
         onDeadline: e => this.save({ deadlines:Object.assign({}, this.state.deadlines, { [t.id]:e.target.value }) }),
         status: t.id === "route" ? "決定" : unan ? "投票終了" : closed ? "締切" : "受付中",
         statusStyle: "flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; border-radius:999px; padding:3px 10px; "
@@ -2185,7 +2228,7 @@ class Component extends DCLogic {
                                : "background:var(--color-accent-2-300); color:var(--color-accent-2-900)"),
       onLabel: e => patchTheme(t.id, { label:e.target.value }),
       onSub: e => patchTheme(t.id, { sub:e.target.value }),
-      deadline: this.deadlineOf(t.id),
+      deadline: this.deadlineLocal(t.id),
       onDeadline: e => this.save({ deadlines:Object.assign({}, this.state.deadlines, { [t.id]:e.target.value }) }),
       del: () => this.save({ themeDel:Object.assign({}, this.state.themeDel || {}, { [t.id]:true }) }),
       canEditOpts: !t.multi,
@@ -2228,8 +2271,8 @@ class Component extends DCLogic {
                 : phase === "during" ? String(todayIdx + 1) : "13",
       countdownUnit: phase === "before" ? "日後\n" : phase === "during" ? "日目\n旅行中" : "日間の\n旅は終わりました",
       tabs: TABS.map(t => ({ label:t.label, style:pill(s.tab === t.id, t.btn || t.theme), go:() => this.save({ tab:t.id }),
-        hasBadge: t.id === "talk" && this.myUnread() > 0,
-        badge: String(this.myUnread()) })),
+        hasBadge: (t.id === "talk" && this.myUnread() > 0) || (t.id === "route" && this.openUnvotedCount() > 0),
+        badge: t.id === "route" ? String(this.openUnvotedCount()) : String(this.myUnread()) })),
       notifyAsk: typeof Notification !== "undefined" && Notification.permission === "default",
       askNotify: () => {
         try { Notification.requestPermission().then(() => this.forceUpdate()); } catch (e) {}
@@ -2289,16 +2332,22 @@ class Component extends DCLogic {
       todayDow: tzDate.w + "曜日",
       todo: (() => {
         const out = [];
-        THEMES.forEach(t => {
+        this.themeList().forEach(t => {
           if (this.isClosed(t.id)) return;
           const voted = t.multi ? t.options.some(o => mine[t.id + ":" + o.id] === 1) : mine[t.id] !== undefined;
-          if (!voted) out.push({ x:"「" + t.label + "」に投票する", sub:"期限 " + this.deadlineOf(t.id).replace(/-/g,"/"), go:() => this.save({ tab:"route", theme:t.id }) });
+          const rem = this.voteRemain(t.id);
+          const urg = !voted && rem.urgent;
+          if (!voted) out.push({ x:"「" + t.label + "」に投票する", sub:"期限 " + this.deadlineText(t.id) + " · " + rem.label,
+            style: "cursor:pointer; background:var(--color-surface); border-radius:var(--radius-lg); padding:14px 16px; box-shadow:var(--shadow-sm); "
+              + (urg ? "border:2px solid #57750E; animation:nudge 1.7s ease-in-out infinite" : "border:2px solid transparent"),
+            go:() => this.save({ tab:"route", theme:t.id }) });
         });
+        const plain = "cursor:pointer; background:var(--color-surface); border-radius:var(--radius-lg); padding:14px 16px; box-shadow:var(--shadow-sm); border:2px solid transparent";
         const undone = TODOS.filter(t => !s.done[t.id]);
-        if (undone.length) out.push({ x:"準備が " + undone.length + "件 残っています", sub:"最初は「" + undone[0].title + "」", go:() => this.save({ tab:"prep" }) });
+        if (undone.length) out.push({ x:"準備が " + undone.length + "件 残っています", sub:"最初は「" + undone[0].title + "」", style:plain, go:() => this.save({ tab:"prep" }) });
         const packTotal = PACKING.reduce((a,g) => a + g.items.length, 0);
         const packedN = PACKING.reduce((a,g) => a + g.items.filter(i => s.packed[i]).length, 0);
-        if (phase === "before" && packedN < packTotal) out.push({ x:"持ち物 " + packedN + "/" + packTotal, sub:"チェックしながら詰める", go:() => this.save({ tab:"prep" }) });
+        if (phase === "before" && packedN < packTotal) out.push({ x:"持ち物 " + packedN + "/" + packTotal, sub:"チェックしながら詰める", style:plain, go:() => this.save({ tab:"prep" }) });
         return out;
       })(),
       todayCard: (() => {
