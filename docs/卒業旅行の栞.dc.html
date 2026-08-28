@@ -1874,6 +1874,7 @@ class Component extends DCLogic {
   }
 
   componentDidMount() {
+    setTimeout(() => { try { if (this.scroller) this.scroller.scrollTop = 0; } catch (e) {} }, 60);
     this.dueTimer = setInterval(() => this.notifyDue(), 60000);
     setTimeout(() => this.notifyDue(), 4000);
     this.onKey = ev => {
@@ -1915,7 +1916,7 @@ class Component extends DCLogic {
           prepOpen:{}, myTodos:[], myPack:[], newTodo:"", newPack:"", confirms:{}, userLinks:{},
           linkDraftN:{}, linkDraftU:{}, chatBase:null, themeAdds:[], themeEdits:{}, themeDel:{},
           newThemeLabel:"", newThemeSub:"", adminOpen:false, todoEdits:{}, bookEdits:{}, prepEdit:{},
-          privTodos:[], newPriv:"" }, saved, { members:members, route:DECIDED_ROUTE, chatBase:null }));
+          privTodos:[], newPriv:"" }, saved, { members:members, route:DECIDED_ROUTE, chatBase:null, tab:"home" }));
       }
     } catch (e) {}
     try { this.initSupabase(); } catch (e) {}
@@ -2997,7 +2998,8 @@ class Component extends DCLogic {
           go:() => { this.jumpKey = "sec:prep"; this.save({ tab:"prep", prepOpen:{ prep:true } }); } });
         const packTotal = PACKING.reduce((a,g) => a + g.items.length, 0);
         const packedN = PACKING.reduce((a,g) => a + g.items.filter(i => s.packed[i]).length, 0);
-        if (phase === "before" && packedN < packTotal) out.push({ x:"持ち物 " + packedN + "/" + packTotal, sub:"チェックしながら詰める", style:plain,
+        const packWinOn = Date.now() >= new Date(2027, 1, 8, 0, 0).getTime() && Date.now() <= new Date(2027, 1, 13, 5, 0).getTime();
+        if (packWinOn && packedN < packTotal) out.push({ x:"持ち物 " + packedN + "/" + packTotal, sub:"チェックしながら詰める", style:plain,
           dest:"準備", destStyle:destPill("prep"),
           go:() => { this.jumpKey = "sec:pack"; this.save({ tab:"prep", prepOpen:{ pack:true } }); } });
         return out;
