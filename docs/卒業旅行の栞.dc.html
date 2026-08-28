@@ -87,10 +87,10 @@
   <header class="om-head" style="{{ headStyle }}">
     
     <h1 style="{{ titleStyle }}">卒業旅行の栞</h1>
-    <div style="{{ miniStyle }}"><span>{{ countdown }}</span><span style="font-size:12px">{{ countdownShort }}</span></div>
-    <div style="{{ metaStyle }}">
+    <div data-om="mini" style="{{ miniStyle }}"><span>{{ countdown }}</span><span style="font-size:12px">{{ countdownShort }}</span></div>
+    <div data-om="meta" style="{{ metaStyle }}">
       
-    </div><div style="{{ cdWrapStyle }}"><div style="margin-top: 16px; display: flex; align-items: center; gap: 16px; border-radius: var(--radius-lg); padding: 14px 18px; box-shadow: var(--shadow-sm); background-color: {{ themeColor }}; transition: background-color .25s">
+    </div><div data-om="cd" style="{{ cdWrapStyle }}"><div style="margin-top: 16px; display: flex; align-items: center; gap: 16px; border-radius: var(--radius-lg); padding: 14px 18px; box-shadow: var(--shadow-sm); background-color: {{ themeColor }}; transition: background-color .25s">
       <div style="flex:none">
         
         <div style="font-family: var(--font-heading); font-size: 38px; line-height: 1.15; color: #201E1D; margin-top: 3px; white-space: nowrap; display: flex; align-items: baseline; gap: 8px">{{ todayShort }}<span style="font-size:16px">{{ todayDow }}</span></div>
@@ -1921,7 +1921,40 @@ class Component extends DCLogic {
     return el.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop;
   }
 
+  applyCondense(on, force) {
+    if (!force && on === this.condensed) return;
+    this.condensed = on;
+    const head = document.querySelector(".om-head");
+    if (!head) return;
+    const mini = head.querySelector('[data-om="mini"]');
+    const meta = head.querySelector('[data-om="meta"]');
+    const title = head.querySelector("h1");
+    const cd = head.querySelector('[data-om="cd"]');
+    if (cd && this.cdH == null && cd.scrollHeight) this.cdH = cd.scrollHeight;
+    head.style.paddingTop = on ? "10px" : "26px";
+    head.style.paddingBottom = on ? "6px" : "12px";
+    if (title) {
+      title.style.transformOrigin = "left center";
+      title.style.transform = on ? "scale(.68)" : "scale(1)";
+      title.style.marginBottom = on ? "0px" : "6px";
+    }
+    if (meta) {
+      meta.style.height = on ? "0px" : "22px";
+      meta.style.opacity = on ? "0" : "1";
+    }
+    if (cd) {
+      cd.style.height = on ? "0px" : (this.cdH ? this.cdH + "px" : "auto");
+      cd.style.opacity = on ? "0" : "1";
+      cd.style.transform = on ? "translate3d(0,-10px,0)" : "translate3d(0,0,0)";
+    }
+    if (mini) {
+      mini.style.transform = on ? "translate3d(0,0,0)" : "translate3d(0,-64px,0)";
+      mini.style.opacity = on ? "1" : "0";
+    }
+  }
+
   componentDidUpdate() {
+    this.applyCondense(!!this.condensed, true);
     if (this.wantTop) {
       this.wantTop = false;
       const key = this.jumpKey;
@@ -2346,8 +2379,7 @@ class Component extends DCLogic {
       miniStyle: "position:absolute; top:10px; right:20px; z-index:2; display:flex; align-items:baseline; gap:6px; "
         + "font-family:'Zen Maru Gothic'; font-size:21px; line-height:1.25; color:#201E1D; "
         + "border-radius:var(--radius-lg); padding:2px 14px; box-shadow:var(--shadow-sm); background-color:" + ((TABS.find(t => t.id === s.tab) || TABS[0]).theme) + "; "
-        + "transition:transform .3s ease, opacity .24s ease; "
-        + (s.condensed ? "transform:translateY(0); opacity:1" : "transform:translateY(-64px); opacity:0; pointer-events:none"),
+        + "will-change:transform, opacity; transition:transform .26s ease, opacity .2s ease; transform:translate3d(0,-64px,0); opacity:0; pointer-events:none",
       mainRef: el => {
         if (!el) return;
         this.scroller = el;
@@ -2357,8 +2389,7 @@ class Component extends DCLogic {
             this.rafScroll = requestAnimationFrame(() => {
               this.rafScroll = null;
               const y = this.scroller ? this.scroller.scrollTop : 0;
-              const cond = y > 2;
-              if (cond !== !!this.state.condensed) this.setState({ condensed:cond });
+              this.applyCondense(y > 2);
             });
           };
         }
@@ -2403,16 +2434,10 @@ class Component extends DCLogic {
         }
       },
       stickyStyle: "position:relative; z-index:11; flex:none; background:transparent",
-      headStyle: "position:relative; overflow:clip; display:flex; flex-direction:column; background-color:#FFFFFF; border-radius:var(--radius-lg) var(--radius-lg) 0 0; transition:padding .28s ease; padding:"
-        + (s.condensed ? "10px 20px 6px" : "26px 20px 12px"),
-      kickerStyle: "font-family:var(--font-body); font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--color-accent-2-900); font-weight:700; overflow:hidden; transition:max-height .28s ease, opacity .2s ease; "
-        + (s.condensed ? "max-height:0; opacity:0" : "max-height:20px; opacity:1"),
-      titleStyle: "order:2; line-height:1.25; font-family:'Zen Maru Gothic'; transition:font-size .28s ease, margin .28s ease; "
-        + (s.condensed ? "font-size:21px; margin:2px 0 4px" : "font-size:31px; margin:8px 0 6px"),
-      metaStyle: "order:1; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700); overflow:hidden; transition:max-height .28s ease, opacity .2s ease; "
-        + (s.condensed ? "max-height:0; opacity:0" : "max-height:24px; opacity:1"),
-      cdWrapStyle: "order:3; overflow:hidden; transform-origin:top center; transition:max-height .3s ease, opacity .22s ease, transform .3s ease; "
-        + (s.condensed ? "max-height:0; opacity:0; transform:translateY(-12px) scaleY(.88)" : "max-height:150px; opacity:1; transform:none"),
+      headStyle: "position:relative; overflow:clip; display:flex; flex-direction:column; background-color:#FFFFFF; border-radius:var(--radius-lg) var(--radius-lg) 0 0; transition:padding .22s ease; padding:26px 20px 12px",
+      titleStyle: "order:2; line-height:1.25; font-size:31px; margin:8px 0 6px; font-family:'Zen Maru Gothic'; transform-origin:left center; will-change:transform; transition:transform .22s ease, margin .22s ease",
+      metaStyle: "order:1; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700); overflow:hidden; height:22px; opacity:1; transition:height .22s ease, opacity .16s ease",
+      cdWrapStyle: "order:3; overflow:hidden; will-change:transform, opacity; transition:height .24s ease, opacity .18s ease, transform .24s ease",
       tabs: TABS.map(t => ({ label:t.label,style:pill(s.tab === t.id, t.btn || t.theme), go:() => this.save({ tab:t.id }),
         hasBadge: (t.id === "talk" && this.myUnread() > 0) || (t.id === "route" && this.openUnvotedCount() > 0),
         badge: t.id === "route" ? String(this.openUnvotedCount()) : String(this.myUnread()) })),
