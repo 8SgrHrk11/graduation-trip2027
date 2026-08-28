@@ -22,13 +22,16 @@
   @keyframes floatUp { from { opacity:0; transform: translateY(14px); } to { opacity:1; transform:none; } }
   @keyframes drift { 0%,100% { transform: translate(0,0) } 50% { transform: translate(-14px,10px) } }
   .om-hide-scroll::-webkit-scrollbar { display:none; }
-  .om-page { overflow-x: clip !important; }
+  .om-page { overflow-x: clip !important; background: transparent !important; padding: 10px 10px 26px; align-items: flex-start; }
+  .om-shell { background: #ffffff !important; border-radius: 26px;
+              box-shadow: 0 14px 34px color-mix(in srgb, #2e2b25 10%, transparent); }
+  .om-nav { background: #ffffff !important; }
+  .om-blobs { display: none !important; }
   @media (min-width: 780px) {
-    .om-page { background: var(--color-surface) !important; padding: 28px 0 56px; align-items: flex-start; }
-    .om-shell { max-width: 700px !important; background: var(--color-bg); border-radius: 34px;
+    .om-page { padding: 28px 0 56px; }
+    .om-shell { max-width: 700px !important; border-radius: 34px;
                 box-shadow: 0 18px 44px color-mix(in srgb, #2e2b25 16%, transparent);
                 padding-bottom: 8px; }
-    .om-blobs { border-radius: 34px; }
     .om-head { padding: 40px 40px 16px !important; }
     .om-head h1 { font-size: 40px !important; }
     .om-nav { padding: 12px 0 12px !important; }
@@ -40,7 +43,7 @@
 </helmet>
 
 <sc-if value="{{ needsId }}" hint-placeholder-val="{{ true }}">
-<div style="position:fixed; inset:0; z-index:99; background:var(--color-bg); display:flex; align-items:center; justify-content:center; padding:24px; overflow-y:auto">
+<div style="position: fixed; inset: 0; z-index: 99; display: flex; align-items: center; justify-content: center; padding: 24px; overflow-y: auto; background-color: var(--color-neutral-200)">
   <div style="width:100%; max-width:380px">
     <div style="font-family:var(--font-body); font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--color-accent-700); font-weight:700">Graduation Trip · Europe</div>
     <h1 style="font-size:27px; line-height:1.3; margin:8px 0 6px">ヨーロッパ<br>卒業旅行の栞</h1>
@@ -54,7 +57,17 @@
 </div>
 </sc-if>
 
-<div class="om-page" style="min-height:100vh; background:var(--color-bg); color:var(--color-text); display:flex; justify-content:center; overflow-x:hidden">
+<div style="position:fixed; inset:0; z-index:0; pointer-events:none; background:
+  radial-gradient(circle at 50% 42%, rgba(255,255,255,.92) 0, rgba(255,255,255,.45) 16%, rgba(255,255,255,0) 42%),
+  conic-gradient(from -7.5deg at 50% 42%,
+    #FFFCD6 0deg 15deg, #E2EFE4 15deg 30deg, #F2EAE8 30deg 45deg, #E2E2E2 45deg 60deg,
+    #E8F4F1 60deg 75deg, #F7E8D6 75deg 90deg, #F5EDED 90deg 105deg, #F0E8ED 105deg 120deg,
+    #E8F4D9 120deg 135deg, #F2F2EC 135deg 150deg, #E8E2EC 150deg 165deg, #F2EEE2 165deg 180deg,
+    #F7E8D6 180deg 195deg, #FFFCD6 195deg 210deg, #F2F2EC 210deg 225deg, #E2EFE4 225deg 240deg,
+    #E2E2E2 240deg 255deg, #F0E8ED 255deg 270deg, #E8F4F1 270deg 285deg, #F2EAE8 285deg 300deg,
+    #F2EEE2 300deg 315deg, #E8F4D9 315deg 330deg, #F5EDED 330deg 345deg, #E8E2EC 345deg 360deg)"></div>
+
+<div class="om-page" style="position:relative; z-index:1; min-height:100vh; color:var(--color-text); display:flex; justify-content:center; overflow-x:hidden">
 <div class="om-shell" style="width:100%; max-width:440px; position:relative; padding-bottom:40px">
 
   <div class="om-blobs" style="position:absolute; inset:0; overflow:hidden; pointer-events:none">
@@ -63,14 +76,14 @@
   </div>
 
   <header class="om-head" style="position:relative; padding:26px 20px 12px">
-    <div style="font-family:var(--font-body); font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--color-accent-700); font-weight:700">Graduation Trip · Europe</div>
+    <div style="font-family: var(--font-body); font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--color-accent-2-900); font-weight: 700">Graduation Trip · Europe</div>
     <h1 style="font-size:31px; line-height:1.25; margin:8px 0 6px">ヨーロッパ<br>卒業旅行の栞</h1>
     <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700)">
       <span>2027年 2/13 ~ 2/25</span><span>·</span><span>9人</span><span>·</span><span>10泊13日</span>
     </div>
 
-    <div style="margin-top:16px; display:flex; align-items:center; gap:12px; background:var(--color-surface); border-radius:var(--radius-lg); padding:14px 18px; box-shadow:var(--shadow-sm)">
-      <div style="font-family:var(--font-heading); font-size:38px; line-height:1; color:var(--color-accent-700)">{{ countdown }}</div>
+    <div style="margin-top: 16px; display: flex; align-items: center; gap: 12px; border-radius: var(--radius-lg); padding: 14px 18px; box-shadow: var(--shadow-sm); background-color: {{ themeColor }}; transition: background-color .25s">
+      <div style="font-family: var(--font-heading); font-size: 38px; line-height: 1; color: #201E1D">{{ countdown }}</div>
       <div style="font-family:var(--font-body); font-size:12px; line-height:1.4; color:var(--color-neutral-700); white-space:pre-line">{{ countdownUnit }}</div>
     </div>
   </header>
@@ -78,10 +91,10 @@
   <nav class="om-nav" style="position:sticky; top:0; z-index:9; background:var(--color-bg); padding:10px 0 10px; box-shadow:0 8px 12px -10px rgba(46,43,37,.35)">
     <div class="om-hide-scroll" style="display:flex; gap:8px; overflow-x:auto; padding:0 20px; scrollbar-width:none">
       <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="6">
-        <button type="button" onClick="{{ t.go }}" style="{{ t.style }}">{{ t.label }}</button>
+        <button type="button" onClick="{{ t.go }}" style="{{ t.style }}"><span>{{ t.label }}</span><sc-if value="{{ t.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="margin-left:6px; display:inline-block; min-width:17px; background:#C4643A; color:#ffffff; font-size:10.5px; line-height:17px; border-radius:999px; padding:0 5px; text-align:center">{{ t.badge }}</span></sc-if></button>
       </sc-for>
     </div>
-  </nav><main class="om-main" style="position:relative; padding:6px 20px 0">
+  </nav><main class="om-main" style="{{ themeStyle }}">
 
   <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
   <section style="animation:floatUp .45s ease both">
@@ -159,7 +172,7 @@
 
     <sc-if value="{{ isBefore }}" hint-placeholder-val="{{ true }}">
       <div style="margin:18px 0 4px">
-        <div style="font-family:var(--font-body); font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--color-accent-700); font-weight:700">{{ todayLabel }} · To Do List</div>
+        <div style="font-family: var(--font-body); font-size: 22px; letter-spacing: .18em; text-transform: uppercase; color: var(--color-neutral-900); font-weight: 700">{{ todayLabel }} · To Do List</div>
         <div style="display:grid; gap:8px; margin-top:10px">
           <sc-for list="{{ todo }}" as="td2" hint-placeholder-count="3">
             <div onClick="{{ td2.go }}" style="cursor:pointer; background:var(--color-surface); border-radius:var(--radius-lg); padding:14px 16px; box-shadow:var(--shadow-sm)">
@@ -178,44 +191,12 @@
       </div>
     </sc-if>
 
-    <h2 style="font-size:22px; margin:26px 0 4px">タイムライン</h2>
+    
     
 
     <div style="display:grid; gap:12px; margin-top:20px">
-      <div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:18px; box-shadow:var(--shadow-sm)">
-        <div style="font-family:var(--font-body); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--color-accent-700); font-weight:700">往路① シンガポール航空 SQ619</div>
-        <div style="display:flex; align-items:center; gap:12px; margin-top:12px">
-          <div><div style="font-family:var(--font-heading); font-size:26px; line-height:1">KIX</div><div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-700)">10:05発</div></div>
-          <div style="flex:1; height:1px; background:var(--color-divider); position:relative"></div>
-          <div style="text-align:right"><div style="font-family:var(--font-heading); font-size:26px; line-height:1">SIN</div><div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-700)">16:00着</div></div>
-        </div><div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-600); margin-top:10px">オンラインチェックイン可能<br>・チェックイン締切：<b>09:25</b><br>・搭乗口閉鎖：<b>09:45</b><br></div>
-        
-      </div><div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:18px; box-shadow:var(--shadow-sm)">
-        <div style="font-family:var(--font-body); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--color-accent-700); font-weight:700">往路② シンガポール航空 SQ366</div>
-        <div style="display:flex; align-items:center; gap:12px; margin-top:12px">
-          <div><div style="font-family:var(--font-heading); font-size:26px; line-height:1">SIN</div><div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-700)">01:55発</div></div>
-          <div style="flex:1; height:1px; background:var(--color-divider); position:relative"></div>
-          <div style="text-align:right"><div style="font-family:var(--font-heading); font-size:26px; line-height:1">FCO</div><div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-700)">08:10着</div></div>
-        </div>
-        <div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-600); margin-top:10px">搭乗口の手前に保安検査場 → 搭乗口付近に<b>00:55 (1時間前) 集合</b></div><div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-600); margin-top:10px">・搭乗口閉鎖：<b>01:40</b><br></div>
-      </div>
-      <div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:18px; box-shadow:var(--shadow-sm)">
-        <div style="font-family:var(--font-body); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--color-accent-2-700); font-weight:700">復路① シンガポール航空 SQ365</div>
-        <div style="display:flex; align-items:center; gap:12px; margin-top:12px">
-          <div><div style="font-family:var(--font-heading); font-size:26px; line-height:1">FCO</div><div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-700)">10:50発</div></div>
-          <div style="flex:1; height:1px; background:var(--color-divider); position:relative"><span style="position:absolute; left:50%; top:-9px; transform:translateX(-50%); font-size:11px; font-family:var(--font-body); background:var(--color-surface); padding:0 6px; color:var(--color-neutral-600)">SIN 乗継</span></div>
-          <div style="text-align:right"><div style="font-family:var(--font-heading); font-size:26px; line-height:1">SIN</div><div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-700)">05:40着</div></div>
-        </div>
-        <div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-600); margin-top:10px">オンラインチェックイン可能<br>・チェックイン締切：10:10<br>・搭乗口閉鎖：10:35</div>
-      </div><div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:18px; box-shadow:var(--shadow-sm)">
-        <div style="font-family:var(--font-body); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--color-accent-2-700); font-weight:700">復路② シンガポール航空 SQ620</div>
-        <div style="display:flex; align-items:center; gap:12px; margin-top:12px">
-          <div><div style="font-family:var(--font-heading); font-size:26px; line-height:1">SIN<br></div><div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-700)">08:25発</div></div>
-          <div style="flex:1; height:1px; background:var(--color-divider); position:relative"><span style="position:absolute; left:50%; top:-9px; transform:translateX(-50%); font-size:11px; font-family:var(--font-body); background:var(--color-surface); padding:0 6px; color:var(--color-neutral-600)">SIN 乗継</span></div>
-          <div style="text-align:right"><div style="font-family:var(--font-heading); font-size:26px; line-height:1">KIX</div><div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-700)">15:30着</div></div>
-        </div><div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-600); margin-top:10px">搭乗口の手前に保安検査場 → 搭乗口付近に<b>07:25 (1時間前) 集合</b></div><div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-600); margin-top:10px">・搭乗口閉鎖：<b>08:10</b><br></div>
-        
-      </div>
+      
+      
     </div>
 
     
@@ -249,33 +230,6 @@
       </sc-if>
     </div>
 
-    <div style="margin-top:8px; {{ cfgLodgeCard }}">
-      <div onClick="{{ cfgLodgeGo }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
-        <div style="{{ cfgLodgeCaret }}">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-        </div>
-        <div style="flex:1; min-width:0">
-          <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700">宿情報</div>
-          <div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-600); margin-top:2px">入れるとホームの「今夜の宿」に出ます</div>
-        </div>
-      </div>
-      <sc-if value="{{ cfgLodgeOpen }}" hint-placeholder-val="{{ true }}">
-        <div style="padding:0 16px 16px; display:grid; gap:14px; animation:floatUp .28s ease both">
-          <sc-for list="{{ lodgeFields }}" as="lf" hint-placeholder-count="9">
-            <div style="background:var(--color-bg); border-radius:var(--radius-md); padding:14px">
-              <div style="font-family:var(--font-body); font-size:13px; font-weight:700; margin-bottom:9px">{{ lf.city }}</div>
-              <div style="display:grid; gap:7px">
-                <input class="input" placeholder="宿の名前" value="{{ lf.name }}" onChange="{{ lf.onName }}">
-                <input class="input" placeholder="住所（現地語表記も）" value="{{ lf.addr }}" onChange="{{ lf.onAddr }}">
-                <input class="input" placeholder="チェックイン時刻・鍵の受け取り" value="{{ lf.checkin }}" onChange="{{ lf.onCheckin }}">
-                <input class="input" placeholder="地図のURL" value="{{ lf.map }}" onChange="{{ lf.onMap }}">
-              </div>
-            </div>
-          </sc-for>
-          <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-600); text-wrap:pretty">入力は9人全員に共有されます。</div>
-        </div>
-      </sc-if>
-    </div>
   </section>
   </sc-if>
 
@@ -286,10 +240,10 @@
 
     
 
-    <h3 style="font-size:18px; margin:26px 0 8px">チャット</h3>
-    <div style="{{ syncStyle }}">{{ syncLabel }}</div>
-    <div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:14px; box-shadow:var(--shadow-sm); margin-top:10px">
-      <div ref="{{ chatRef }}" style="display:flex; flex-direction:column; gap:8px; height:380px; overflow-y:auto; overscroll-behavior-y:auto; -webkit-overflow-scrolling:touch; padding:4px 2px 10px; background:var(--color-bg); border-radius:var(--radius-md)">
+    <h3 style="font-size: 22px; margin: 26px 0 8px">チャット</h3>
+    
+    <div style="border-radius: var(--radius-lg); padding: 14px; box-shadow: var(--shadow-sm); margin-top: 10px; background-color: #FBDAC8">
+      <div ref="{{ chatRef }}" style="display: flex; flex-direction: column; gap: 8px; height: 380px; overflow-y: auto; overscroll-behavior-y: auto; -webkit-overflow-scrolling: touch; padding: 4px 2px 10px; border-radius: var(--radius-md); position: relative; background-color: #FBF7F2">
         <sc-for list="{{ chat }}" as="cm" hint-placeholder-count="4">
           <div style="{{ cm.row }}">
             <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-600); margin-bottom:3px">{{ cm.who }} · {{ cm.when }}</div>
@@ -299,16 +253,20 @@
         </sc-for>
       </div>
       <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); margin-top:8px; text-wrap:pretty">{{ unreadLabel }}</div>
+      <sc-if value="{{ notifyAsk }}" hint-placeholder-val="{{ false }}">
+        <button type="button" onClick="{{ askNotify }}" style="margin-top:8px; width:100%; cursor:pointer; border:1px solid rgba(58,42,32,.18); background:#ffffff; border-radius:999px; padding:9px 14px; font-family:'Zen Maru Gothic', var(--font-body); font-weight:700; font-size:12.5px; color:#3A2A20">新着を端末の通知で受け取る</button>
+        <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-600); margin-top:5px; text-wrap:pretty">サイトを開いている間（別タブでも可）に通知が届きます。</div>
+      </sc-if>
       <div style="display:flex; gap:8px; align-items:flex-end; margin-top:6px">
-        <textarea class="input" style="flex:1; min-height:44px" placeholder="メッセージ" value="{{ chatDraft }}" onChange="{{ onChatDraft }}" onKeyDown="{{ onChatKey }}"></textarea>
-        <button type="button" class="btn btn-primary" onClick="{{ sendChat }}" style="flex:none; border-radius:999px; font-family:var(--font-body); font-weight:700">送信</button>
+        <textarea class="input" style="flex: 1; min-height: 44px; background-color: var(--color-neutral-100)" placeholder="メッセージを入力" value="{{ chatDraft }}" onChange="{{ onChatDraft }}" onKeyDown="{{ onChatKey }}"></textarea>
+        <button type="button" class="btn btn-primary" onClick="{{ sendChat }}" style="flex: none; border-radius: 999px; font-family: 'Zen Maru Gothic', var(--font-body); font-weight: 700; background-color: #C4643A; color: #FFFFFF">送信</button>
       </div>
     </div>
 
     <h3 style="font-size:18px; margin:26px 0 8px">プライベート</h3>
     <div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:16px; box-shadow:var(--shadow-sm)">
-      <textarea class="input" style="min-height:74px" placeholder="例：宿はバルセロナだけ先に取る。担当は坂本" value="{{ draft }}" onChange="{{ onDraft }}"></textarea>
-      <button type="button" class="btn btn-primary btn-block" onClick="{{ addMemo }}" style="border-radius:999px; font-family:var(--font-body); font-weight:700">書き残す</button>
+      <textarea class="input" style="min-height: 74px; background-color: var(--color-neutral-100)" placeholder="例）このチャットは、他人に共有されない。" value="{{ draft }}" onChange="{{ onDraft }}"></textarea>
+      <button type="button" class="btn btn-primary btn-block" onClick="{{ addMemo }}" style="border-radius: 999px; font-family: var(--font-body); font-weight: 700; background-color: #C4643A; color: #F9F4ED">書き残す</button>
     </div>
 
     <sc-if value="{{ hasMemos }}" hint-placeholder-val="{{ true }}">
@@ -337,7 +295,7 @@
     <div style="display:flex; align-items:center; gap:10px; background:var(--color-surface); border-radius:999px; padding:9px 16px; margin-top:16px; box-shadow:var(--shadow-sm)">
       <div style="font-family:var(--font-body); font-size:12.5px; color:var(--color-neutral-700)">投票するのは</div>
       <div style="font-family:var(--font-body); font-size:14px; font-weight:700">{{ whoAmI }}</div>
-      <button type="button" onClick="{{ changeId }}" style="margin-left:auto; flex:none; cursor:pointer; background:transparent; border:0; color:var(--color-accent-700); font-family:var(--font-body); font-size:11.5px; font-weight:700">変更</button>
+      <button type="button" onClick="{{ changeId }}" style="margin-left: auto; flex: none; cursor: pointer; background: transparent; border: 0; color: var(--color-neutral-900); font-family: var(--font-body); font-size: 11.5px; font-weight: 700">変更</button>
     </div>
 
     <div style="display:grid; gap:8px; margin-top:16px">
@@ -345,7 +303,7 @@
         <div style="{{ th.card }}">
           <div onClick="{{ th.go }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
             <div style="{{ th.caret }}">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" style="stroke: var(--color-neutral-900)"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </div>
             <div style="flex:1; min-width:0">
               <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700">{{ th.label }}</div>
@@ -376,7 +334,7 @@
                 </div>
                 <div style="margin-top:14px; display:grid; gap:5px">
                   <sc-for list="{{ th.multiTally }}" as="mt" hint-placeholder-count="11">
-                    <div style="display:flex; align-items:baseline; gap:10px; background:var(--color-bg); border-radius:var(--radius-md); padding:8px 13px">
+                    <div style="display: flex; align-items: baseline; gap: 10px; border-radius: var(--radius-md); padding: 8px 13px; background-color: #FFFFFF">
                       <div style="font-family:var(--font-body); font-size:12.5px; font-weight:700; flex:none">{{ mt.label }}</div>
                       <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-700); flex:1; text-align:right">{{ mt.detail }}</div>
                       <div style="font-family:var(--font-heading); font-size:16px; color:var(--color-accent-700); flex:none">{{ mt.count }}</div>
@@ -397,7 +355,7 @@
                 </div>
               </sc-if>
 
-              <div style="background:var(--color-bg); border-radius:var(--radius-lg); padding:16px">
+              <div style="border-radius: var(--radius-lg); padding: 16px; background-color: #FFFFFF">
                 <div style="font-family:var(--font-body); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--color-accent-700); font-weight:700">案 {{ th.optId }}</div>
                 <h4 style="font-size:18px; margin:6px 0 4px">{{ th.optName }}</h4>
                 <div style="font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700); margin-bottom:12px; text-wrap:pretty">{{ th.optTagline }}</div>
@@ -406,14 +364,18 @@
                     <span style="font-family:var(--font-body); font-size:11.5px; font-weight:600; background:var(--color-accent-2-200); color:var(--color-accent-2-800); border-radius:999px; padding:4px 11px">{{ cn }}</span>
                   </sc-for>
                 </div>
+                <sc-if value="{{ th.hasPros }}" hint-placeholder-val="{{ true }}">
                 <div style="font-family:var(--font-body); font-size:12px; font-weight:700; color:var(--color-accent-2-700); margin-bottom:5px">いいところ</div>
                 <sc-for list="{{ th.optPros }}" as="p" hint-placeholder-count="3">
                   <div style="font-family:var(--font-body); font-size:13px; display:flex; gap:8px; margin-bottom:4px"><span style="text-wrap:pretty">{{ p }}</span></div>
                 </sc-for>
+                </sc-if>
+                <sc-if value="{{ th.hasCons }}" hint-placeholder-val="{{ true }}">
                 <div style="font-family:var(--font-body); font-size:12px; font-weight:700; color:var(--color-accent-700); margin:12px 0 5px">気をつけるところ</div>
                 <sc-for list="{{ th.optCons }}" as="c2" hint-placeholder-count="3">
                   <div style="font-family:var(--font-body); font-size:13px; display:flex; gap:8px; margin-bottom:4px"><span style="text-wrap:pretty">{{ c2 }}</span></div>
                 </sc-for>
+                </sc-if>
               </div>
 
               <div style="margin-top:14px">
@@ -423,7 +385,7 @@
 
               <div style="margin-top:14px; display:grid; gap:6px">
                 <sc-for list="{{ th.tally }}" as="t2" hint-placeholder-count="4">
-                  <div style="background:var(--color-bg); border-radius:var(--radius-md); padding:10px 14px">
+                  <div style="border-radius: var(--radius-md); padding: 10px 14px; background-color: #FFFFFF">
                     <div style="display:flex; justify-content:space-between; gap:10px; align-items:baseline">
                       <div style="font-family:var(--font-body); font-size:12.5px; font-weight:700">案{{ t2.id }} · {{ t2.name }}</div>
                       <div style="font-family:var(--font-heading); font-size:18px; color:var(--color-accent-700)">{{ t2.score }}</div>
@@ -450,7 +412,7 @@
           </div>
           <div style="display:flex; align-items:center; gap:10px; margin-top:10px">
             <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-700); flex:none">投票期限</div>
-            <input type="date" class="input" value="{{ rs.deadline }}" onChange="{{ rs.onDeadline }}" style="flex:1; min-width:0">
+            <input type="date" class="input" value="{{ rs.deadline }}" onChange="{{ rs.onDeadline }}" style="flex: 1; min-width: 0; background-color: var(--color-neutral-100)">
           </div>
           <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-600); margin-top:8px">{{ rs.progress }} · {{ rs.missing }}</div>
           <div style="display:grid; gap:10px; margin-top:12px">
@@ -469,22 +431,9 @@
       </sc-for>
     </div>
 
-    <div style="background:var(--color-accent-100); border-radius:var(--radius-lg); padding:16px; margin-top:16px">
-      <div style="font-family:var(--font-body); font-size:12px; font-weight:700; margin-bottom:8px">メンバー9人の名前</div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:7px">
-        <sc-for list="{{ memberInputs }}" as="mi" hint-placeholder-count="9">
-          <input class="input" value="{{ mi.value }}" placeholder="{{ mi.placeholder }}" onChange="{{ mi.onChange }}">
-        </sc-for>
-      </div>
-      <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); margin-top:8px">名前を書き換えると、その人の投票もそのまま引き継がれます。</div>
-    </div>
+    
 
-    <div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:16px; margin-top:12px; box-shadow:var(--shadow-sm)">
-      <div class="field">
-        <label>{{ meLabel }} のひとこと</label>
-        <textarea class="input" style="min-height:64px" placeholder="夜行列車は使いたくない、など" value="{{ myNote }}" onChange="{{ onNote }}"></textarea>
-      </div>
-    </div>
+    
 
     <sc-if value="{{ hasNotes }}" hint-placeholder-val="{{ true }}">
       <div style="margin-top:16px">
@@ -507,7 +456,7 @@
       </sc-for>
     </div>
     <div style="display:flex; justify-content:flex-end; margin-bottom:10px">
-      <button type="button" class="btn btn-ghost" onClick="{{ toggleAll }}" style="border-radius:999px; font-family:var(--font-body); font-weight:700; font-size:12.5px">{{ toggleAllLabel }}</button>
+      <button type="button" class="btn btn-ghost" onClick="{{ toggleAll }}" style="border-radius: 999px; font-family: var(--font-body); font-weight: 700; font-size: 12.5px; color: var(--color-neutral-700); background-color: #EFEFEF">{{ toggleAllLabel }}</button>
     </div>
     <div style="display:grid; gap:8px">
       <sc-for list="{{ days }}" as="d" hint-placeholder-count="6">
@@ -518,17 +467,17 @@
             </div>
             <div style="flex:1; min-width:0">
               <div style="display:flex; align-items:baseline; gap:8px">
-                <div style="font-family:var(--font-heading); font-size:17px; color:var(--color-accent-700)">{{ d.date }}</div>
+                <div style="font-family: var(--font-heading); font-size: 17px; color: var(--color-neutral-900)">{{ d.date }}</div>
                 <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-600)">{{ d.dow }}</div>
-                <div style="margin-left:auto; flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; background:var(--color-accent-2-200); color:var(--color-accent-2-800); border-radius:999px; padding:3px 10px">{{ d.stay }}</div>
+                <div style="margin-left: auto; flex: none; font-family: var(--font-body); font-size: 10.5px; font-weight: 700; color: #000000; border-radius: 999px; padding: 3px 10px; background-color: #DFF2FF">{{ d.stay }}</div>
               </div>
-              <div style="font-family:var(--font-body); font-size:14px; font-weight:700; margin-top:3px; text-wrap:pretty">{{ d.title }}</div>
+              <div style="font-family: var(--font-body); font-size: 14px; font-weight: 700; margin-top: 3px; text-wrap: pretty; color: #000000">{{ d.title }}</div>
             </div>
           </div>
           <sc-if value="{{ d.open }}" hint-placeholder-val="{{ true }}">
             <div style="padding:0 16px 16px 39px; display:grid; gap:6px; animation:floatUp .28s ease both">
               <sc-for list="{{ d.notes }}" as="n" hint-placeholder-count="2">
-                <div style="font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700); display:flex; gap:8px"><span style="flex:none; width:5px; height:5px; border-radius:50%; background:var(--color-accent-400); margin-top:7px"></span><span style="text-wrap:pretty">{{ n }}</span></div>
+                
               </sc-for>
               <div style="border-top:1px solid var(--color-divider); margin-top:8px; padding-top:10px">
                 <sc-if value="{{ d.notEditing }}" hint-placeholder-val="{{ true }}">
@@ -579,9 +528,9 @@
         </div>
         <div style="flex:1; min-width:0">
           <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700">確認リスト</div>
-          <div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-600); margin-top:2px">渡航認証・保険・予約</div>
+          
         </div>
-        <div style="flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; background:var(--color-accent-2-200); color:var(--color-accent-2-800); border-radius:999px; padding:3px 10px">{{ prepDone }}</div>
+        <div style="flex: none; font-family: var(--font-body); font-size: 10.5px; font-weight: 700; color: var(--color-accent-2-800); border-radius: 999px; padding: 3px 10px; background-color: var(--color-accent-200)">{{ prepDone }}</div>
       </div>
       <sc-if value="{{ sec.prep.open }}" hint-placeholder-val="{{ true }}">
         <div style="padding:0 16px 16px; animation:floatUp .28s ease both">
@@ -593,10 +542,11 @@
                   <div style="flex:1">
                     <div style="display:flex; gap:8px; align-items:baseline; flex-wrap:wrap">
                       <div style="font-family:var(--font-body); font-size:14px; font-weight:700">{{ td.title }}</div>
-                      <span style="font-family:var(--font-body); font-size:10.5px; font-weight:700; background:var(--color-accent-200); color:var(--color-accent-800); border-radius:999px; padding:2px 9px">{{ td.when }}</span>
+                      <span style="font-family: var(--font-body); font-size: 10.5px; font-weight: 700; color: var(--color-accent-800); border-radius: 999px; padding: 2px 9px; background-color: var(--color-accent-200)">{{ td.when }}</span>
                     </div>
                     <div style="font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700); margin-top:5px; text-wrap:pretty">{{ td.x }}</div>
                   </div>
+                  <button type="button" onClick="{{ td.del }}" title="この項目を削除" style="flex:none; cursor:pointer; width:26px; height:26px; border-radius:999px; border:1px solid var(--color-divider); background:#ffffff; color:var(--color-neutral-600); font-family:var(--font-body); font-size:13px; line-height:1; display:grid; place-items:center">×</button>
                 </div>
               </div>
             </sc-for>
@@ -617,10 +567,16 @@
             </div>
           </sc-if>
           <div style="display:flex; gap:7px">
-            <input class="input" placeholder="やることを追加" value="{{ newTodo }}" onChange="{{ onNewTodo }}" style="flex:1; min-width:0; font-size:13px">
-            <button type="button" class="btn btn-primary" onClick="{{ addTodo }}" style="flex:none; border-radius:999px; font-family:var(--font-body); font-size:12.5px; font-weight:700">追加</button>
+            <input class="input" placeholder="やることを追加" value="{{ newTodo }}" onChange="{{ onNewTodo }}" style="flex: 1; min-width: 0; font-size: 13px; background-color: #FFFFFF">
+            <button type="button" class="btn btn-primary" onClick="{{ addTodo }}" style="flex: none; border-radius: 999px; font-family: var(--font-body); font-size: 12.5px; font-weight: 700; background-color: #FF82CF">追加</button>
           </div>
           <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); margin-top:8px">追加したものは自分の端末にだけ残ります。</div>
+          <sc-if value="{{ undo.todo.has }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; align-items:center; gap:8px; margin-top:10px">
+              <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600)">削除した項目 {{ undo.todo.n }}</div>
+              <button type="button" onClick="{{ undo.todo.go }}" style="cursor:pointer; border:1px solid var(--color-divider); background:#ffffff; border-radius:999px; padding:5px 12px; font-family:var(--font-body); font-size:11.5px; font-weight:700; color:var(--color-text)">元に戻す</button>
+            </div>
+          </sc-if>
         </div>
       </sc-if>
     </div>
@@ -632,9 +588,9 @@
         </div>
         <div style="flex:1; min-width:0">
           <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700">持ち物リスト</div>
-          <div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-600); margin-top:2px">タップでチェック</div>
+          
         </div>
-        <div style="flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; background:var(--color-accent-2-200); color:var(--color-accent-2-800); border-radius:999px; padding:3px 10px">{{ packBadge }}</div>
+        <div style="flex: none; font-family: var(--font-body); font-size: 10.5px; font-weight: 700; color: var(--color-accent-2-800); border-radius: 999px; padding: 3px 10px; background-color: var(--color-accent-200)">{{ packBadge }}</div>
       </div>
       <sc-if value="{{ sec.pack.open }}" hint-placeholder-val="{{ true }}">
         <div style="padding:0 16px 16px; animation:floatUp .28s ease both">
@@ -644,7 +600,10 @@
                 <div style="font-family:var(--font-body); font-size:11px; letter-spacing:.16em; text-transform:uppercase; font-weight:700; color:var(--color-accent-700); margin-bottom:8px">{{ pg.g }}</div>
                 <div style="display:flex; flex-wrap:wrap; gap:7px">
                   <sc-for list="{{ pg.items }}" as="it" hint-placeholder-count="6">
-                    <button type="button" onClick="{{ it.go }}" style="{{ it.style }}">{{ it.label }}</button>
+                    <div style="display:inline-flex; align-items:center; gap:3px">
+                      <button type="button" onClick="{{ it.go }}" style="{{ it.style }}">{{ it.label }}</button>
+                      <button type="button" onClick="{{ it.del }}" title="この項目を削除" style="flex:none; cursor:pointer; width:20px; height:20px; border-radius:999px; border:1px solid var(--color-divider); background:#ffffff; color:var(--color-neutral-600); font-family:var(--font-body); font-size:11px; line-height:1; display:grid; place-items:center">×</button>
+                    </div>
                   </sc-for>
                 </div>
               </div>
@@ -664,28 +623,69 @@
             </div>
           </sc-if>
           <div style="display:flex; gap:7px">
-            <input class="input" placeholder="持ち物を追加" value="{{ newPack }}" onChange="{{ onNewPack }}" style="flex:1; min-width:0; font-size:13px">
+            <input class="input" placeholder="持ち物を追加" value="{{ newPack }}" onChange="{{ onNewPack }}" style="flex: 1; min-width: 0; font-size: 13px; background-color: #FFFFFF">
             <button type="button" class="btn btn-primary" onClick="{{ addPack }}" style="flex:none; border-radius:999px; font-family:var(--font-body); font-size:12.5px; font-weight:700">追加</button>
           </div>
+          <sc-if value="{{ undo.pack.has }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; align-items:center; gap:8px; margin-top:10px">
+              <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600)">削除した項目 {{ undo.pack.n }}</div>
+              <button type="button" onClick="{{ undo.pack.go }}" style="cursor:pointer; border:1px solid var(--color-divider); background:#ffffff; border-radius:999px; padding:5px 12px; font-family:var(--font-body); font-size:11.5px; font-weight:700; color:var(--color-text)">元に戻す</button>
+            </div>
+          </sc-if>
 
-          <div style="margin-top:16px; background:var(--color-accent-2-100); border-radius:var(--radius-lg); padding:14px; font-family:var(--font-body); font-size:12.5px; text-wrap:pretty">
-            受託手荷物はシンガポール航空の規定を各自で確認してください。都市間で格安航空を使う場合、機内持ち込みのサイズと重量の方が厳しく、超過料金が空港で高くつきます。<b>スーツケースは機内持ち込みサイズ＋小さめのバックパック</b>にすると、どの区間でも詰まりません。
-          </div>
+          
         </div>
       </sc-if>
     </div>
 
-    <h3 style="font-size:18px; margin:28px 0 8px">事前予約が要るところ</h3>
-    <div style="display:grid; gap:10px">
-      <sc-for list="{{ booking }}" as="bk" hint-placeholder-count="5">
-        <div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:14px 16px; box-shadow:var(--shadow-sm)">
-          <div style="display:flex; justify-content:space-between; gap:10px; align-items:baseline">
-            <div style="font-family:var(--font-body); font-size:13.5px; font-weight:700">{{ bk.n }}</div>
-            <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--color-accent-700); white-space:nowrap">{{ bk.lead }}</div>
-          </div>
-          <div style="font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700); margin-top:5px; text-wrap:pretty">{{ bk.x }}</div>
+    
+    <div style="margin-top:8px; {{ sec.book.card }}">
+      <div onClick="{{ sec.book.go }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
+        <div style="{{ sec.book.caret }}">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </div>
-      </sc-for>
+        <div style="flex:1; min-width:0">
+          <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700">事前予約リスト</div>
+        </div>
+        <div style="flex: none; font-family: var(--font-body); font-size: 10.5px; font-weight: 700; color: var(--color-accent-2-800); border-radius: 999px; padding: 3px 10px; background-color: var(--color-accent-200)">{{ bookBadge }}</div>
+      </div>
+      <sc-if value="{{ sec.book.open }}" hint-placeholder-val="{{ true }}">
+        <div style="padding:0 16px 16px; animation:floatUp .28s ease both">
+          <div style="display:grid; gap:8px">
+            <sc-for list="{{ booking }}" as="bk" hint-placeholder-count="5">
+              <div onClick="{{ bk.go }}" style="{{ bk.card }}">
+                <div style="display:flex; gap:12px; align-items:flex-start">
+                  <div style="{{ bk.box }}">{{ bk.tick }}</div>
+                  <div style="flex:1">
+                    <div style="display:flex; gap:8px; align-items:baseline; flex-wrap:wrap">
+                      <div style="font-family:var(--font-body); font-size:14px; font-weight:700">{{ bk.n }}</div>
+                      <sc-if value="{{ bk.hasLead }}" hint-placeholder-val="{{ true }}">
+                        <span style="font-family: var(--font-body); font-size: 10.5px; font-weight: 700; color: var(--color-accent-800); border-radius: 999px; padding: 2px 9px; background-color: var(--color-accent-200)">{{ bk.lead }}</span>
+                      </sc-if>
+                    </div>
+                    <sc-if value="{{ bk.hasX }}" hint-placeholder-val="{{ true }}">
+                      <div style="font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700); margin-top:5px; text-wrap:pretty">{{ bk.x }}</div>
+                    </sc-if>
+                  </div>
+                  <button type="button" onClick="{{ bk.del }}" title="この項目を削除" style="flex:none; cursor:pointer; width:26px; height:26px; border-radius:999px; border:1px solid var(--color-divider); background:#ffffff; color:var(--color-neutral-600); font-family:var(--font-body); font-size:13px; line-height:1; display:grid; place-items:center">×</button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display:flex; gap:7px; margin-top:14px">
+            <input class="input" placeholder="予約するものを追加" value="{{ newBook }}" onChange="{{ onNewBook }}" style="flex: 1; min-width: 0; font-size: 13px; background-color: #FFFFFF">
+            <button type="button" class="btn btn-primary" onClick="{{ addBook }}" style="flex:none; border-radius:999px; font-family:var(--font-body); font-size:12.5px; font-weight:700">追加</button>
+          </div>
+          <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); margin-top:8px">追加とチェックは9人全員に共有されます。</div>
+          <sc-if value="{{ undo.book.has }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; align-items:center; gap:8px; margin-top:10px">
+              <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600)">削除した項目 {{ undo.book.n }}</div>
+              <button type="button" onClick="{{ undo.book.go }}" style="cursor:pointer; border:1px solid var(--color-divider); background:#ffffff; border-radius:999px; padding:5px 12px; font-family:var(--font-body); font-size:11.5px; font-weight:700; color:var(--color-text)">元に戻す</button>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
     </div>
   </section>
   </sc-if>
@@ -693,14 +693,42 @@
   <sc-if value="{{ isLocal }}" hint-placeholder-val="{{ true }}">
   <section style="animation:floatUp .45s ease both">
 
-    <div style="margin-top:16px; {{ sec.wx.card }}">
+    <div style="margin-top:16px; {{ cfgLodgeCard }}">
+      <div onClick="{{ cfgLodgeGo }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
+        <div style="{{ cfgLodgeCaret }}">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
+        <div style="flex:1; min-width:0">
+          <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700">宿情報</div>
+          
+        </div>
+      </div>
+      <sc-if value="{{ cfgLodgeOpen }}" hint-placeholder-val="{{ true }}">
+        <div style="padding:0 16px 16px; display:grid; gap:14px; animation:floatUp .28s ease both">
+          <sc-for list="{{ lodgeFields }}" as="lf" hint-placeholder-count="9">
+            <div style="border-radius: var(--radius-md); padding: 14px; background-color: #EFFEFD">
+              <div style="font-family:var(--font-body); font-size:13px; font-weight:700; margin-bottom:9px">{{ lf.city }}</div>
+              <div style="display:grid; gap:7px">
+                <input class="input" placeholder="宿の名前" value="{{ lf.name }}" onChange="{{ lf.onName }}" style="background-color: #FFFFFF">
+                <input class="input" placeholder="チェックイン時刻" value="{{ lf.addr }}" onChange="{{ lf.onAddr }}" style="background-color: #FFFFFF">
+                <input class="input" placeholder="チェックアウト時刻" value="{{ lf.checkin }}" onChange="{{ lf.onCheckin }}" style="background-color: #FFFFFF">
+                <input class="input" placeholder="GoogleマップのURL (AirBnb など)" value="{{ lf.map }}" onChange="{{ lf.onMap }}" style="background-color: #FFFFFF">
+              </div>
+            </div>
+          </sc-for>
+          <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-600); text-wrap:pretty">入力は9人全員に共有されます。</div>
+        </div>
+      </sc-if>
+    </div>
+
+    <div style="margin-top:8px; {{ sec.wx.card }}">
       <div onClick="{{ sec.wx.go }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
         <div style="{{ sec.wx.caret }}">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </div>
         <div style="flex:1; min-width:0">
           <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700">2月の気温と服装</div>
-          <div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-600); margin-top:2px">都市ごとの目安</div>
+          
         </div>
       </div>
       <sc-if value="{{ sec.wx.open }}" hint-placeholder-val="{{ true }}">
@@ -732,16 +760,105 @@
     </div>
     
 
-    <h3 style="font-size:18px; margin:26px 0 8px">食事の目安</h3>
-    <div style="display:grid; gap:10px">
-      <sc-for list="{{ meals }}" as="ml" hint-placeholder-count="5">
-        <div style="border:1px solid var(--color-divider); border-radius:var(--radius-lg); padding:14px 16px">
-          <div style="font-family:var(--font-body); font-size:13.5px; font-weight:700">{{ ml.c }}</div>
-          <div style="font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700); margin-top:4px; text-wrap:pretty">{{ ml.x }}</div>
+    <div style="margin-top:8px; {{ sec.food.card }}">
+      <div onClick="{{ sec.food.go }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
+        <div style="{{ sec.food.caret }}">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </div>
-      </sc-for>
+        <div style="flex:1; min-width:0">
+          <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700">食事</div>
+          <div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-600); margin-top:2px">都市ごとの目安と、みんなのお店メモ</div>
+        </div>
+      </div>
+      <sc-if value="{{ sec.food.open }}" hint-placeholder-val="{{ true }}">
+        <div style="padding:0 16px 16px; display:grid; gap:7px; animation:floatUp .28s ease both">
+          <sc-for list="{{ foodCities }}" as="fc" hint-placeholder-count="9">
+            <div style="background-color: #EFFEFD">
+              <div onClick="{{ fc.go }}" style="cursor:pointer; display:flex; align-items:center; gap:9px; padding:11px 14px">
+                <div style="{{ fc.caret }}">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </div>
+                <div style="flex:1; min-width:0; font-family:var(--font-body); font-size:13.5px; font-weight:700">{{ fc.c }}</div>
+                <sc-if value="{{ fc.hasCount }}" hint-placeholder-val="{{ false }}">
+                  <div style="flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; color:var(--color-accent-800); background:var(--color-accent-200); border-radius:999px; padding:2px 9px">{{ fc.count }}</div>
+                </sc-if>
+              </div>
+              <sc-if value="{{ fc.open }}" hint-placeholder-val="{{ true }}">
+                <div style="padding:0 14px 14px; animation:floatUp .24s ease both">
+                  <sc-if value="{{ fc.hasGuide }}" hint-placeholder-val="{{ true }}">
+                    <div style="font-family:var(--font-body); font-size:12.5px; color:var(--color-neutral-700); text-wrap:pretty; margin-bottom:10px">{{ fc.guide }}</div>
+                  </sc-if>
+                  <sc-if value="{{ fc.hasNotes }}" hint-placeholder-val="{{ true }}">
+                    <div style="display:grid; gap:6px; margin-bottom:9px">
+                      <sc-for list="{{ fc.notes }}" as="fn" hint-placeholder-count="2">
+                        <div style="display:flex; gap:8px; align-items:center; background:var(--color-bg); border-radius:var(--radius-md); padding:7px 11px">
+                          <input class="input" value="{{ fn.t }}" onChange="{{ fn.onEdit }}" style="flex:1; min-width:0; font-size:13px">
+                          <button type="button" onClick="{{ fn.del }}" style="flex:none; cursor:pointer; background:transparent; border:0; color:var(--color-neutral-600); font-family:var(--font-body); font-size:11px; font-weight:700">削除</button>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                  <div style="display:flex; gap:7px">
+                    <input class="input" placeholder="お店・食べたいものを追加" value="{{ fc.draft }}" onChange="{{ fc.onDraft }}" style="flex:1; min-width:0; font-size:13px">
+                    <button type="button" class="btn btn-primary" onClick="{{ fc.add }}" style="flex:none; border-radius:999px; font-family:var(--font-body); font-size:12.5px; font-weight:700">追加</button>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+          <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); margin-top:4px; text-wrap:pretty">追加・編集・削除は9人全員に共有されます。</div>
+        </div>
+      </sc-if>
     </div>
     <div style="margin-top:10px; font-family:var(--font-body); font-size:12.5px; color:var(--color-neutral-700); text-wrap:pretty">9人はほぼどこでも予約が必要です。当日飛び込みは断られるので、前日までに担当が押さえてください。</div>
+
+    <div style="margin-top:16px; {{ sec.spot.card }}">
+      <div onClick="{{ sec.spot.go }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
+        <div style="{{ sec.spot.caret }}">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
+        <div style="flex:1; min-width:0">
+          <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700">行きたい場所リスト</div>
+          <div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-600); margin-top:2px">都市ごとに、行きたい場所を書き足す</div>
+        </div>
+      </div>
+      <sc-if value="{{ sec.spot.open }}" hint-placeholder-val="{{ true }}">
+        <div style="padding:0 16px 16px; display:grid; gap:7px; animation:floatUp .28s ease both">
+          <sc-for list="{{ spotCities }}" as="sp" hint-placeholder-count="9">
+            <div style="{{ sp.card }}">
+              <div onClick="{{ sp.go }}" style="cursor:pointer; display:flex; align-items:center; gap:9px; padding:11px 14px">
+                <div style="{{ sp.caret }}">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </div>
+                <div style="flex:1; min-width:0; font-family:var(--font-body); font-size:13.5px; font-weight:700">{{ sp.c }}</div>
+                <sc-if value="{{ sp.hasCount }}" hint-placeholder-val="{{ false }}">
+                  <div style="flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; color:var(--color-accent-2-800); background:var(--color-accent-2-200); border-radius:999px; padding:2px 9px">{{ sp.count }}</div>
+                </sc-if>
+              </div>
+              <sc-if value="{{ sp.open }}" hint-placeholder-val="{{ true }}">
+                <div style="padding:0 14px 14px; animation:floatUp .24s ease both">
+                  <sc-if value="{{ sp.hasNotes }}" hint-placeholder-val="{{ true }}">
+                    <div style="display:grid; gap:6px; margin-bottom:9px">
+                      <sc-for list="{{ sp.notes }}" as="sn" hint-placeholder-count="2">
+                        <div style="display:flex; gap:8px; align-items:center; background:var(--color-bg); border-radius:var(--radius-md); padding:7px 11px">
+                          <input class="input" value="{{ sn.t }}" onChange="{{ sn.onEdit }}" style="flex:1; min-width:0; font-size:13px">
+                          <button type="button" onClick="{{ sn.del }}" style="flex:none; cursor:pointer; background:transparent; border:0; color:var(--color-neutral-600); font-family:var(--font-body); font-size:11px; font-weight:700">削除</button>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                  <div style="display:flex; gap:7px">
+                    <input class="input" placeholder="行きたい場所を追加" value="{{ sp.draft }}" onChange="{{ sp.onDraft }}" style="flex:1; min-width:0; font-size:13px">
+                    <button type="button" class="btn btn-primary" onClick="{{ sp.add }}" style="flex:none; border-radius:999px; font-family:var(--font-body); font-size:12.5px; font-weight:700">追加</button>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+          <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); margin-top:4px; text-wrap:pretty">追加・編集・削除は9人全員に共有されます。</div>
+        </div>
+      </sc-if>
+    </div>
 
     <h3 style="font-size:18px; margin:26px 0 8px">緊急時</h3>
     <div style="background:var(--color-accent-100); border-radius:var(--radius-lg); padding:18px; display:grid; gap:8px">
@@ -759,7 +876,7 @@
             <sc-for list="{{ lk.items }}" as="li" hint-placeholder-count="4">
               <a href="{{ li.u }}" target="_blank" rel="noopener" style="display:flex; justify-content:space-between; gap:10px; align-items:baseline; background:var(--color-surface); border-radius:var(--radius-md); padding:11px 15px; text-decoration:none">
                 <span style="font-family:var(--font-body); font-size:13.5px; font-weight:700; color:var(--color-text)">{{ li.n }}</span>
-                <span style="font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-600); text-align:right">{{ li.x }}</span>
+                
               </a>
             </sc-for>
           </div>
@@ -1151,7 +1268,7 @@ const PLANS = {
 
 const ROUTES = OPTIONS.map(o => ({
   id:o.id, name:o.name, tagline:o.tagline, pros:o.pros, cons:o.cons,
-  chain:["ミラノ 1泊","バルセロナ 3泊", o.slot + " 2泊","ロンドン 2泊","ローマ 2泊"],
+  chain:["ミラノ 1泊","バルセロナ 3泊", o.slot + " 2泊","ロンドン 2泊","ローマ 1泊"],
   days: BASE_HEAD.concat(o.days, BASE_TAIL).map(d => Object.assign({}, d, {
     tz: TZ_DATE[d.date] || TZ_CITY[d.stay] || "Europe/Rome",
     plan: PLANS[o.id + ":" + d.date] || PLANS[d.date] || []
@@ -1162,15 +1279,14 @@ const THEMES = [
   { id:"route", label:"旅行ルート", sub:"2/18〜2/20の2泊をどこにするか", map:true,
     options: ROUTES.map(r => ({ id:r.id, name:r.name, tagline:r.tagline, chain:r.chain, pros:r.pros, cons:r.cons })) },
   { id:"plan", label:"現地の行動方針", sub:"9人でどう動くか", options:[
-    { id:"A", name:"全員で同じ行程", tagline:"朝から夜まで9人で一緒に動く。", chain:[],
-      pros:["・決めごとが1つで済み、連絡が単純になる",""],
-      cons:["","・一人ひとりの希望は通りにくい"] },
-    { id:"B", name:"3人3組をローテで回す。", tagline:"", chain:[],
-      pros:["行きたい場所を各自で消化できる","力を入れたい所と抜く所を各自で調整できる"],
-      cons:["集合するのがダルい","少人数で動く時間は防犯の意識が必要"] },
+    { id:"A", name:"必要なし", tagline:"", chain:[], pros:[], cons:[] },
+    { id:"B", name:"必要に応じて実施した方が良い", tagline:"", chain:[], pros:[], cons:[] },
+  ] },
+  { id:"derby", label:"INT vs MIL 観戦", sub:"ミラノダービー（サン・シーロ）を観に行くか", options:[
+    { id:"A", name:"観戦する", tagline:"", chain:[], pros:[], cons:[] },
+    { id:"B", name:"観戦しない", tagline:"", chain:[], pros:[], cons:[] },
   ] },
   { id:"foot", label:"サッカー観戦", sub:"行きたい試合をすべて選ぶ。\n", multi:true, ukmap:true, options:[
-    { id:"0",  name:"INT vs MIL", city:"ミラノ",         venue:"サン・シーロ（ミラノダービー）" },
     { id:"1",  name:"ARS vs FUL", city:"ロンドン",       venue:"エミレーツ・スタジアム" },
     { id:"2",  name:"BHA vs TOT", city:"ブライトン",     venue:"アメックス・スタジアム" },
     { id:"3",  name:"CFC vs IPS", city:"ロンドン",       venue:"スタンフォード・ブリッジ" },
@@ -1187,13 +1303,13 @@ const THEMES = [
 const CIRC = ["⓪","①","②","③","④","⑤","⑥","⑦","⑧","⑨","⑩"];
 
 const TABS = [
-  { id:"home",  label:"ホーム" },
-  { id:"talk",  label:"チャット" },
-  { id:"route", label:"検討・投票" },
-  { id:"plan",  label:"日程表" },
-  { id:"prep",  label:"準備" },
-  { id:"local", label:"現地のこと" },
-  { id:"config", label:"設定" }
+  { id:"home",  label:"ホーム",     theme:"#fffcdb", btn:"#FFFCDB", hue:100, chroma:0.055 },
+  { id:"talk",  label:"チャット",   theme:"#fbdac8", btn:"#FBDAC8", hue:52,  chroma:0.060 },
+  { id:"route", label:"検討・投票", theme:"#ecf4d9", btn:"#ecf4d9", hue:126, chroma:0.055 },
+  { id:"plan",  label:"日程表",     theme:"#EEF7FF", btn:"#EEF7FF", hue:262, chroma:0.050 },
+  { id:"prep",  label:"準備",       theme:"#FFF0F9", btn:"#FFF0F9", hue:350, chroma:0.055 },
+  { id:"local", label:"現地のこと", theme:"#E7FCFB", btn:"#E7FCFB", hue:192, chroma:0.045 },
+  { id:"config", label:"設定",      theme:"#efefef", btn:"#efefef", hue:80,  chroma:0.006 }
 ];
 
 const OUTBOUND = [
@@ -1380,7 +1496,7 @@ const MARKS = [
   { v:0, label:"△ うーん" }
 ];
 
-const SHARED_KEYS = ["ballots","notes","deadlines","members","lineUrl","reads","meets","lodging","plans"];
+const SHARED_KEYS = ["ballots","notes","deadlines","members","lineUrl","reads","meets","lodging","plans","hidden","booked","addBook","foodNotes","spotNotes"];
 const TRIP_YEAR = 2027;
 const TRIP_START = "2027-02-13";
 const TRIP_END = "2027-02-25";
@@ -1399,7 +1515,8 @@ class Component extends DCLogic {
   state = { tab:"home", route:"A", theme:"route", sel:{}, me:DEFAULT_MEMBERS[0], members:DEFAULT_MEMBERS.slice(),
             ballots:{}, notes:{}, deadlines:{}, packed:{}, done:{}, openDays:{},
             lineUrl:"", memos:[], draft:"", chat:[], chatDraft:"", sync:"off", reads:{}, identified:false,
-            meets:{}, lodging:{}, plans:{}, editDay:"",
+            meets:{}, lodging:{}, plans:{}, editDay:"", hidden:{}, booked:{}, addBook:[], newBook:"",
+            foodNotes:{}, foodOpen:{}, foodDraft:{}, spotNotes:{}, spotOpen:{}, spotDraft:{},
             prepOpen:{}, myTodos:[], myPack:[], newTodo:"", newPack:"" };
 
   planKey(rid, d) { return rid + ":" + d.date; }
@@ -1423,6 +1540,45 @@ class Component extends DCLogic {
   chatSeq() {
     const ids = (this.state.chat || []).map(m => Number(m.id)).filter(n => !isNaN(n));
     return ids.length ? Math.max.apply(null, ids) : 0;
+  }
+
+  myUnread() {
+    const me = this.activeMe();
+    const reads = this.state.reads || {};
+    const last = Number(reads[me] || 0);
+    return (this.state.chat || []).filter(m => m.who !== me && Number(m.id) > last).length;
+  }
+
+  playPing() {
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      this.ac = this.ac || new AC();
+      const t = this.ac.currentTime;
+      const o = this.ac.createOscillator(), g = this.ac.createGain();
+      o.type = "sine"; o.frequency.setValueAtTime(880, t);
+      o.frequency.exponentialRampToValueAtTime(1320, t + 0.09);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.08, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.36);
+      o.connect(g); g.connect(this.ac.destination);
+      o.start(t); o.stop(t + 0.38);
+    } catch (e) {}
+  }
+
+  onNewMessage(m) {
+    if (!m || m.who === this.activeMe()) return;
+    this.playPing();
+    const away = (typeof document !== "undefined" && document.hidden) || this.state.tab !== "talk";
+    if (!away) return;
+    try {
+      if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+        const n = new Notification(m.who + " さんのメッセージ", {
+          body: String(m.body || "").slice(0, 120), tag: "trip-chat", renotify: true
+        });
+        n.onclick = () => { try { window.focus(); } catch (e) {} this.save({ tab:"talk" }); n.close(); };
+      }
+    } catch (e) {}
   }
 
   markRead() {
@@ -1462,6 +1618,7 @@ class Component extends DCLogic {
       })
       .on("postgres_changes", { event:"INSERT", schema:"public", table:"trip_messages" }, p => {
         this.setState(s => (s.chat || []).some(m => m.id === p.new.id) ? null : { chat:(s.chat || []).concat(p.new) });
+        this.onNewMessage(p.new);
       })
       .on("postgres_changes", { event:"DELETE", schema:"public", table:"trip_messages" }, p => {
         this.setState(s => ({ chat:(s.chat || []).filter(m => m.id !== p.old.id) }));
@@ -1510,7 +1667,7 @@ class Component extends DCLogic {
         }
         this.setState(Object.assign({ openDays:{}, packed:{}, done:{}, sel:{}, theme:"route",
           ballots:{}, notes:{}, deadlines:{}, lineUrl:"", memos:[], draft:"",
-          meets:{}, lodging:{}, reads:{}, plans:{},
+          meets:{}, lodging:{}, reads:{}, plans:{}, hidden:{}, booked:{}, addBook:[], foodNotes:{}, spotNotes:{},
           prepOpen:{}, myTodos:[], myPack:[], newTodo:"", newPack:"" }, saved, { members:members }));
       }
     } catch (e) {}
@@ -1527,7 +1684,8 @@ class Component extends DCLogic {
           packed:s.packed, done:s.done, openDays:s.openDays, theme:s.theme, sel:s.sel,
           members:s.members, ballots:s.ballots, notes:s.notes, deadlines:s.deadlines,
           lineUrl:s.lineUrl, memos:s.memos, identified:s.identified,
-          meets:s.meets, lodging:s.lodging, reads:s.reads, plans:s.plans,
+          meets:s.meets, lodging:s.lodging, reads:s.reads, plans:s.plans, hidden:s.hidden,
+          booked:s.booked, addBook:s.addBook, foodNotes:s.foodNotes, foodOpen:s.foodOpen, spotNotes:s.spotNotes,
           prepOpen:s.prepOpen, myTodos:s.myTodos, myPack:s.myPack
         }));
       } catch (e) {}
@@ -1542,6 +1700,11 @@ class Component extends DCLogic {
 
   componentDidUpdate() {
     this.postPicks();
+    const n = this.myUnread();
+    if (this.lastTitleN !== n) {
+      this.lastTitleN = n;
+      try { document.title = (n ? "(" + n + ") " : "") + "ヨーロッパ卒業旅行の栞"; } catch (e) {}
+    }
     const el = this.chatEl;
     if (el && this.lastChatLen !== (this.state.chat || []).length) {
       this.lastChatLen = (this.state.chat || []).length;
@@ -1590,10 +1753,10 @@ class Component extends DCLogic {
     const s = this.state;
     const route = ROUTES.find(r => r.id === s.route) || ROUTES[0];
 
-    const pill = on => "flex:none; cursor:pointer; font-family:var(--font-body); font-size:13px; font-weight:700; "
-      + "border-radius:999px; padding:7px 15px; border:1px solid " + (on ? "transparent" : "var(--color-divider)")
-      + "; background:" + (on ? "var(--color-accent)" : "transparent")
-      + "; color:" + (on ? "var(--color-bg)" : "var(--color-text)") + "; white-space:nowrap; transition:all .18s";
+    const pill = (on, theme) => "flex:none; cursor:pointer; font-family:var(--font-body); font-size:13px; font-weight:700; "
+      + "border-radius:999px; padding:7px 15px; border:1px solid var(--color-divider)"
+      + "; background:" + (on ? (theme || "#ffffff") : "#ffffff")
+      + "; color:var(--color-text); white-space:nowrap; transition:all .18s";
 
     const allOpen = route.days.every(d => s.openDays[route.id + d.date]);
 
@@ -1652,7 +1815,7 @@ class Component extends DCLogic {
           + "; transition:transform .22s ease, background .2s; transform:rotate(" + (open ? "90deg" : "0deg") + ")",
         go: () => this.save({ theme: open ? "" : t.id }),
         chips: t.options.map(o => ({
-          label:"案" + o.id, style: pill(o.id === selId) + "; font-size:12.5px; padding:6px 14px",
+          label:"案" + o.id, style: pill(o.id === selId, "var(--color-accent-200)") + "; font-size:12.5px; padding:6px 14px",
           go: () => {
             this.save({ sel:Object.assign({}, this.state.sel, { [t.id]:o.id }) });
             if (t.id === "route") this.setRoute(o.id);
@@ -1660,6 +1823,8 @@ class Component extends DCLogic {
         })),
         optId:selId, optName:opt.name, optTagline:opt.tagline,
         optChain:opt.chain || [], optPros:opt.pros, optCons:opt.cons,
+        hasPros: (opt.pros || []).some(x => String(x).trim()),
+        hasCons: (opt.cons || []).some(x => String(x).trim()),
         myPickLabel: mine[t.id] ? ("あなたの投票：案" + mine[t.id]) : "あなたはまだ投票していません",
         voteLabel: (mine[t.id] === selId) ? ("案" + selId + " に投票済み") : ("案" + selId + " に投票する"),
         voteStyle: "width:100%; cursor:pointer; font-family:var(--font-body); font-size:13.5px; font-weight:700; "
@@ -1709,16 +1874,52 @@ class Component extends DCLogic {
 
     const notesList = ballots.filter(b => ((s.notes || {})[b.n] || "").trim()).map(b => ({ n:b.n, c:s.notes[b.n] }));
 
-    const doneCount = TODOS.filter(t => s.done[t.id]).length + (s.myTodos || []).filter(t => s.done[t.id]).length;
-    const packedCount = PACKING.reduce((a,g) => a + g.items.filter(i => s.packed[i]).length, 0)
+    const hid = s.hidden || {};
+    const hideItem = key => e => {
+      if (e && e.stopPropagation) e.stopPropagation();
+      this.save({ hidden:Object.assign({}, this.state.hidden || {}, { [key]:true }) });
+    };
+    const visTodos = TODOS.filter(t => !hid["todo:" + t.id]);
+    const visPacking = PACKING.map(g => ({ g:g.g, items:g.items.filter(i => !hid["pack:" + i]) })).filter(g => g.items.length);
+    const visBooking = BOOKING.filter(b => !hid["book:" + b.n]);
+    const doneCount = visTodos.filter(t => s.done[t.id]).length + (s.myTodos || []).filter(t => s.done[t.id]).length;
+    const packedCount = visPacking.reduce((a,g) => a + g.items.filter(i => s.packed[i]).length, 0)
       + (s.myPack || []).filter(p => s.packed[p.id]).length;
-    const packTotal = PACKING.reduce((a,g) => a + g.items.length, 0) + (s.myPack || []).length;
+    const packTotal = visPacking.reduce((a,g) => a + g.items.length, 0) + (s.myPack || []).length;
 
     return {
       countdown: phase === "before" ? String(Math.max(1, Math.ceil((new Date("2027-02-13T10:05:00+09:00") - now) / 86400000)))
                 : phase === "during" ? String(todayIdx + 1) : "13",
       countdownUnit: phase === "before" ? "日後に\n関空を出発" : phase === "during" ? "日目\n旅行中" : "日間の\n旅は終わりました",
-      tabs: TABS.map(t => ({ label:t.label, style:pill(s.tab === t.id), go:() => this.save({ tab:t.id }) })),
+      tabs: TABS.map(t => ({ label:t.label, style:pill(s.tab === t.id, t.btn || t.theme), go:() => this.save({ tab:t.id }),
+        hasBadge: t.id === "talk" && this.myUnread() > 0,
+        badge: String(this.myUnread()) })),
+      notifyAsk: typeof Notification !== "undefined" && Notification.permission === "default",
+      askNotify: () => {
+        try { Notification.requestPermission().then(() => this.forceUpdate()); } catch (e) {}
+      },
+      themeColor: (TABS.find(t => t.id === s.tab) || TABS[0]).theme,
+      themeStyle: (() => {
+        const T = TABS.find(t => t.id === s.tab) || TABS[0];
+        const ok = (l, m) => "oklch(" + l + " " + (T.chroma * m).toFixed(4) + " " + T.hue + ")";
+        return "position:relative; padding:6px 20px 0"
+          + ";--color-surface:" + T.theme
+          + ";--color-bg:" + ok(0.985, 0.35)
+          + ";--color-divider:" + ok(0.905, 0.9)
+          + ";--color-accent:" + ok(0.66, 2.3)
+          + ";--color-accent-100:" + ok(0.975, 0.5)
+          + ";--color-accent-200:" + ok(0.935, 1.1)
+          + ";--color-accent-300:" + ok(0.895, 1.5)
+          + ";--color-accent-600:" + ok(0.52, 2.3)
+          + ";--color-accent-700:" + ok(0.45, 2.0)
+          + ";--color-accent-800:" + ok(0.38, 1.7)
+          + ";--color-accent-2-100:" + ok(0.975, 0.5)
+          + ";--color-accent-2-200:" + ok(0.935, 1.1)
+          + ";--color-accent-2-600:" + ok(0.52, 2.3)
+          + ";--color-accent-2-700:" + ok(0.45, 2.0)
+          + ";--color-accent-2-800:" + ok(0.38, 1.7)
+          + ";--color-accent-2-900:" + ok(0.30, 1.4);
+      })(),
       isHome: !TABS.some(t => t.id === s.tab) || s.tab === "home",
       isRoute: s.tab === "route", isPlan: s.tab === "plan",
       isTalk: s.tab === "talk",
@@ -1848,8 +2049,8 @@ class Component extends DCLogic {
           who:m.who, body:m.body,
           when: (d.getMonth()+1) + "/" + d.getDate() + " " + String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0"),
           row: "display:flex; flex-direction:column; max-width:82%; " + (own ? "align-self:flex-end; align-items:flex-end" : "align-self:flex-start"),
-          bubble: "border-radius:var(--radius-lg); padding:9px 14px; font-family:var(--font-body); font-size:13.5px; white-space:pre-wrap; text-wrap:pretty; "
-            + (own ? "background:var(--color-accent-2-600); color:var(--color-bg)" : "background:var(--color-surface); color:var(--color-text)"),
+          bubble: "display:inline-block; border-radius:20px; padding:12px 17px; font-family:'Zen Maru Gothic', var(--font-body); font-weight:700; font-size:13.5px; line-height:1.6; white-space:pre-wrap; text-wrap:pretty; "
+            + (own ? "background:" + ((TABS.find(t => t.id === "talk") || {}).theme || "#F5B090") + "; color:#3A2A20; border:1px solid rgba(58,42,32,.14)" : "background:#FFFFFF; color:var(--color-text); border:1px solid #EADFD3"),
           readLabel: own ? ("既読 " + seen.length + "/" + Math.max(0, roster.length - 1)) : "",
           readStyle: "font-family:var(--font-body); font-size:10px; color:var(--color-neutral-600); margin-top:3px; "
             + (own ? "" : "display:none")
@@ -1914,7 +2115,7 @@ class Component extends DCLogic {
         if (!allOpen) route.days.forEach(d => { next[route.id + d.date] = true; });
         this.save({ openDays:next });
       },
-      routeChips: ROUTES.map(r => ({ chip:"案" + r.id, style:pill(s.route === r.id), go:() => this.setRoute(r.id) })),
+      routeChips: ROUTES.map(r => ({ chip:"案" + r.id, style:pill(s.route === r.id, "#EEF7FF"), go:() => this.setRoute(r.id) })),
       mapStyle: "width:100%; height:300px; border:0; display:block",
       mapRef: el => {
         this.mapEl = el;
@@ -1950,11 +2151,23 @@ class Component extends DCLogic {
       comments: [],
       hasComments: false,
 
+      undo: (() => {
+        const mk = pre => {
+          const keys = Object.keys(hid).filter(k => k.indexOf(pre + ":") === 0 && hid[k]);
+          return { has: keys.length > 0, n: keys.length + "件",
+            go: () => {
+              const next = Object.assign({}, this.state.hidden || {});
+              keys.forEach(k => { delete next[k]; });
+              this.save({ hidden:next });
+            } };
+        };
+        return { todo:mk("todo"), pack:mk("pack"), book:mk("book") };
+      })(),
       outbound: OUTBOUND, inbound: INBOUND, transit: TRANSIT, lodging: LODGING,
-      booking: BOOKING, weather: WEATHER, currencies: CURRENCIES, money: MONEY,
+      weather: WEATHER, currencies: CURRENCIES, money: MONEY,
       roles: ROLES, meals: MEALS, emergency: EMERGENCY, links: LINKS,
 
-      prepDone: doneCount + " / " + (TODOS.length + (s.myTodos || []).length) + " 完了",
+      prepDone: doneCount + " / " + (visTodos.length + (s.myTodos || []).length) + " 完了",
       sec: (() => {
         const mk = id => {
           const on = !!(s.prepOpen || {})[id];
@@ -1968,8 +2181,107 @@ class Component extends DCLogic {
             go: () => this.save({ prepOpen:Object.assign({}, this.state.prepOpen, { [id]:!on }) })
           };
         };
-        return { prep:mk("prep"), pack:mk("pack"), wx:mk("wx") };
+        return { prep:mk("prep"), pack:mk("pack"), book:mk("book"), wx:mk("wx"), food:mk("food"), spot:mk("spot") };
       })(),
+      foodCities: LODGING_CITIES.map(c => {
+        const open = !!(s.foodOpen || {})[c];
+        const guide = (MEALS.find(m => m.c === c) || {}).x || "";
+        const list = ((s.foodNotes || {})[c] || []);
+        const put = next => this.save({ foodNotes:Object.assign({}, this.state.foodNotes || {}, { [c]:next }) });
+        return {
+          c:c, open:open, guide:guide, hasGuide: !!guide,
+          card: "border-radius:var(--radius-lg); overflow:hidden; transition:background .2s, border-color .2s; background:#ffffff; border:1px solid "
+            + (open ? "var(--color-accent-300)" : "var(--color-divider)"),
+          caret: "flex:none; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; color:var(--color-accent-800); "
+            + "background:var(--color-accent-200)"
+            + "; transition:transform .22s ease; transform:rotate(" + (open ? "90deg" : "0deg") + ")",
+          count: list.length ? String(list.length) : "",
+          hasCount: list.length > 0,
+          go: () => this.setState(st => ({ foodOpen:Object.assign({}, st.foodOpen || {}, { [c]:!open }) })),
+          notes: list.map((n, i) => ({
+            t:n.t,
+            onEdit: e => {
+              const next = list.map(x => Object.assign({}, x));
+              next[i].t = e.target.value;
+              put(next);
+            },
+            del: () => put(list.filter((x, j) => j !== i))
+          })),
+          hasNotes: list.length > 0,
+          draft: (s.foodDraft || {})[c] || "",
+          onDraft: e => this.setState(st => ({ foodDraft:Object.assign({}, st.foodDraft || {}, { [c]:e.target.value }) })),
+          add: () => {
+            const t = String((this.state.foodDraft || {})[c] || "").trim();
+            if (!t) return;
+            put(list.concat({ id:"f" + Date.now(), t:t }));
+            this.setState(st => ({ foodDraft:Object.assign({}, st.foodDraft || {}, { [c]:"" }) }));
+          }
+        };
+      }),
+      spotCities: LODGING_CITIES.map(c => {
+        const open = !!(s.spotOpen || {})[c];
+        const list = ((s.spotNotes || {})[c] || []);
+        const put = next => this.save({ spotNotes:Object.assign({}, this.state.spotNotes || {}, { [c]:next }) });
+        return {
+          c:c, open:open,
+          card: "border-radius:var(--radius-lg); overflow:hidden; transition:background .2s, border-color .2s; background:#ffffff; border:1px solid "
+            + (open ? "var(--color-accent-2-300)" : "var(--color-divider)"),
+          caret: "flex:none; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; color:var(--color-accent-2-800); "
+            + "background:var(--color-accent-2-200)"
+            + "; transition:transform .22s ease; transform:rotate(" + (open ? "90deg" : "0deg") + ")",
+          count: list.length ? String(list.length) : "",
+          hasCount: list.length > 0,
+          go: () => this.setState(st => ({ spotOpen:Object.assign({}, st.spotOpen || {}, { [c]:!open }) })),
+          notes: list.map((n, i) => ({
+            t:n.t,
+            onEdit: e => {
+              const next = list.map(x => Object.assign({}, x));
+              next[i].t = e.target.value;
+              put(next);
+            },
+            del: () => put(list.filter((x, j) => j !== i))
+          })),
+          hasNotes: list.length > 0,
+          draft: (s.spotDraft || {})[c] || "",
+          onDraft: e => this.setState(st => ({ spotDraft:Object.assign({}, st.spotDraft || {}, { [c]:e.target.value }) })),
+          add: () => {
+            const t = String((this.state.spotDraft || {})[c] || "").trim();
+            if (!t) return;
+            put(list.concat({ id:"s" + Date.now(), t:t }));
+            this.setState(st => ({ spotDraft:Object.assign({}, st.spotDraft || {}, { [c]:"" }) }));
+          }
+        };
+      }),
+      booking: (() => {
+        const rows = visBooking.map(b => ({ key:"book:" + b.n, n:b.n, lead:b.lead, x:b.x, shared:true }))
+          .concat((s.addBook || []).filter(b => !hid["book:" + b.id]).map(b => ({ key:"book:" + b.id, n:b.n, lead:b.lead || "", x:b.x || "", shared:true })));
+        return rows.map(r => {
+          const on = !!(s.booked || {})[r.key];
+          return {
+            n:r.n, lead:r.lead, x:r.x, hasLead: !!String(r.lead).trim(), hasX: !!String(r.x).trim(),
+            tick: on ? "✓" : "",
+            card: "cursor:pointer; border-radius:var(--radius-lg); padding:16px 18px; transition:background .2s; background:"
+              + (on ? "var(--color-accent-2-100)" : "var(--color-surface)") + "; box-shadow:var(--shadow-sm)",
+            box: "flex:none; width:24px; height:24px; border-radius:50%; display:grid; place-items:center; font-size:13px; font-weight:700; "
+              + (on ? "background:var(--color-accent-2-600); color:var(--color-bg); border:1px solid transparent"
+                    : "background:transparent; color:transparent; border:1.5px solid var(--color-neutral-400)"),
+            go: () => this.save({ booked:Object.assign({}, this.state.booked || {}, { [r.key]:!on }) }),
+            del: hideItem(r.key)
+          };
+        });
+      })(),
+      bookBadge: (() => {
+        const rows = visBooking.map(b => "book:" + b.n)
+          .concat((s.addBook || []).filter(b => !hid["book:" + b.id]).map(b => "book:" + b.id));
+        return rows.filter(k => (s.booked || {})[k]).length + " / " + rows.length;
+      })(),
+      newBook: s.newBook || "",
+      onNewBook: e => this.setState({ newBook:e.target.value }),
+      addBook: () => {
+        const t = (this.state.newBook || "").trim();
+        if (!t) return;
+        this.save({ addBook:(this.state.addBook || []).concat({ id:"b" + Date.now(), n:t, lead:"", x:"" }), newBook:"" });
+      },
       packBadge: packedCount + " / " + packTotal,
       newTodo: s.newTodo || "",
       onNewTodo: e => this.setState({ newTodo:e.target.value }),
@@ -2021,10 +2333,11 @@ class Component extends DCLogic {
         };
       }),
       hasMyPack: (s.myPack || []).length > 0,
-      todos: TODOS.map(t => {
+      todos: visTodos.map(t => {
         const on = !!s.done[t.id];
         return {
           title:t.title, when:t.when, x:t.x, tick: on ? "✓" : "",
+          del: hideItem("todo:" + t.id),
           card: "cursor:pointer; border-radius:var(--radius-lg); padding:16px 18px; transition:background .2s; background:"
             + (on ? "var(--color-accent-2-100)" : "var(--color-surface)") + "; box-shadow:var(--shadow-sm)",
           box: "flex:none; width:24px; height:24px; border-radius:50%; display:grid; place-items:center; font-size:13px; font-weight:700; "
@@ -2034,12 +2347,13 @@ class Component extends DCLogic {
         };
       }),
       packDone: packedCount + " / " + packTotal + " 準備済み",
-      packing: PACKING.map(g => ({
+      packing: visPacking.map(g => ({
         g:g.g,
         items: g.items.map(i => {
           const on = !!s.packed[i];
           return {
             label: on ? "✓ " + i : i,
+            del: hideItem("pack:" + i),
             style: "cursor:pointer; font-family:var(--font-body); font-size:12.5px; font-weight:600; border-radius:999px; padding:6px 13px; transition:all .18s; border:1px solid "
               + (on ? "transparent" : "var(--color-divider)") + "; background:" + (on ? "var(--color-accent-2-600)" : "transparent")
               + "; color:" + (on ? "var(--color-bg)" : "var(--color-text)"),
