@@ -104,7 +104,8 @@
 
     
   </header><nav class="om-nav" style="position:relative; z-index:9; background:#FFFFFF; padding:10px 0 12px; border-radius:0 0 var(--radius-lg) var(--radius-lg); box-shadow:0 10px 14px -12px rgba(46,43,37,.4)">
-    <div class="om-hide-scroll" style="display:flex; gap:8px; overflow-x:auto; padding:0 20px; scrollbar-width:none">
+    <div class="om-hide-scroll" style="position:relative; display:flex; gap:8px; overflow-x:auto; padding:0 20px; scrollbar-width:none">
+      <div data-om="ind" style="position:absolute; top:0; left:0; height:33px; width:0; border-radius:999px; background:#ffffff; z-index:0; pointer-events:none; will-change:transform,width"></div>
       <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="6">
         <button type="button" onClick="{{ t.go }}" style="{{ t.style }}"><span>{{ t.label }}</span><sc-if value="{{ t.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="margin-left:6px; display:inline-block; min-width:17px; background:#C4643A; color:#ffffff; font-size:10.5px; line-height:17px; border-radius:999px; padding:0 5px; text-align:center">{{ t.badge }}</span></sc-if></button>
       </sc-for>
@@ -1803,6 +1804,14 @@ class Component extends DCLogic {
   }
 
   componentDidMount() {
+    this.onKey = ev => {
+      if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
+      const t = ev.target;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+      if (ev.key === "ArrowRight") { ev.preventDefault(); this.shiftTab(1); }
+      else if (ev.key === "ArrowLeft") { ev.preventDefault(); this.shiftTab(-1); }
+    };
+    window.addEventListener("keydown", this.onKey);
     this.onScroll = () => {
       if (this.rafScroll) return;
       this.rafScroll = requestAnimationFrame(() => {
@@ -1841,17 +1850,51 @@ class Component extends DCLogic {
   }
 
   save(patch) {
+    if (patch.tab && patch.tab !== this.state.tab) this.applyThemeNow(patch.tab);
     if (patch.tab && patch.tab !== this.state.tab) {
       patch = Object.assign({ openDays:{}, prepOpen:{}, foodOpen:{}, spotOpen:{}, adminOpen:false,
                               resultOpen:{}, prepEdit:{}, linkEdit:{}, theme:null, editDay:"" }, patch);
       this.wantTop = true;
+      this.preSlide(patch.tab);
+      const later = patch;
+      let done = false;
+      const run = () => { if (!done) { done = true; this.commit(later); } };
+      if (typeof requestAnimationFrame === "function") requestAnimationFrame(run);
+      setTimeout(run, 24);
+      return;
     }
+    this.commit(patch);
+  }
+
+  preSlide(tabId) {
+    const main = this.trackEl;
+    if (!main) return;
+    const DOM = ["home","config","talk","route","plan","prep","local"];
+    const ids = TABS.map(t => t.id);
+    const n = ids.length;
+    const target = ids.indexOf(tabId);
+    const visIds = DOM.filter(id => this.visTab(id));
+    const secs = Array.prototype.filter.call(main.children, x => x.tagName === "SECTION");
+    secs.forEach((sec, i) => {
+      const id = visIds[i];
+      if (!id) return;
+      let d = ids.indexOf(id) - target;
+      if (d > n / 2) d -= n;
+      if (d < -n / 2) d += n;
+      sec.style.transition = "transform .11s ease-out";
+      sec.style.transform = "translate3d(calc(" + (d * 100) + "% + 0px),0,0)";
+    });
+  }
+
+  commit(patch) {
     if (patch.tab === "talk" && this.state.tab !== "talk") {
       patch = Object.assign({}, patch, { chatBase: (this.state.reads || {})[this.activeMe()] || 0 });
       this.needScroll = true;
     }
     this.push(patch);
     this.setState(patch, () => {
+      if (this.persistT) clearTimeout(this.persistT);
+      this.persistT = setTimeout(() => {
       const s = this.state;
       try {
         localStorage.setItem(KEY, JSON.stringify({
@@ -1867,6 +1910,7 @@ class Component extends DCLogic {
           todoEdits:s.todoEdits, bookEdits:s.bookEdits, privTodos:s.privTodos, resetV:s.resetV
         }));
       } catch (e) {}
+      }, 350);
     });
   }
 
@@ -1921,6 +1965,181 @@ class Component extends DCLogic {
     return el.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop;
   }
 
+  relTab(id) {
+    const ids = TABS.map(t => t.id);
+    const n = ids.length;
+    const i = ids.indexOf(this.state.tab);
+    const j = ids.indexOf(id);
+    if (i < 0 || j < 0) return 99;
+    let d = j - i;
+    if (d > n / 2) d -= n;
+    if (d < -n / 2) d += n;
+    return d;
+  }
+
+  visTab(id) {
+    return Math.abs(this.relTab(id)) <= 1;
+  }
+
+  layoutTrack(dx, anim) {
+    const main = this.trackEl;
+    if (!main) return;
+    const DOM = ["home","config","talk","route","plan","prep","local"];
+    const secs = Array.prototype.filter.call(main.children, n => n.tagName === "SECTION");
+    const visIds = DOM.filter(id => this.visTab(id));
+    main.style.position = "relative";
+    main.style.overflow = "hidden";
+    main.style.padding = "0";
+    secs.forEach((sec, i) => {
+      const id = visIds[i];
+      if (!id) return;
+      const off = this.relTab(id);
+      this.applyThemeTo(sec, id);
+      sec.style.position = "absolute";
+      sec.style.top = "0"; sec.style.left = "0"; sec.style.right = "0"; sec.style.bottom = "0";
+      sec.style.overflowY = "auto";
+      sec.style.overflowX = "hidden";
+      sec.style.padding = "6px 20px 40px";
+      sec.style.animation = "none";
+      sec.style.willChange = "transform";
+      sec.style.transition = anim ? "transform .11s ease-out" : "none";
+      sec.style.transform = "translate3d(calc(" + (off * 100) + "% + " + (dx || 0) + "px),0,0)";
+      if (off === 0) this.scroller = sec;
+    });
+  }
+
+  themeVars(tabId) {
+    const T = TABS.find(t => t.id === tabId) || TABS[0];
+    const ok = (l, m) => "oklch(" + l + " " + (T.chroma * m).toFixed(4) + " " + T.hue + ")";
+    return "position:relative; flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; padding:6px 20px 40px"
+      + ";--color-surface:" + T.theme
+      + ";--color-bg:" + ok(0.985, 0.35)
+      + ";--color-divider:" + ok(0.905, 0.9)
+      + ";--color-accent:" + ok(0.66, 2.3)
+      + ";--color-accent-100:" + ok(0.975, 0.5)
+      + ";--color-accent-200:" + ok(0.935, 1.1)
+      + ";--color-accent-300:" + ok(0.895, 1.5)
+      + ";--color-accent-600:" + ok(0.52, 2.3)
+      + ";--color-accent-700:" + ok(0.45, 2.0)
+      + ";--color-accent-800:" + ok(0.38, 1.7)
+      + ";--color-accent-2-100:" + ok(0.975, 0.5)
+      + ";--color-accent-2-200:" + ok(0.935, 1.1)
+      + ";--color-accent-2-600:" + ok(0.52, 2.3)
+      + ";--color-accent-2-700:" + ok(0.45, 2.0)
+      + ";--color-accent-2-800:" + ok(0.38, 1.7)
+      + ";--color-accent-2-900:" + ok(0.30, 1.4);
+  }
+
+  applyThemeTo(el, tabId) {
+    if (!el) return;
+    const T = TABS.find(t => t.id === tabId) || TABS[0];
+    const ok = (l, m) => "oklch(" + l + " " + (T.chroma * m).toFixed(4) + " " + T.hue + ")";
+    const st = el.style;
+    st.setProperty("--color-surface", T.theme);
+    st.setProperty("--color-bg", ok(0.985, 0.35));
+    st.setProperty("--color-divider", ok(0.905, 0.9));
+    st.setProperty("--color-accent", ok(0.66, 2.3));
+    st.setProperty("--color-accent-100", ok(0.975, 0.5));
+    st.setProperty("--color-accent-200", ok(0.935, 1.1));
+    st.setProperty("--color-accent-300", ok(0.895, 1.5));
+    st.setProperty("--color-accent-600", ok(0.52, 2.3));
+    st.setProperty("--color-accent-700", ok(0.45, 2.0));
+    st.setProperty("--color-accent-800", ok(0.38, 1.7));
+    st.setProperty("--color-accent-2-100", ok(0.975, 0.5));
+    st.setProperty("--color-accent-2-200", ok(0.935, 1.1));
+    st.setProperty("--color-accent-2-600", ok(0.52, 2.3));
+    st.setProperty("--color-accent-2-700", ok(0.45, 2.0));
+    st.setProperty("--color-accent-2-800", ok(0.38, 1.7));
+    st.setProperty("--color-accent-2-900", ok(0.30, 1.4));
+  }
+
+  mixHex(a, b, t) {
+    const p = h => {
+      const s = String(h || "#ffffff").replace("#", "");
+      const v = s.length === 3 ? s.split("").map(c => c + c).join("") : s;
+      return [parseInt(v.slice(0,2),16), parseInt(v.slice(2,4),16), parseInt(v.slice(4,6),16)];
+    };
+    const A = p(a), B = p(b);
+    const m = i => Math.round(A[i] + (B[i] - A[i]) * t);
+    return "rgb(" + m(0) + "," + m(1) + "," + m(2) + ")";
+  }
+
+  navSync(dir, t) {
+    const row = document.querySelector(".om-hide-scroll");
+    const ind = row && row.querySelector('[data-om="ind"]');
+    if (!row || !ind) return;
+    const btns = Array.prototype.filter.call(row.children, n => n.tagName === "BUTTON");
+    if (!btns.length) return;
+    const ids = TABS.map(x => x.id);
+    const i = Math.max(0, ids.indexOf(this.state.tab));
+    const j = dir ? (i + dir + ids.length) % ids.length : i;
+    const A = btns[i], B = btns[j];
+    if (!A || !B) return;
+    const k = Math.max(0, Math.min(1, t || 0));
+    const L = A.offsetLeft + (B.offsetLeft - A.offsetLeft) * k;
+    const W = A.offsetWidth + (B.offsetWidth - A.offsetWidth) * k;
+    ind.style.top = A.offsetTop + "px";
+    ind.style.height = A.offsetHeight + "px";
+    ind.style.width = W + "px";
+    ind.style.transform = "translate3d(" + L + "px,0,0)";
+    ind.style.background = this.mixHex(TABS[i].btn || TABS[i].theme, TABS[j].btn || TABS[j].theme, k);
+    const pc = this.mixHex(TABS[i].theme, TABS[j].theme, k);
+    try {
+      const pills = document.querySelectorAll('[data-om="mini"] > div');
+      Array.prototype.forEach.call(pills, p => { p.style.backgroundColor = pc; });
+    } catch (e) {}
+    const want = (L + W / 2) - row.clientWidth / 2;
+    row.scrollLeft = Math.max(0, Math.min(row.scrollWidth - row.clientWidth, want));
+  }
+
+  navSettle(dir, from, to, done) {
+    if (this.navRaf) cancelAnimationFrame(this.navRaf);
+    const t0 = performance.now();
+    const dur = 110;
+    const step = () => {
+      const p = Math.min(1, (performance.now() - t0) / dur);
+      const e = 1 - Math.pow(1 - p, 2);
+      this.navSync(dir, from + (to - from) * e);
+      if (p < 1) this.navRaf = requestAnimationFrame(step);
+      else { this.navRaf = null; if (this.navGuard) { clearTimeout(this.navGuard); this.navGuard = null; } if (done) done(); }
+    };
+    this.navRaf = requestAnimationFrame(step);
+    if (this.navGuard) clearTimeout(this.navGuard);
+    this.navGuard = setTimeout(() => {
+      if (this.navRaf) { cancelAnimationFrame(this.navRaf); this.navRaf = null; }
+      this.navSync(dir, to);
+      if (done) done();
+    }, dur + 60);
+  }
+
+  applyThemeNow(tabId) {
+    this.applyThemeTo(this.trackEl, tabId);
+    const T = TABS.find(t => t.id === tabId) || TABS[0];
+    try {
+      const pills = document.querySelectorAll('[data-om="mini"] > div');
+      Array.prototype.forEach.call(pills, p => { p.style.backgroundColor = T.theme; });
+    } catch (e) {}
+    try {
+      const btns = document.querySelectorAll('.om-nav button');
+      Array.prototype.forEach.call(btns, b => { b.style.background = "transparent"; });
+    } catch (e) {}
+  }
+
+  tabIdAt(dir) {
+    const ids = TABS.map(t => t.id);
+    const i = ids.indexOf(this.state.tab);
+    if (i < 0) return ids[0];
+    return ids[(i + dir + ids.length) % ids.length];
+  }
+
+  shiftTab(dir) {
+    const ids = TABS.map(t => t.id);
+    const i = ids.indexOf(this.state.tab);
+    if (i < 0) return;
+    const n = (i + dir + ids.length) % ids.length;
+    this.save({ tab:ids[n] });
+  }
+
   applyCondense() {
     if (false) {
     const head = document.querySelector(".om-head");
@@ -1956,6 +2175,24 @@ class Component extends DCLogic {
 
   componentDidUpdate() {
     this.applyCondense(!!this.condensed, true);
+    this.layoutTrack(0, false);
+    if (!this.navRaf) this.navSync(0, 0);
+    if (this.enterFrom) { this.enterFrom = 0; }
+    if (false) {
+      const d = this.enterFrom;
+      this.enterFrom = 0;
+      const el = this.scroller;
+      if (el.parentElement) el.parentElement.style.backgroundColor = "#FFFFFF";
+      el.style.transition = "none";
+      el.style.transform = "translate3d(" + (d > 0 ? 26 : -26) + "px,0,0)";
+      el.style.opacity = "0.5";
+      requestAnimationFrame(() => {
+        el.style.transition = "transform .13s ease-out, opacity .12s ease-out";
+        el.style.transform = "translate3d(0,0,0)";
+        el.style.opacity = "1";
+        setTimeout(() => { el.style.transition = ""; }, 160);
+      });
+    }
     if (this.wantTop) {
       this.wantTop = false;
       const key = this.jumpKey;
@@ -2136,10 +2373,10 @@ class Component extends DCLogic {
     const s = this.state;
     const route = ROUTES.find(r => r.id === s.route) || ROUTES[0];
 
-    const pill = (on, theme) => "flex:none; cursor:pointer; font-family:var(--font-body); font-size:13px; font-weight:700; "
+    const pill = (on, theme) => "position:relative; z-index:1; flex:none; cursor:pointer; font-family:var(--font-body); font-size:13px; font-weight:700; "
       + "border-radius:999px; padding:7px 15px; border:1px solid var(--color-divider)"
-      + "; background:" + (on ? (theme || "#ffffff") : "#ffffff")
-      + "; color:var(--color-text); white-space:nowrap; transition:all .18s";
+      + "; background:transparent"
+      + "; color:var(--color-text); white-space:nowrap";
 
     const allOpen = route.days.every(d => s.openDays[route.id + d.date]);
 
@@ -2377,64 +2614,95 @@ class Component extends DCLogic {
                 : phase === "during" ? String(todayIdx + 1) : "13",
       countdownUnit: phase === "before" ? "日後\n" : phase === "during" ? "日目\n旅行中" : "日間の\n旅は終わりました",
       countdownShort: phase === "before" ? "日後" : phase === "during" ? "日目" : "日間",
-      pillStyle: "display:flex; align-items:baseline; gap:6px; font-family:'Zen Maru Gothic'; font-size:21px; line-height:1.25; color:#201E1D; border-radius:var(--radius-lg); padding:2px 14px; box-shadow:var(--shadow-sm); background-color:" + ((TABS.find(t => t.id === s.tab) || TABS[0]).theme) + "; transition:background-color .25s",
-      miniStyle: "position:absolute; top:50%; right:20px; transform:translateY(-50%); z-index:2; display:flex; align-items:center; gap:8px",
+      pillStyle: "display:flex; align-items:baseline; gap:6px; font-family:'Zen Maru Gothic'; font-size:21px; line-height:1.25; color:#201E1D; border-radius:var(--radius-lg); padding:2px 14px; box-shadow:var(--shadow-sm); background-color:" + ((TABS.find(t => t.id === s.tab) || TABS[0]).theme) + "",
+      miniStyle: "order:2; flex:none; z-index:2; display:flex; align-items:center; gap:8px",
       mainRef: el => {
         if (!el) return;
-        this.scroller = el;
-        if (!this.onScroll) {
-          this.onScroll = () => {
-            if (this.rafScroll) return;
-            this.rafScroll = requestAnimationFrame(() => {
-              this.rafScroll = null;
-              const y = this.scroller ? this.scroller.scrollTop : 0;
-              this.applyCondense(y > 2);
-            });
-          };
-        }
-        if (el.__omScrollBound !== true) {
-          el.addEventListener("scroll", this.onScroll, { passive:true });
-          el.__omScrollBound = true;
-          let y0 = 0, pull = 0, active = false, raf = null;
-          const paint = () => {
-            raf = null;
-            el.style.transform = pull ? "translate3d(0," + pull.toFixed(1) + "px,0)" : "translate3d(0,0,0)";
-          };
-          const set = v => {
-            pull = v;
-            if (!raf) raf = requestAnimationFrame(paint);
-          };
-          const release = () => {
-            active = false;
-            el.style.transition = "transform .01s linear";
-            set(0);
-            setTimeout(() => { el.style.willChange = "auto"; el.style.transition = ""; }, 40);
-          };
-          el.addEventListener("touchstart", ev => {
-            if (ev.touches.length !== 1) return;
-            y0 = ev.touches[0].clientY;
-            active = true;
-            el.style.willChange = "transform";
-            el.style.transition = "none";
-          }, { passive:true });
-          el.addEventListener("touchmove", ev => {
-            if (!active || ev.touches.length !== 1) return;
-            const d = ev.touches[0].clientY - y0;
-            const atTop = el.scrollTop <= 0;
-            const atEnd = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
-            if ((atTop && d > 0) || (atEnd && d < 0)) {
-              set(Math.sign(d) * Math.min(5, Math.pow(Math.abs(d), .45) * .5));
-            } else if (pull) {
-              set(0);
+        this.trackEl = el;
+        if (el.__omTrackBound === true) return;
+        el.__omTrackBound = true;
+        let x0 = 0, y0 = 0, axis = null, active = false, dxNow = 0;
+        const W = () => el.clientWidth || 320;
+        const can = dir => true;
+        el.addEventListener("touchstart", ev => {
+          if (ev.touches.length !== 1) return;
+          x0 = ev.touches[0].clientX; y0 = ev.touches[0].clientY;
+          axis = null; active = true; dxNow = 0;
+        }, { passive:true });
+        el.addEventListener("touchmove", ev => {
+          if (!active || ev.touches.length !== 1) return;
+          const dx = ev.touches[0].clientX - x0, dy = ev.touches[0].clientY - y0;
+          if (!axis && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) axis = Math.abs(dx) > Math.abs(dy) * 1.2 ? "x" : "y";
+          if (axis !== "x") {
+            const sc = this.scroller;
+            if (!sc) return;
+            const atTop = sc.scrollTop <= 0;
+            const atEnd = sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 1;
+            if ((atTop && dy > 0) || (atEnd && dy < 0)) {
+              const v = Math.sign(dy) * Math.min(5, Math.pow(Math.abs(dy), .45) * .5);
+              sc.style.transition = "none";
+              sc.style.transform = "translate3d(calc(0% + 0px)," + v.toFixed(1) + "px,0)";
+              this.pulled = true;
+            } else if (this.pulled) {
+              this.pulled = false;
+              sc.style.transition = "transform .01s linear";
+              sc.style.transform = "translate3d(calc(0% + 0px),0,0)";
             }
-          }, { passive:true });
-          el.addEventListener("touchend", release, { passive:true });
-          el.addEventListener("touchcancel", release, { passive:true });
-        }
+            return;
+          }
+          dxNow = can(dx < 0 ? 1 : -1) ? dx : dx * 0.25;
+          this.navSync(dx < 0 ? 1 : -1, Math.min(1, Math.abs(dxNow) / W()));
+          this.layoutTrack(dxNow, false);
+        }, { passive:true });
+        const finish = () => {
+          if (this.pulled && this.scroller) {
+            this.pulled = false;
+            this.scroller.style.transition = "transform .01s linear";
+            this.scroller.style.transform = "translate3d(calc(0% + 0px),0,0)";
+          }
+          if (axis === "x") {
+            const dir = dxNow < 0 ? 1 : -1;
+            const prog = Math.min(1, Math.abs(dxNow) / W());
+            if (can(dir) && Math.abs(dxNow) > Math.min(90, W() * 0.18)) {
+              this.applyThemeNow(this.tabIdAt(dir));
+              this.layoutTrack(dir > 0 ? -W() : W(), true);
+              this.navSettle(dir, prog, 1, () => this.shiftTab(dir));
+            } else {
+              this.layoutTrack(0, true);
+              this.navSettle(dir, prog, 0, null);
+            }
+          }
+          active = false; axis = null; dxNow = 0;
+        };
+        el.addEventListener("touchend", finish, { passive:true });
+        el.addEventListener("touchcancel", finish, { passive:true });
+        let wx = 0, wlock = false, wt = null;
+        el.addEventListener("wheel", ev => {
+          if (Math.abs(ev.deltaX) <= Math.abs(ev.deltaY) * 1.4 || wlock) return;
+          wx += ev.deltaX;
+          const d = can(wx > 0 ? 1 : -1) ? -wx : -wx * 0.25;
+          this.navSync(wx > 0 ? 1 : -1, Math.min(1, Math.abs(wx) / W()));
+          this.layoutTrack(Math.max(-W(), Math.min(W(), d)), false);
+          if (wt) clearTimeout(wt);
+          wt = setTimeout(() => {
+            const dir = wx > 0 ? 1 : -1;
+            const prog = Math.min(1, Math.abs(wx) / W());
+            if (can(dir) && Math.abs(wx) > Math.min(90, W() * 0.18)) {
+              wlock = true; wx = 0;
+              this.applyThemeNow(this.tabIdAt(dir));
+              this.layoutTrack(dir > 0 ? -W() : W(), true);
+              this.navSettle(dir, prog, 1, () => { this.shiftTab(dir); wlock = false; });
+              return;
+            }
+            wx = 0;
+            this.layoutTrack(0, true);
+            this.navSettle(dir, prog, 0, null);
+          }, 70);
+        }, { passive:true });
       },
       stickyStyle: "position:relative; z-index:11; flex:none; background:transparent",
-      headStyle: "position:relative; overflow:clip; display:flex; flex-direction:column; background-color:#FFFFFF; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:14px 20px 8px",
-      titleStyle: "order:2; line-height:1.25; font-size:21px; margin:0; font-family:'Zen Maru Gothic'",
+      headStyle: "position:relative; overflow:clip; display:flex; flex-direction:row; align-items:center; gap:10px; background-color:#FFFFFF; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:14px 20px 8px",
+      titleStyle: "order:1; flex:1; min-width:0; line-height:1.25; font-size:21px; margin:0; font-family:'Zen Maru Gothic'",
       metaStyle: "display:none",
       cdWrapStyle: "display:none",
       tabs: TABS.map(t => ({ label:t.label,style:pill(s.tab === t.id, t.btn || t.theme), go:() => this.save({ tab:t.id }),
@@ -2445,31 +2713,11 @@ class Component extends DCLogic {
         try { Notification.requestPermission().then(() => this.forceUpdate()); } catch (e) {}
       },
       themeColor: (TABS.find(t => t.id === s.tab) || TABS[0]).theme,
-      themeStyle: (() => {
-        const T = TABS.find(t => t.id === s.tab) || TABS[0];
-        const ok = (l, m) => "oklch(" + l + " " + (T.chroma * m).toFixed(4) + " " + T.hue + ")";
-        return "position:relative; flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; padding:6px 20px 40px"
-          + ";--color-surface:" + T.theme
-          + ";--color-bg:" + ok(0.985, 0.35)
-          + ";--color-divider:" + ok(0.905, 0.9)
-          + ";--color-accent:" + ok(0.66, 2.3)
-          + ";--color-accent-100:" + ok(0.975, 0.5)
-          + ";--color-accent-200:" + ok(0.935, 1.1)
-          + ";--color-accent-300:" + ok(0.895, 1.5)
-          + ";--color-accent-600:" + ok(0.52, 2.3)
-          + ";--color-accent-700:" + ok(0.45, 2.0)
-          + ";--color-accent-800:" + ok(0.38, 1.7)
-          + ";--color-accent-2-100:" + ok(0.975, 0.5)
-          + ";--color-accent-2-200:" + ok(0.935, 1.1)
-          + ";--color-accent-2-600:" + ok(0.52, 2.3)
-          + ";--color-accent-2-700:" + ok(0.45, 2.0)
-          + ";--color-accent-2-800:" + ok(0.38, 1.7)
-          + ";--color-accent-2-900:" + ok(0.30, 1.4);
-      })(),
-      isHome: !TABS.some(t => t.id === s.tab) || s.tab === "home",
-      isRoute: s.tab === "route", isPlan: s.tab === "plan",
-      isTalk: s.tab === "talk",
-      isConfig: s.tab === "config",
+      themeStyle: this.themeVars(s.tab),
+      isHome: this.visTab("home") || !TABS.some(t => t.id === s.tab),
+      isRoute: this.visTab("route"), isPlan: this.visTab("plan"),
+      isTalk: this.visTab("talk"),
+      isConfig: this.visTab("config"),
       cfgOpen: s.cfg === "me",
       cfgCard: "background:var(--color-surface); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); transition:background .2s"
         + (s.cfg === "me" ? "; background:var(--color-accent-100)" : ""),
@@ -2640,7 +2888,7 @@ class Component extends DCLogic {
         };
       }),
       hasMemos: (s.memos || []).length > 0,
-      isPrep: s.tab === "prep", isLocal: s.tab === "local",
+      isPrep: this.visTab("prep"), isLocal: this.visTab("local"),
 
       route: route,
       days: route.days.map(d => {
