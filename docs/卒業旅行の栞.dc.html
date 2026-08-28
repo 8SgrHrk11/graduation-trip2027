@@ -28,7 +28,10 @@
   @keyframes nudge { 0%,100% { box-shadow: 0 0 0 0 rgba(87,117,14,.34) } 55% { box-shadow: 0 0 0 7px rgba(87,117,14,0) } }
   @keyframes arriveGlow { 0% { box-shadow: 0 0 0 0 rgba(198,113,57,0) } 25% { box-shadow: 0 0 0 6px rgba(198,113,57,.34) } 100% { box-shadow: 0 0 0 14px rgba(198,113,57,0) } }
   .om-hide-scroll::-webkit-scrollbar { display:none; }
-  .om-page { overflow-x: clip !important; background: transparent !important; padding: 10px 10px 26px; align-items: flex-start; }
+  input[type="date"] { position: relative; padding-left: 34px; }
+  input[type="date"]::-webkit-calendar-picker-indicator { position: absolute; left: 10px; margin: 0; padding: 0; opacity: .7; cursor: pointer; }
+  .om-page { height: 100dvh !important;
+    overflow-x: clip !important; background: transparent !important; padding: 10px 10px 26px; align-items: flex-start; }
   .om-shell { background: #ffffff !important; border-radius: 26px;
               box-shadow: 0 14px 34px color-mix(in srgb, #2e2b25 10%, transparent); }
   .om-nav { background: #ffffff !important; }
@@ -201,7 +204,10 @@
                   <div style="font-family:var(--font-body); font-size:13.5px; font-weight:700; text-wrap:pretty">{{ td2.x }}</div>
                   <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-600); margin-top:3px; text-wrap:pretty">{{ td2.sub }}</div>
                 </div>
-                <div style="{{ td2.destStyle }}">{{ td2.dest }}</div>
+                <div style="flex:none; display:flex; align-items:center; gap:5px">
+                  <span style="flex:none; font-family:var(--font-body); font-size:13px; color:var(--color-accent-700)">↪</span>
+                  <div style="{{ td2.destStyle }}">{{ td2.dest }}</div>
+                </div>
               </div>
             </div>
           </sc-for>
@@ -328,7 +334,7 @@
   <section style="animation:floatUp .45s ease both; display:flex; flex-direction:column">
     <div style="order:2">
     <h2 style="font-size:22px; margin:18px 0 4px">検討・投票</h2>
-    <p style="font-family:var(--font-body); font-size:14px; color:var(--color-neutral-700); text-wrap:pretty">9人全員が「確定」をチェックした時点で、そのテーマの投票は自動的に終了します。</p>
+    <p style="font-family:var(--font-body); font-size:14px; color:var(--color-neutral-700); text-wrap:pretty">いずれかの案が過半数に達した時点で、その案を投票結果として自動的に終了します。9人全員が「確定」をチェックした場合も同様です。</p>
     </div>
 
     <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
@@ -644,7 +650,12 @@
           <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700">確認リスト</div>
           
         </div>
-        <div style="flex: none; font-family: var(--font-body); font-size: 10.5px; font-weight: 700; color: var(--color-accent-2-800); border-radius: 999px; padding: 3px 10px; background-color: var(--color-accent-200)">{{ prepDone }}</div>
+        <div style="flex:none; display:flex; align-items:center; gap:6px">
+          <sc-if value="{{ hasDue }}" hint-placeholder-val="{{ false }}">
+            <span style="display:inline-block; min-width:17px; background:var(--color-accent-600); color:#ffffff; font-family:var(--font-body); font-size:10.5px; font-weight:700; line-height:17px; border-radius:999px; padding:0 5px; text-align:center; white-space:nowrap">{{ dueCount }}</span>
+          </sc-if>
+          <div style="font-family: var(--font-body); font-size: 10.5px; font-weight: 700; color: var(--color-accent-2-800); border-radius: 999px; padding: 3px 10px; background-color: var(--color-accent-200); white-space: nowrap">{{ prepDone }}</div>
+        </div>
       </div>
       <sc-if value="{{ sec.prep.open }}" hint-placeholder-val="{{ true }}">
         <div style="padding:0 16px 16px; animation:floatUp .28s ease both">
@@ -658,7 +669,7 @@
                     <div style="display:flex; gap:8px; align-items:baseline; flex-wrap:wrap">
                       <div style="font-family:var(--font-body); font-size:14px; font-weight:700">{{ td.title }}</div>
                       <sc-if value="{{ td.hasWhen }}" hint-placeholder-val="{{ true }}">
-                        <span style="font-family: var(--font-body); font-size: 10.5px; font-weight: 700; color: var(--color-accent-800); border-radius: 999px; padding: 2px 9px; background-color: var(--color-accent-200)">{{ td.when }}</span>
+                        <span style="{{ td.whenStyle }}">{{ td.whenLabel }}</span>
                       </sc-if>
                     </div>
                     <sc-if value="{{ td.hasX }}" hint-placeholder-val="{{ true }}">
@@ -673,7 +684,7 @@
                 <sc-if value="{{ td.editing }}" hint-placeholder-val="{{ false }}">
                   <div onClick="{{ td.stop }}" style="margin-top:9px; background:var(--color-bg); border-radius:var(--radius-md); padding:12px 14px; display:grid; gap:7px; animation:floatUp .22s ease both; cursor:default">
                     <input class="input" value="{{ td.title }}" onChange="{{ td.onTitle }}" placeholder="項目名" style="font-size:13px; background-color:#FFFFFF">
-                    <input class="input" value="{{ td.when }}" onChange="{{ td.onWhen }}" placeholder="時期（例：渡航1か月前）" style="font-size:12.5px; background-color:#FFFFFF">
+                    <input type="date" class="input" value="{{ td.when }}" onChange="{{ td.onWhen }}" onFocus="{{ td.onWhenFocus }}" onBlur="{{ td.onWhenBlur }}" placeholder="期限" style="font-size:12.5px; background-color:#FFFFFF">
                     <textarea class="input" onChange="{{ td.onX }}" placeholder="備考" value="{{ td.x }}" style="min-height:64px; font-size:12.5px; background-color:#FFFFFF"></textarea>
                   </div>
                 </sc-if>
@@ -698,7 +709,7 @@
                       <div style="display:flex; gap:8px; align-items:baseline; flex-wrap:wrap">
                         <div style="font-family:var(--font-body); font-size:14px; font-weight:700">{{ pv.title }}</div>
                         <sc-if value="{{ pv.hasWhen }}" hint-placeholder-val="{{ false }}">
-                          <span style="font-family:var(--font-body); font-size:10.5px; font-weight:700; color:var(--color-accent-800); border-radius:999px; padding:2px 9px; background-color:var(--color-accent-200)">{{ pv.when }}</span>
+                          <span style="font-family:var(--font-body); font-size:10.5px; font-weight:700; color:var(--color-accent-800); border-radius:999px; padding:2px 9px; background-color:var(--color-accent-200)">{{ pv.whenLabel }}</span>
                         </sc-if>
                       </div>
                       <sc-if value="{{ pv.hasX }}" hint-placeholder-val="{{ false }}">
@@ -713,7 +724,7 @@
                   <sc-if value="{{ pv.editing }}" hint-placeholder-val="{{ false }}">
                     <div onClick="{{ pv.stop }}" style="margin-top:9px; background:var(--color-bg); border-radius:var(--radius-md); padding:12px 14px; display:grid; gap:7px; animation:floatUp .22s ease both; cursor:default">
                       <input class="input" value="{{ pv.title }}" onChange="{{ pv.onTitle }}" placeholder="項目名" style="font-size:13px; background-color:#FFFFFF">
-                      <input class="input" value="{{ pv.when }}" onChange="{{ pv.onWhen }}" placeholder="時期（例：渡航1か月前）" style="font-size:12.5px; background-color:#FFFFFF">
+                      <input type="date" class="input" value="{{ pv.when }}" onChange="{{ pv.onWhen }}" placeholder="期限" style="font-size:12.5px; background-color:#FFFFFF">
                       <textarea class="input" onChange="{{ pv.onX }}" placeholder="備考" value="{{ pv.x }}" style="min-height:64px; font-size:12.5px; background-color:#FFFFFF"></textarea>
                     </div>
                   </sc-if>
@@ -726,12 +737,6 @@
             <button type="button" class="btn btn-primary" onClick="{{ addPriv }}" style="flex:none; border-radius:999px; font-family:var(--font-body); font-size:12.5px; font-weight:700; background-color:#FF82CF">追加</button>
           </div>
           <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); margin-top:8px; text-wrap:pretty">ここの項目は共有されず、この端末にだけ残ります。</div>
-          <sc-if value="{{ undo.todo.has }}" hint-placeholder-val="{{ false }}">
-            <div style="display:flex; align-items:center; gap:8px; margin-top:10px">
-              <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600)">削除した項目 {{ undo.todo.n }}</div>
-              <button type="button" onClick="{{ undo.todo.go }}" style="cursor:pointer; border:1px solid var(--color-divider); background:#ffffff; border-radius:999px; padding:5px 12px; font-family:var(--font-body); font-size:11.5px; font-weight:700; color:var(--color-text)">元に戻す</button>
-            </div>
-          </sc-if>
         </div>
       </sc-if>
     </div>
@@ -752,7 +757,10 @@
           <div style="display:grid; gap:16px">
             <sc-for list="{{ packing }}" as="pg" hint-placeholder-count="4">
               <div>
-                <div style="font-family:var(--font-body); font-size:11px; letter-spacing:.16em; text-transform:uppercase; font-weight:700; color:var(--color-accent-700); margin-bottom:8px">{{ pg.g }}</div>
+                <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px">
+                  <div style="flex:1; min-width:0; font-family:var(--font-body); font-size:11px; letter-spacing:.16em; text-transform:uppercase; font-weight:700; color:var(--color-accent-700)">{{ pg.g }}</div>
+                  <button type="button" onClick="{{ pg.del }}" title="この分類を削除" style="flex:none; cursor:pointer; width:20px; height:20px; border-radius:999px; border:1px solid var(--color-divider); background:#ffffff; color:var(--color-neutral-600); font-family:var(--font-body); font-size:11px; line-height:1; display:grid; place-items:center">×</button>
+                </div>
                 <div style="display:flex; flex-wrap:wrap; gap:7px">
                   <sc-for list="{{ pg.items }}" as="it" hint-placeholder-count="6">
                     <div style="display:inline-flex; align-items:center; gap:3px">
@@ -761,33 +769,20 @@
                     </div>
                   </sc-for>
                 </div>
+                <div style="display:flex; gap:7px; margin-top:8px">
+                  <input class="input" placeholder="項目を追加" value="{{ pg.draft }}" onChange="{{ pg.onDraft }}" style="flex: 1; min-width: 0; font-size: 13px; background-color: #FFFFFF">
+                  <button type="button" class="btn btn-primary" onClick="{{ pg.add }}" style="flex:none; border-radius:999px; font-family:var(--font-body); font-size:12.5px; font-weight:700">追加</button>
+                </div>
               </div>
             </sc-for>
           </div>
 
-          <div style="font-family:var(--font-body); font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; color:var(--color-accent-700); margin:18px 0 8px">自分だけの項目（共有されません）</div>
-          <sc-if value="{{ hasMyPack }}" hint-placeholder-val="{{ true }}">
-            <div style="display:grid; gap:7px; margin-bottom:10px">
-              <sc-for list="{{ myPack }}" as="mp" hint-placeholder-count="2">
-                <div style="display:flex; gap:10px; align-items:center; background:var(--color-bg); border-radius:var(--radius-md); padding:8px 12px">
-                  <div onClick="{{ mp.go }}" style="{{ mp.box }}">{{ mp.tick }}</div>
-                  <input class="input" value="{{ mp.label }}" onChange="{{ mp.onEdit }}" style="flex:1; min-width:0; font-size:13px">
-                  <button type="button" onClick="{{ mp.del }}" style="flex:none; cursor:pointer; background:transparent; border:0; color:var(--color-neutral-600); font-family:var(--font-body); font-size:11px; font-weight:700">削除</button>
-                </div>
-              </sc-for>
-            </div>
-          </sc-if>
+          <div style="font-family:var(--font-body); font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; color:var(--color-accent-700); margin:18px 0 8px">分類を追加</div>
           <div style="display:flex; gap:7px">
-            <input class="input" placeholder="持ち物を追加" value="{{ newPack }}" onChange="{{ onNewPack }}" style="flex: 1; min-width: 0; font-size: 13px; background-color: #FFFFFF">
-            <button type="button" class="btn btn-primary" onClick="{{ addPack }}" style="flex:none; border-radius:999px; font-family:var(--font-body); font-size:12.5px; font-weight:700">追加</button>
+            <input class="input" placeholder="分類を追加" value="{{ newPackG }}" onChange="{{ onNewPackG }}" style="flex: 1; min-width: 0; font-size: 13px; background-color: #FFFFFF">
+            <button type="button" class="btn btn-primary" onClick="{{ addPackG }}" style="flex:none; border-radius:999px; font-family:var(--font-body); font-size:12.5px; font-weight:700">追加</button>
           </div>
-          <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); margin-top:8px; text-wrap:pretty">ここに追加した項目は共有されず、この端末にだけ残ります。</div>
-          <sc-if value="{{ undo.pack.has }}" hint-placeholder-val="{{ false }}">
-            <div style="display:flex; align-items:center; gap:8px; margin-top:10px">
-              <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600)">削除した項目 {{ undo.pack.n }}</div>
-              <button type="button" onClick="{{ undo.pack.go }}" style="cursor:pointer; border:1px solid var(--color-divider); background:#ffffff; border-radius:999px; padding:5px 12px; font-family:var(--font-body); font-size:11.5px; font-weight:700; color:var(--color-text)">元に戻す</button>
-            </div>
-          </sc-if>
+          <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); margin-top:8px; text-wrap:pretty">追加・削除は共有されず、この端末にだけ残ります。</div>
 
           
         </div>
@@ -816,7 +811,7 @@
                     <div style="display:flex; gap:8px; align-items:baseline; flex-wrap:wrap">
                       <div style="font-family:var(--font-body); font-size:14px; font-weight:700">{{ bk.n }}</div>
                       <sc-if value="{{ bk.hasLead }}" hint-placeholder-val="{{ true }}">
-                        <span style="font-family: var(--font-body); font-size: 10.5px; font-weight: 700; color: var(--color-accent-800); border-radius: 999px; padding: 2px 9px; background-color: var(--color-accent-200)">{{ bk.lead }}</span>
+                        <span style="font-family: var(--font-body); font-size: 10.5px; font-weight: 700; color: var(--color-accent-800); border-radius: 999px; padding: 2px 9px; background-color: var(--color-accent-200)">{{ bk.leadLabel }}</span>
                       </sc-if>
                     </div>
                     <sc-if value="{{ bk.hasX }}" hint-placeholder-val="{{ true }}">
@@ -831,7 +826,7 @@
                 <sc-if value="{{ bk.editing }}" hint-placeholder-val="{{ false }}">
                   <div onClick="{{ bk.stop }}" style="margin-top:9px; background:var(--color-bg); border-radius:var(--radius-md); padding:12px 14px; display:grid; gap:7px; animation:floatUp .22s ease both; cursor:default">
                     <input class="input" value="{{ bk.n }}" onChange="{{ bk.onName }}" placeholder="項目名" style="font-size:13px; background-color:#FFFFFF">
-                    <input class="input" value="{{ bk.lead }}" onChange="{{ bk.onLead }}" placeholder="予約の目安（例：1か月前）" style="font-size:12.5px; background-color:#FFFFFF">
+                    <input type="date" class="input" value="{{ bk.lead }}" onChange="{{ bk.onLead }}" placeholder="予約期限" style="font-size:12.5px; background-color:#FFFFFF">
                     <textarea class="input" onChange="{{ bk.onX }}" placeholder="備考" value="{{ bk.x }}" style="min-height:64px; font-size:12.5px; background-color:#FFFFFF"></textarea>
                   </div>
                 </sc-if>
@@ -844,12 +839,6 @@
             <button type="button" class="btn btn-primary" onClick="{{ addBook }}" style="flex:none; border-radius:999px; font-family:var(--font-body); font-size:12.5px; font-weight:700">追加</button>
           </div>
           <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); margin-top:8px">追加とチェックは9人全員に共有されます。</div>
-          <sc-if value="{{ undo.book.has }}" hint-placeholder-val="{{ false }}">
-            <div style="display:flex; align-items:center; gap:8px; margin-top:10px">
-              <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600)">削除した項目 {{ undo.book.n }}</div>
-              <button type="button" onClick="{{ undo.book.go }}" style="cursor:pointer; border:1px solid var(--color-divider); background:#ffffff; border-radius:999px; padding:5px 12px; font-family:var(--font-body); font-size:11.5px; font-weight:700; color:var(--color-text)">元に戻す</button>
-            </div>
-          </sc-if>
         </div>
       </sc-if>
     </div>
@@ -1520,26 +1509,26 @@ const LODGING = [
 ];
 
 const TODOS = [
-  { id:"pass", title:"パスポートの残存期間を全員で確認", when:"今すぐ", x:"帰国日から3か月以上の残存が必要。9人のうち1人でも足りないと計画が崩れるので、最初に全員で写真を送り合う" },
-  { id:"etias", title:"ETIAS（欧州渡航認証）", when:"渡航3か月前", x:"2026年第4四半期に開始予定。開始後はシェンゲン圏入域に必要になる。申請は数分だが最長で日数がかかることがある。公式サイト以外の代行サイトを使わない" },
-  { id:"eta", title:"UK ETA（イギリス電子渡航認証）", when:"渡航1か月前", x:"ロンドンに入るならETIASとは別に必要。GOV.UKかApple/Google経由の公式アプリから。承認メールは全員が端末に保存しておく" },
-  { id:"ins", title:"海外旅行保険", when:"渡航1か月前", x:"クレジットカード付帯だけでは治療費の上限が低い。証券番号と現地の日本語窓口を全員がスクリーンショットで持つ" },
-  { id:"air", title:"都市間の航空券・鉄道を確定", when:"ルート確定後すぐ", x:"9人分の席は直前だと分断される。受託手荷物代を含めた総額で比較する" },
-  { id:"stay", title:"宿を確定", when:"ルート確定後すぐ", x:"9人が入れるアパートは数が少ない。都市ごとに第2候補まで出しておく" },
-  { id:"esim", title:"eSIM / 通信", when:"渡航2週間前", x:"ヨーロッパ複数国で使える周遊プランを1つ。イギリスが対象に含まれるか必ず確認する（含まないプランがある）" },
-  { id:"copy", title:"書類のコピーを共有", when:"渡航1週間前", x:"パスポート、eチケット、保険証券、宿の予約確認を全員がオフラインで見られる場所に。紙も1部" },
-  { id:"vjw", title:"Visit Japan Web", when:"帰国前", x:"帰国時の入国手続きと税関申告。搭乗前にQRを出せる状態にしておく" },
-  { id:"cash", title:"通貨とカードの用意", when:"渡航1週間前", x:"ユーロとポンドの2通貨。海外事務手数料の低いカードと、キャッシング用のカードを分けて持つ" }
+  { id:"pass", title:"パスポートの残存期間を全員で確認", when:"2026-09-30", x:"帰国日から3か月以上の残存が必要。9人のうち1人でも足りないと計画が崩れるので、最初に全員で写真を送り合う" },
+  { id:"etias", title:"ETIAS（欧州渡航認証）", when:"2026-11-13", x:"2026年第4四半期に開始予定。開始後はシェンゲン圏入域に必要になる。申請は数分だが最長で日数がかかることがある。公式サイト以外の代行サイトを使わない" },
+  { id:"eta", title:"UK ETA（イギリス電子渡航認証）", when:"2027-01-13", x:"ロンドンに入るならETIASとは別に必要。GOV.UKかApple/Google経由の公式アプリから。承認メールは全員が端末に保存しておく" },
+  { id:"ins", title:"海外旅行保険", when:"2027-01-13", x:"クレジットカード付帯だけでは治療費の上限が低い。証券番号と現地の日本語窓口を全員がスクリーンショットで持つ" },
+  { id:"air", title:"都市間の航空券・鉄道を確定", when:"2026-10-31", x:"9人分の席は直前だと分断される。受託手荷物代を含めた総額で比較する" },
+  { id:"stay", title:"宿を確定", when:"2026-10-31", x:"9人が入れるアパートは数が少ない。都市ごとに第2候補まで出しておく" },
+  { id:"esim", title:"eSIM / 通信", when:"2027-01-30", x:"ヨーロッパ複数国で使える周遊プランを1つ。イギリスが対象に含まれるか必ず確認する（含まないプランがある）" },
+  { id:"copy", title:"書類のコピーを共有", when:"2027-02-06", x:"パスポート、eチケット、保険証券、宿の予約確認を全員がオフラインで見られる場所に。紙も1部" },
+  { id:"vjw", title:"Visit Japan Web", when:"2027-02-24", x:"帰国時の入国手続きと税関申告。搭乗前にQRを出せる状態にしておく" },
+  { id:"cash", title:"通貨とカードの用意", when:"2027-02-06", x:"ユーロとポンドの2通貨。海外事務手数料の低いカードと、キャッシング用のカードを分けて持つ" }
 ];
 
 const BOOKING = [
-  { n:"最後の晩餐（サンタ・マリア・デッレ・グラツィエ）", lead:"2〜3か月前", x:"1回15分・定員制で、ミラノで最も取りにくい。取れなければ行程から外す前提で組む" },
-  { n:"サグラダ・ファミリア", lead:"1〜2か月前", x:"時間指定。塔に上がるチケットは別枠でさらに埋まりやすい" },
-  { n:"バチカン美術館・システィーナ礼拝堂", lead:"1〜2か月前", x:"日曜休館（最終日曜は無料で大混雑）。時間指定予約で列を回避" },
-  { n:"コロッセオ・フォロロマーノ・パラティーノ", lead:"1か月前", x:"時間指定の入場。地下やアレーナ床は別チケットで枠が少ない" },
-  { n:"グエル公園", lead:"2週間前", x:"有料エリアは時間指定。無料エリアだけなら予約不要" },
-  { n:"レロ書店（ポルト）", lead:"数日前", x:"入場券が必要で時間制。券は書籍代に充当できる" },
-  { n:"9人で入るレストラン", lead:"前日まで", x:"大人数は当日の飛び込みで断られる。担当が前日までに電話かオンラインで" }
+  { n:"最後の晩餐（サンタ・マリア・デッレ・グラツィエ）", lead:"2026-11-13", x:"1回15分・定員制で、ミラノで最も取りにくい。取れなければ行程から外す前提で組む" },
+  { n:"サグラダ・ファミリア", lead:"2026-12-13", x:"時間指定。塔に上がるチケットは別枠でさらに埋まりやすい" },
+  { n:"バチカン美術館・システィーナ礼拝堂", lead:"2026-12-13", x:"日曜休館（最終日曜は無料で大混雑）。時間指定予約で列を回避" },
+  { n:"コロッセオ・フォロロマーノ・パラティーノ", lead:"2027-01-13", x:"時間指定の入場。地下やアレーナ床は別チケットで枠が少ない" },
+  { n:"グエル公園", lead:"2027-01-30", x:"有料エリアは時間指定。無料エリアだけなら予約不要" },
+  { n:"レロ書店（ポルト）", lead:"2027-02-08", x:"入場券が必要で時間制。券は書籍代に充当できる" },
+  { n:"9人で入るレストラン", lead:"2027-02-12", x:"大人数は当日の飛び込みで断られる。担当が前日までに電話かオンラインで" }
 ];
 
 const WEATHER = [
@@ -1551,11 +1540,15 @@ const WEATHER = [
 ];
 
 const PACKING = [
-  { g:"渡航関連", items:["パスポート","eチケット控え","ETIAS承認","UK ETA承認","海外旅行保険証券","宿の予約確認","証明写真（紛失時用）","パスポートのコピー"] },
-  { g:"お金と通信", items:["クレジットカード2枚","デビット/キャッシング用カード","現金（ユーロ）","現金（ポンド）","eSIM設定済みの端末","モバイルバッテリー","Type-C / Lightning ケーブル","変換プラグ（C型・G型）","延長タップ"] },
-  { g:"寒さ対策", items:["薄手ダウン","中間着（フリース等）","ヒートテック上下","手袋","ニット帽","マフラー","厚手の靴下","防水の歩ける靴","折りたたみ傘"] },
-  { g:"身のまわり", items:["洗面用具","常備薬・胃薬・鎮痛剤","マスク","ウェットティッシュ","洗濯用洗剤","圧縮袋","南京錠","サブバッグ（機内持ち込み用）","首枕・アイマスク"] },
-  { g:"あると助かる", items:["インスタント味噌汁","箸","スリッパ","小分けのお菓子","ジップ袋","洗濯ロープ","小型三脚","トランプ・UNO"] }
+  { g:"衣類", items:["シャツ・ズボン","防寒アウター","軽めアウター","下着","靴下","部屋着","スマートカジュアル","靴（GTX推奨）","サンダル","折りたたみ傘","レインジャケット","手袋","サングラス"] },
+  { g:"洗面用具・衛生用品", items:["歯磨きセット","シェービングセット","メイク落とし・洗顔料","化粧水","日焼け止め","制汗剤・デオドラント","リップクリーム","コンタクトレンズ・洗浄液","ティッシュ","ウェットティッシュ","トイレットペーパー（芯ごと）"] },
+  { g:"常備薬など", items:["解熱鎮痛剤","胃腸薬","絆創膏","酔い止め（長時間移動用）","マスク"] },
+  { g:"電子機器", items:["スマホ","充電コード（type-A）","充電コード（type-C）","充電コード（Lightning）","モバイルバッテリー（預け入れ不可）","変換プラグ（C・G型）","USB急速充電器","イヤホン・ヘッドホン","モバイルWi-FiまたはeSIM設定","延長タップ"] },
+  { g:"支払い関連", items:["クレジットカード","デビット/キャッシング用カード","現金（ユーロ）","現金（ポンド）","学生証"] },
+  { g:"バッグ類", items:["スーツケース（預入）","サブの荷物入れ（機内）","小さめの鞄","貴重品入れ"] },
+  { g:"あると便利なもの", items:["洗濯ネット","小分け洗剤","エコバッグ","圧縮袋"] },
+  { g:"渡航移動関連", items:["パスポート","パスポート控え","eチケット控え","ETIAS承認控え","UK ETA承認控え","海外旅行保険証券","宿の予約確認","証明写真（紛失時用）","ネックピロー","足置き","耳栓","アイマスク","マスク（機内用）","スリッパ","ジップ袋","機内用の水分・食べ物"] },
+  { g:"便利グッズ", items:["筆記用具","パソコン","タブレット","メラトニン","ビタミンD"] }
 ];
 
 const CURRENCIES = [
@@ -1803,7 +1796,47 @@ class Component extends DCLogic {
     this.db.from("trip_messages").insert({ who:who, body:body }).then(() => {});
   }
 
+  todoRows() {
+    const s = this.state, hid = s.hidden || {}, te = s.todoEdits || {};
+    return TODOS.filter(t => !hid["todo:" + t.id]).map(t => {
+      const e = te[t.id] || {};
+      return { id:t.id, title: e.title !== undefined ? e.title : t.title, when: e.when !== undefined ? e.when : t.when };
+    }).concat((s.myTodos || []).filter(t => !hid["todo:" + t.id])
+      .map(t => ({ id:t.id, title:t.title || "", when:t.when || "" })));
+  }
+
+  dueTodos() {
+    const done = this.state.done || {};
+    const limit = Date.now() + 7 * 86400000;
+    return this.todoRows().filter(r => {
+      if (done[r.id]) return false;
+      const rk = this.whenRank(r.when);
+      return isFinite(rk) && rk <= limit;
+    });
+  }
+
+  notifyDue() {
+    if (typeof Notification === "undefined" || Notification.permission !== "granted") return;
+    const seen = this.state.notifiedDue || {};
+    const next = Object.assign({}, seen);
+    let n = 0, first = null;
+    this.dueTodos().forEach(r => {
+      const key = r.id + "|" + r.when;
+      if (seen[key]) return;
+      next[key] = 1; n++; if (!first) first = r;
+    });
+    if (!n) return;
+    try {
+      const note = new Notification("確認リストの期限が近づいています", {
+        body: first.title + (n > 1 ? " ほか" + (n - 1) + "件" : ""), tag:"trip-prep", renotify:true });
+      note.onclick = () => { try { window.focus(); } catch (e) {} this.save({ tab:"prep" }); note.close(); };
+    } catch (e) {}
+    this.save({ notifiedDue:next });
+  }
+
   componentDidMount() {
+    this.dueTimer = setInterval(() => this.notifyDue(), 60000);
+    setTimeout(() => this.notifyDue(), 4000);
     this.onKey = ev => {
       if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
       const t = ev.target;
@@ -1906,7 +1939,7 @@ class Component extends DCLogic {
           booked:s.booked, addBook:s.addBook, foodNotes:s.foodNotes, foodOpen:s.foodOpen, spotNotes:s.spotNotes,
           confirms:s.confirms, userLinks:s.userLinks,
           themeAdds:s.themeAdds, themeEdits:s.themeEdits, themeDel:s.themeDel,
-          prepOpen:s.prepOpen, myTodos:s.myTodos, myPack:s.myPack,
+          prepOpen:s.prepOpen, myTodos:s.myTodos, packAdd:s.packAdd, packAddG:s.packAddG, packHidden:s.packHidden, notifiedDue:s.notifiedDue,
           todoEdits:s.todoEdits, bookEdits:s.bookEdits, privTodos:s.privTodos, resetV:s.resetV
         }));
       } catch (e) {}
@@ -2353,9 +2386,43 @@ class Component extends DCLogic {
     this.save({ confirms:Object.assign({}, this.state.confirms, { [me]:next }) });
   }
 
+  majorityOf(id) {
+    const t = this.themeList(true).find(x => x.id === id);
+    if (!t || t.multi || !t.options || !t.options.length) return null;
+    const r = this.roster();
+    if (!r.length) return null;
+    const need = Math.floor(r.length / 2) + 1;
+    const b = this.state.ballots || {};
+    for (let i = 0; i < t.options.length; i++) {
+      const o = t.options[i];
+      const n = r.filter(nm => (b[nm] || {})[t.id] === o.id).length;
+      if (n >= need) return { id:o.id, name:o.name, count:n, need:need };
+    }
+    return null;
+  }
+
+  whenRank(txt) {
+    const t = String(txt || "").trim();
+    const m = t.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])).getTime();
+    return Infinity;
+  }
+
+  whenText(v) {
+    const t = String(v || "").trim();
+    const m = t.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!m) return t;
+    const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    const days = Math.ceil((d.getTime() - Date.now()) / 86400000);
+    const base = m[1] + "/" + m[2] + "/" + m[3];
+    if (days < 0) return base + " 過ぎ";
+    if (days === 0) return base + " 今日";
+    return base + " あと" + days + "日";
+  }
+
   isClosed(id) {
     if (id === "route") return true;
-    return this.deadlinePassed(id) || this.allConfirmed(id);
+    return this.deadlinePassed(id) || this.allConfirmed(id) || !!this.majorityOf(id);
   }
 
   firstUnreadId() {
@@ -2377,6 +2444,12 @@ class Component extends DCLogic {
       + "border-radius:999px; padding:7px 15px; border:1px solid var(--color-divider)"
       + "; background:transparent"
       + "; color:var(--color-text); white-space:nowrap";
+
+    const optPill = on => "position:relative; z-index:1; flex:none; cursor:pointer; font-family:var(--font-body); font-size:12.5px; font-weight:700; "
+      + "border-radius:999px; padding:6px 14px; white-space:nowrap; transition:background .18s ease, color .18s ease, border-color .18s ease"
+      + (on
+        ? "; border:1px solid var(--color-accent); background:var(--color-accent); color:#ffffff; box-shadow:0 2px 8px rgba(198,113,57,.28)"
+        : "; border:1px solid var(--color-divider); background:#ffffff; color:var(--color-text)");
 
     const allOpen = route.days.every(d => s.openDays[route.id + d.date]);
 
@@ -2437,7 +2510,7 @@ class Component extends DCLogic {
                         : "background:#ffffff; color:transparent; border:1.5px solid var(--color-neutral-400)"),
         confirmNote: unanimous
           ? (roster.length + "人全員が確定したため、この投票は締め切られました。チェックを外すと再開できます。")
-          : ("確定 " + cCount + " / " + roster.length + "人。全員が確定すると自動で締め切られます。迷っているうちはチェックを外したままにしてください。"),
+          : ("確定 " + cCount + " / " + roster.length + "人。いずれかの案が過半数（" + (Math.floor(roster.length / 2) + 1) + "票）に達するか、全員が確定すると自動で締め切られます。迷っているうちはチェックを外したままにしてください。"),
         confirmGo: () => { if (!dPassed) this.toggleConfirm(t.id); },
         deadlineLabel: decided ? ("案" + DECIDED_ROUTE + " に決定しました")
           : unanimous ? (roster.length + "人全員の確定により投票終了")
@@ -2479,7 +2552,7 @@ class Component extends DCLogic {
           + "; transition:transform .22s ease, background .2s; transform:rotate(" + (open ? "90deg" : "0deg") + ")",
         go: () => this.save({ theme: open ? "" : t.id }),
         chips: t.options.map(o => ({
-          label:"案" + o.id, style: pill(o.id === selId, "var(--color-accent-200)") + "; font-size:12.5px; padding:6px 14px",
+          label:"案" + o.id, style: optPill(o.id === selId),
           go: () => {
             this.save({ sel:Object.assign({}, this.state.sel, { [t.id]:o.id }) });
             if (t.id === "route") this.setRoute(o.id);
@@ -2504,6 +2577,7 @@ class Component extends DCLogic {
     const results = this.themeList(true).filter(t => this.isClosed(t.id)).map(t => {
       const closed = this.isClosed(t.id);
       const unan = this.allConfirmed(t.id);
+      const maj = this.majorityOf(t.id);
       const hasVoted = b => t.multi
         ? t.options.some(o => b.v[t.id + ":" + o.id] !== undefined)
         : b.v[t.id] !== undefined;
@@ -2528,7 +2602,7 @@ class Component extends DCLogic {
         sub: t.sub || "",
         hasSub: !!String(t.sub || "").trim(),
         result: winners.length ? winners.map(w => w.label).join(" / ") : "投票なし",
-        resultCount: winners.length ? (topN + "票" + (winners.length > 1 ? "（同票）" : "")) : "",
+        resultCount: winners.length ? (topN + "票" + (winners.length > 1 ? "（同票）" : maj ? "（過半数）" : "")) : "",
         open: rOpen,
         go: () => this.setState({ resultOpen:Object.assign({}, this.state.resultOpen || {}, { [t.id]: !rOpen }) }),
         card: "border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); transition:background .2s; background:"
@@ -2538,7 +2612,7 @@ class Component extends DCLogic {
           + "; transition:transform .22s ease, background .2s; transform:rotate(" + (rOpen ? "90deg" : "0deg") + ")",
         deadline:this.deadlineText(t.id),
         onDeadline: e => this.save({ deadlines:Object.assign({}, this.state.deadlines, { [t.id]:e.target.value }) }),
-        status: t.id === "route" ? "決定" : unan ? "投票終了" : closed ? "締切" : "受付中",
+        status: t.id === "route" ? "決定" : maj ? "過半数で決定" : unan ? "投票終了" : closed ? "締切" : "受付中",
         statusStyle: "flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; border-radius:999px; padding:3px 10px; "
           + (closed ? "background:var(--color-neutral-300); color:var(--color-neutral-800)"
                     : "background:var(--color-accent-2-200); color:var(--color-accent-2-800)"),
@@ -2599,15 +2673,24 @@ class Component extends DCLogic {
       this.save({ hidden:Object.assign({}, this.state.hidden || {}, { [key]:true }) });
     };
     const visTodos = TODOS.filter(t => !hid["todo:" + t.id]);
-    const visPacking = PACKING.map(g => ({ g:g.g, items:g.items.filter(i => !hid["pack:" + i]) })).filter(g => g.items.length);
+    const packAddG = s.packAddG || [];
+    const packAdd = s.packAdd || {};
+    const packHid = s.packHidden || {};
+    const packHide = key => e => {
+      if (e && e.stopPropagation) e.stopPropagation();
+      this.save({ packHidden:Object.assign({}, this.state.packHidden || {}, { [key]:true }) });
+    };
+    const visPacking = PACKING.map(g => ({ g:g.g, items:g.items.slice() }))
+      .concat(packAddG.map(n => ({ g:n, items:[] })))
+      .filter(g => !packHid["packg:" + g.g])
+      .map(g => ({ g:g.g, items: g.items.concat(packAdd[g.g] || []).filter(i => !packHid["pack:" + i]) }));
     const visBooking = BOOKING.filter(b => !hid["book:" + b.n]);
     const visMyTodos = (s.myTodos || []).filter(t => !hid["todo:" + t.id]);
     const privList = s.privTodos || [];
     const doneCount = visTodos.filter(t => s.done[t.id]).length + visMyTodos.filter(t => s.done[t.id]).length
       + privList.filter(t => s.done[t.id]).length;
-    const packedCount = visPacking.reduce((a,g) => a + g.items.filter(i => s.packed[i]).length, 0)
-      + (s.myPack || []).filter(p => s.packed[p.id]).length;
-    const packTotal = visPacking.reduce((a,g) => a + g.items.length, 0) + (s.myPack || []).length;
+    const packedCount = visPacking.reduce((a,g) => a + g.items.filter(i => s.packed[i]).length, 0);
+    const packTotal = visPacking.reduce((a,g) => a + g.items.length, 0);
 
     return {
       countdown: phase === "before" ? String(Math.max(1, Math.ceil((new Date("2027-02-13T10:05:00+09:00") - now) / 86400000)))
@@ -2621,17 +2704,14 @@ class Component extends DCLogic {
         this.trackEl = el;
         if (el.__omTrackBound === true) return;
         el.__omTrackBound = true;
-        let x0 = 0, y0 = 0, axis = null, active = false, dxNow = 0;
+        let x0 = 0, y0 = 0, axis = null, active = false, dxNow = 0, lastTouch = 0;
+        try { el.style.touchAction = "pan-y"; } catch (e) {}
         const W = () => el.clientWidth || 320;
         const can = dir => true;
-        el.addEventListener("touchstart", ev => {
-          if (ev.touches.length !== 1) return;
-          x0 = ev.touches[0].clientX; y0 = ev.touches[0].clientY;
-          axis = null; active = true; dxNow = 0;
-        }, { passive:true });
-        el.addEventListener("touchmove", ev => {
-          if (!active || ev.touches.length !== 1) return;
-          const dx = ev.touches[0].clientX - x0, dy = ev.touches[0].clientY - y0;
+        const onStart = (x, y) => { x0 = x; y0 = y; axis = null; active = true; dxNow = 0; lastTouch = Date.now(); };
+        const onMove = (x, y) => {
+          if (!active) return;
+          const dx = x - x0, dy = y - y0;
           if (!axis && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) axis = Math.abs(dx) > Math.abs(dy) * 1.2 ? "x" : "y";
           if (axis !== "x") {
             const sc = this.scroller;
@@ -2653,7 +2733,7 @@ class Component extends DCLogic {
           dxNow = can(dx < 0 ? 1 : -1) ? dx : dx * 0.25;
           this.navSync(dx < 0 ? 1 : -1, Math.min(1, Math.abs(dxNow) / W()));
           this.layoutTrack(dxNow, false);
-        }, { passive:true });
+        };
         const finish = () => {
           if (this.pulled && this.scroller) {
             this.pulled = false;
@@ -2672,12 +2752,43 @@ class Component extends DCLogic {
               this.navSettle(dir, prog, 0, null);
             }
           }
-          active = false; axis = null; dxNow = 0;
+          active = false; axis = null; dxNow = 0; lastTouch = Date.now();
         };
-        el.addEventListener("touchend", finish, { passive:true });
-        el.addEventListener("touchcancel", finish, { passive:true });
-        let wx = 0, wlock = false, wt = null;
+        if (window.PointerEvent) {
+          let pid = null;
+          el.addEventListener("pointerdown", ev => {
+            if (ev.pointerType === "mouse") return;
+            pid = ev.pointerId;
+            onStart(ev.clientX, ev.clientY);
+          }, { passive:true });
+          el.addEventListener("pointermove", ev => {
+            if (!active || ev.pointerId !== pid) return;
+            onMove(ev.clientX, ev.clientY);
+            if (axis === "x" && el.setPointerCapture) { try { el.setPointerCapture(pid); } catch (e) {} }
+          }, { passive:true });
+          const pend = ev => {
+            if (pid === null || (ev && ev.pointerId !== pid)) return;
+            pid = null; finish();
+          };
+          el.addEventListener("pointerup", pend, { passive:true });
+          el.addEventListener("pointercancel", pend, { passive:true });
+          el.addEventListener("lostpointercapture", pend, { passive:true });
+        } else {
+          el.addEventListener("touchstart", ev => {
+            if (ev.touches.length !== 1) return;
+            onStart(ev.touches[0].clientX, ev.touches[0].clientY);
+          }, { passive:true });
+          el.addEventListener("touchmove", ev => {
+            if (ev.touches.length !== 1) return;
+            onMove(ev.touches[0].clientX, ev.touches[0].clientY);
+          }, { passive:true });
+          el.addEventListener("touchend", finish, { passive:true });
+          el.addEventListener("touchcancel", finish, { passive:true });
+        }
+        let wx = 0, wlock = false, wt = null, wrelease = null;
+        const unlock = () => { wlock = false; wx = 0; if (wrelease) { clearTimeout(wrelease); wrelease = null; } };
         el.addEventListener("wheel", ev => {
+          if (active || Date.now() - lastTouch < 500) { wx = 0; return; }
           if (Math.abs(ev.deltaX) <= Math.abs(ev.deltaY) * 1.4 || wlock) return;
           wx += ev.deltaX;
           const d = can(wx > 0 ? 1 : -1) ? -wx : -wx * 0.25;
@@ -2689,9 +2800,11 @@ class Component extends DCLogic {
             const prog = Math.min(1, Math.abs(wx) / W());
             if (can(dir) && Math.abs(wx) > Math.min(90, W() * 0.18)) {
               wlock = true; wx = 0;
+              if (wrelease) clearTimeout(wrelease);
+              wrelease = setTimeout(unlock, 700);
               this.applyThemeNow(this.tabIdAt(dir));
               this.layoutTrack(dir > 0 ? -W() : W(), true);
-              this.navSettle(dir, prog, 1, () => { this.shiftTab(dir); wlock = false; });
+              this.navSettle(dir, prog, 1, () => { this.shiftTab(dir); unlock(); });
               return;
             }
             wx = 0;
@@ -3034,6 +3147,8 @@ class Component extends DCLogic {
       }),
 
       prepDone: doneCount + " / " + (visTodos.length + visMyTodos.length + privList.length) + " 完了",
+      dueCount: String(this.dueTodos().length),
+      hasDue: this.dueTodos().length > 0,
       hasPrivTodos: privList.length > 0,
       newPriv: s.newPriv || "",
       onNewPriv: e => this.setState({ newPriv:e.target.value }),
@@ -3050,7 +3165,7 @@ class Component extends DCLogic {
         };
         const eKey = "e:priv:" + r.id;
         return {
-          title:r.title || "", when:r.when || "", x:r.x || "", tick: on ? "✓" : "",
+          title:r.title || "", when:r.when || "", whenLabel: this.whenText(r.when), x:r.x || "", tick: on ? "✓" : "",
           hasWhen: !!String(r.when || "").trim(), hasX: !!String(r.x || "").trim(),
           card: "border-radius:var(--radius-lg); padding:16px 18px; transition:all .2s; "
             + (on ? "background:var(--color-accent-200); border:1.5px solid transparent; box-shadow:none"
@@ -3165,7 +3280,8 @@ class Component extends DCLogic {
                    lead: e.lead !== undefined ? e.lead : b.lead,
                    x: e.x !== undefined ? e.x : b.x };
         }).concat((s.addBook || []).filter(b => !hid["book:" + b.id]).map(b => ({
-          key:"book:" + b.id, id:b.id, custom:true, n:b.n || "", lead:b.lead || "", x:b.x || "" })));
+          key:"book:" + b.id, id:b.id, custom:true, n:b.n || "", lead:b.lead || "", x:b.x || "" })))
+          .sort((a, c) => this.whenRank(a.lead) - this.whenRank(c.lead));
         return rows.map(r => {
           const on = !!(s.booked || {})[r.key];
           const setField = f => ev => {
@@ -3179,7 +3295,7 @@ class Component extends DCLogic {
           };
           const eKey = "e:" + r.key;
           return {
-            n:r.n, lead:r.lead, x:r.x, hasLead: !!String(r.lead).trim(), hasX: !!String(r.x).trim(),
+            n:r.n, lead:r.lead, leadLabel: this.whenText(r.lead), x:r.x, hasLead: !!String(r.lead).trim(), hasX: !!String(r.x).trim(),
             tick: on ? "✓" : "",
             card: "border-radius:var(--radius-lg); padding:16px 18px; transition:all .2s; "
               + (on ? "background:var(--color-accent-200); border:1.5px solid transparent; box-shadow:none"
@@ -3220,12 +3336,14 @@ class Component extends DCLogic {
         if (!t) return;
         this.save({ myTodos:(this.state.myTodos || []).concat({ id:"m" + Date.now(), title:t, when:"", x:"" }), newTodo:"" });
       },
-      newPack: s.newPack || "",
-      onNewPack: e => this.setState({ newPack:e.target.value }),
-      addPack: () => {
-        const t = (this.state.newPack || "").trim();
+      newPackG: s.newPackG || "",
+      onNewPackG: e => this.setState({ newPackG:e.target.value }),
+      addPackG: () => {
+        const t = (this.state.newPackG || "").trim();
         if (!t) return;
-        this.save({ myPack:(this.state.myPack || []).concat({ id:"p" + Date.now(), label:t }), newPack:"" });
+        this.setState({ newPackG:"" });
+        this.save({ packAddG:(this.state.packAddG || []).concat(t),
+                    packHidden:Object.assign({}, this.state.packHidden || {}, { ["packg:" + t]:false }) });
       },
       myTodos: (s.myTodos || []).map((t, i) => {
         const on = !!s.done[t.id];
@@ -3246,23 +3364,6 @@ class Component extends DCLogic {
         };
       }),
       hasMyTodos: (s.myTodos || []).length > 0,
-      myPack: (s.myPack || []).map((p, i) => {
-        const on = !!s.packed[p.id];
-        return {
-          label:p.label, tick: on ? "✓" : "",
-          box: "cursor:pointer; flex:none; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; font-size:12px; font-weight:700; transition:all .2s; "
-            + (on ? "background:var(--color-accent-600); color:#ffffff; border:1px solid transparent; box-shadow:0 0 0 3px var(--color-accent-300)"
-                  : "background:#ffffff; color:transparent; border:1.5px solid var(--color-neutral-400)"),
-          go: () => this.save({ packed:Object.assign({}, this.state.packed, { [p.id]:!on }) }),
-          onEdit: e => {
-            const next = (this.state.myPack || []).map(x => Object.assign({}, x));
-            next[i].label = e.target.value;
-            this.save({ myPack:next });
-          },
-          del: () => this.save({ myPack:(this.state.myPack || []).filter(x => x.id !== p.id) })
-        };
-      }),
-      hasMyPack: (s.myPack || []).length > 0,
       todos: (() => {
         const te = s.todoEdits || {};
         const rows = visTodos.map(t => {
@@ -3271,7 +3372,17 @@ class Component extends DCLogic {
                    title: e.title !== undefined ? e.title : t.title,
                    when: e.when !== undefined ? e.when : t.when,
                    x: e.x !== undefined ? e.x : t.x };
-        }).concat(visMyTodos.map(t => ({ id:t.id, custom:true, title:t.title || "", when:t.when || "", x:t.x || "" })));
+        }).concat(visMyTodos.map(t => ({ id:t.id, custom:true, title:t.title || "", when:t.when || "", x:t.x || "" })))
+          .sort((a, c) => this.whenRank(a.when) - this.whenRank(c.when));
+        if (this.freezeOrder && this.lastTodoOrder) {
+          const ord = this.lastTodoOrder;
+          rows.sort((a, c) => {
+            const ia = ord.indexOf(a.id), ic = ord.indexOf(c.id);
+            return (ia < 0 ? 9999 : ia) - (ic < 0 ? 9999 : ic);
+          });
+        } else {
+          this.lastTodoOrder = rows.map(r => r.id);
+        }
         return rows.map(r => {
           const on = !!s.done[r.id];
           const setField = f => ev => {
@@ -3284,12 +3395,17 @@ class Component extends DCLogic {
             }
           };
           const eKey = "e:todo:" + r.id;
+          const rk = this.whenRank(r.when);
+          const urgentTodo = !on && isFinite(rk) && rk <= Date.now() + 7 * 86400000;
           return {
-            title:r.title, when:r.when, x:r.x, tick: on ? "✓" : "",
+            whenStyle: "font-family: var(--font-body); font-size: 10.5px; font-weight: 700; border-radius: 999px; padding: 2px 9px; white-space: nowrap; "
+              + (urgentTodo ? "background-color:var(--color-accent-600); color:#ffffff" : "background-color:var(--color-accent-200); color:var(--color-accent-800)"),
+            title:r.title, when:r.when, whenLabel: this.whenText(r.when), x:r.x, tick: on ? "✓" : "",
             hasWhen: !!String(r.when).trim(), hasX: !!String(r.x).trim(),
             del: hideItem("todo:" + r.id),
             card: "border-radius:var(--radius-lg); padding:16px 18px; transition:all .2s; "
               + (on ? "background:var(--color-accent-200); border:1.5px solid transparent; box-shadow:none"
+                    : urgentTodo ? "background:var(--color-surface); border:2px solid var(--color-accent-600); box-shadow:var(--shadow-sm); animation:nudge 1.7s ease-in-out infinite"
                     : "background:var(--color-surface); border:1.5px solid transparent; box-shadow:var(--shadow-sm)"),
             box: "flex:none; width:24px; height:24px; border-radius:50%; display:grid; place-items:center; font-size:13px; font-weight:700; transition:all .2s; "
               + (on ? "background:var(--color-accent-600); color:#ffffff; border:1px solid transparent; box-shadow:0 0 0 3px var(--color-accent-300)"
@@ -3302,6 +3418,8 @@ class Component extends DCLogic {
               this.setState({ prepEdit:Object.assign({}, this.state.prepEdit || {}, { [eKey]: !(this.state.prepEdit || {})[eKey] }) });
             },
             stop: ev => { if (ev && ev.stopPropagation) ev.stopPropagation(); },
+            onWhenFocus: () => { this.freezeOrder = true; },
+            onWhenBlur: () => { this.freezeOrder = false; this.forceUpdate(); },
             onTitle: setField("title"), onWhen: setField("when"), onX: setField("x")
           };
         });
@@ -3309,11 +3427,23 @@ class Component extends DCLogic {
       packDone: packedCount + " / " + packTotal + " 準備済み",
       packing: visPacking.map(g => ({
         g:g.g,
+        del: packHide("packg:" + g.g),
+        draft: ((s.packDraft || {})[g.g] || ""),
+        onDraft: e => this.setState({ packDraft:Object.assign({}, this.state.packDraft || {}, { [g.g]:e.target.value }) }),
+        add: () => {
+          const v = String(((this.state.packDraft || {})[g.g] || "")).trim();
+          if (!v) return;
+          const cur = this.state.packAdd || {};
+          const list = (cur[g.g] || []).concat(v);
+          this.setState({ packDraft:Object.assign({}, this.state.packDraft || {}, { [g.g]:"" }) });
+          this.save({ packAdd:Object.assign({}, cur, { [g.g]:list }),
+                      packHidden:Object.assign({}, this.state.packHidden || {}, { ["pack:" + v]:false }) });
+        },
         items: g.items.map(i => {
           const on = !!s.packed[i];
           return {
             label: on ? "✓ " + i : i,
-            del: hideItem("pack:" + i),
+            del: packHide("pack:" + i),
             style: "cursor:pointer; font-family:var(--font-body); font-size:12.5px; font-weight:600; border-radius:999px; padding:6px 13px; transition:all .18s; border:1.5px solid "
               + (on ? "var(--color-accent-600)" : "var(--color-divider)") + "; background:" + (on ? "var(--color-accent-600)" : "#ffffff")
               + "; color:" + (on ? "#ffffff" : "var(--color-text)"),
