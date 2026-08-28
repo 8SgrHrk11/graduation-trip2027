@@ -26,6 +26,7 @@
   @keyframes floatUp { from { opacity:0; transform: translateY(14px); } to { opacity:1; transform:none; } }
   @keyframes drift { 0%,100% { transform: translate(0,0) } 50% { transform: translate(-14px,10px) } }
   @keyframes nudge { 0%,100% { box-shadow: 0 0 0 0 rgba(87,117,14,.34) } 55% { box-shadow: 0 0 0 7px rgba(87,117,14,0) } }
+  @keyframes arriveGlow { 0% { box-shadow: 0 0 0 0 rgba(198,113,57,0) } 25% { box-shadow: 0 0 0 6px rgba(198,113,57,.34) } 100% { box-shadow: 0 0 0 14px rgba(198,113,57,0) } }
   .om-hide-scroll::-webkit-scrollbar { display:none; }
   .om-page { overflow-x: clip !important; background: transparent !important; padding: 10px 10px 26px; align-items: flex-start; }
   .om-shell { background: #ffffff !important; border-radius: 26px;
@@ -72,20 +73,24 @@
     #E2E2E2 240deg 255deg, #F0E8ED 255deg 270deg, #E8F4F1 270deg 285deg, #F2EAE8 285deg 300deg,
     #F2EEE2 300deg 315deg, #E8F4D9 315deg 330deg, #F5EDED 330deg 345deg, #E8E2EC 345deg 360deg)"></div>
 
-<div class="om-page" style="position:relative; z-index:1; min-height:100vh; color:var(--color-text); display:flex; justify-content:center; overflow-x:hidden">
-<div class="om-shell" style="width:100%; max-width:440px; position:relative; padding-bottom:40px">
+<div class="om-page" style="position:relative; z-index:1; height:100vh; overflow:hidden; color:var(--color-text); display:flex; justify-content:center; align-items:stretch; padding:12px">
+<div class="om-shell" style="width:100%; max-width:440px; position:relative; display:flex; flex-direction:column; height:100%; background-color:#FFFFFF; border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow-md)">
 
-  <div class="om-blobs" style="position:absolute; inset:0; overflow:hidden; pointer-events:none">
+  <div class="om-blobs" style="position:absolute; inset:0; overflow:clip; pointer-events:none">
     <div style="position:absolute; top:-90px; right:-90px; width:280px; height:280px; border-radius:50%; background:var(--color-accent-200); opacity:.55; animation:drift 14s ease-in-out infinite"></div>
     <div style="position:absolute; top:180px; left:-120px; width:220px; height:220px; border-radius:50%; background:var(--color-accent-2-200); opacity:.5; animation:drift 19s ease-in-out infinite reverse"></div>
   </div>
 
-  <header class="om-head" style="position:relative; padding:26px 20px 12px">
-    <div style="font-family: var(--font-body); font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--color-accent-2-900); font-weight: 700">Graduation Trip · Europe</div>
-    <h1 style="font-size: 31px; line-height: 1.25; margin: 8px 0 6px; font-family: Zen Maru Gothic">ヨーロッパ<br>卒業旅行の栞</h1>
-    <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700)">
-      <span>2027年 2/13 ~ 2/25</span><span>·</span><span>9人</span><span>·</span><span>10泊13日</span>
-    </div><div style="margin-top: 16px; display: flex; align-items: center; gap: 16px; border-radius: var(--radius-lg); padding: 14px 18px; box-shadow: var(--shadow-sm); background-color: {{ themeColor }}; transition: background-color .25s">
+  
+
+  <div class="om-sticky" style="{{ stickyStyle }}">
+  <header class="om-head" style="{{ headStyle }}">
+    
+    <h1 style="{{ titleStyle }}">卒業旅行の栞</h1>
+    <div style="{{ miniStyle }}"><span>{{ countdown }}</span><span style="font-size:12px">{{ countdownShort }}</span></div>
+    <div style="{{ metaStyle }}">
+      
+    </div><div style="{{ cdWrapStyle }}"><div style="margin-top: 16px; display: flex; align-items: center; gap: 16px; border-radius: var(--radius-lg); padding: 14px 18px; box-shadow: var(--shadow-sm); background-color: {{ themeColor }}; transition: background-color .25s">
       <div style="flex:none">
         
         <div style="font-family: var(--font-heading); font-size: 38px; line-height: 1.15; color: #201E1D; margin-top: 3px; white-space: nowrap; display: flex; align-items: baseline; gap: 8px">{{ todayShort }}<span style="font-size:16px">{{ todayDow }}</span></div>
@@ -95,18 +100,17 @@
         <div>{{ countdown }}</div>
         <span style="font-size:16px; white-space:pre-line">{{ countdownUnit }}</span>
       </div>
-    </div>
+    </div></div>
 
     
-  </header>
-
-  <nav class="om-nav" style="position:sticky; top:0; z-index:9; background:var(--color-bg); padding:10px 0 10px; box-shadow:0 8px 12px -10px rgba(46,43,37,.35)">
+  </header><nav class="om-nav" style="position:relative; z-index:9; background:#FFFFFF; padding:10px 0 12px; border-radius:0 0 var(--radius-lg) var(--radius-lg); box-shadow:0 10px 14px -12px rgba(46,43,37,.4)">
     <div class="om-hide-scroll" style="display:flex; gap:8px; overflow-x:auto; padding:0 20px; scrollbar-width:none">
       <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="6">
         <button type="button" onClick="{{ t.go }}" style="{{ t.style }}"><span>{{ t.label }}</span><sc-if value="{{ t.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="margin-left:6px; display:inline-block; min-width:17px; background:#C4643A; color:#ffffff; font-size:10.5px; line-height:17px; border-radius:999px; padding:0 5px; text-align:center">{{ t.badge }}</span></sc-if></button>
       </sc-for>
     </div>
-  </nav><main class="om-main" style="{{ themeStyle }}">
+  </nav>
+  </div><main class="om-main" ref="{{ mainRef }}" style="{{ themeStyle }}">
 
   <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
   <section style="animation:floatUp .45s ease both">
@@ -187,9 +191,17 @@
         <div style="font-family: var(--font-body); font-size: 22px; letter-spacing: .18em; text-transform: uppercase; color: var(--color-neutral-900); font-weight: 700">To Do List</div>
         <div style="display:grid; gap:8px; margin-top:10px">
           <sc-for list="{{ todo }}" as="td2" hint-placeholder-count="3">
-            <div onClick="{{ td2.go }}" style="{{ td2.style }}">
-              <div style="font-family:var(--font-body); font-size:13.5px; font-weight:700; text-wrap:pretty">{{ td2.x }}</div>
-              <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-600); margin-top:3px; text-wrap:pretty">{{ td2.sub }}</div>
+            <div onClick="{{ td2.go }}" style="{{ td2.style }}" style-active="transform:scale(.975); box-shadow:none">
+              <div style="display:flex; align-items:center; gap:11px">
+                <div style="flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; color: var(--color-accent-700); background-color: #FFFCDA">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </div>
+                <div style="flex:1; min-width:0">
+                  <div style="font-family:var(--font-body); font-size:13.5px; font-weight:700; text-wrap:pretty">{{ td2.x }}</div>
+                  <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-600); margin-top:3px; text-wrap:pretty">{{ td2.sub }}</div>
+                </div>
+                <div style="{{ td2.destStyle }}">{{ td2.dest }}</div>
+              </div>
             </div>
           </sc-for>
         </div>
@@ -376,7 +388,7 @@
 
     <div style="order:4; display:grid; gap:8px; margin-top:16px">
       <sc-for list="{{ themes }}" as="th" hint-placeholder-count="6">
-        <div style="{{ th.card }}">
+        <div data-jump="{{ th.jumpId }}" style="{{ th.card }}">
           <div onClick="{{ th.go }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
             <div style="{{ th.caret }}">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" style="stroke: var(--color-neutral-900)"><polyline points="9 18 15 12 9 6"></polyline></svg>
@@ -622,7 +634,7 @@
   <section style="animation:floatUp .45s ease both">
     <h2 style="font-size:22px; margin:18px 0 12px">準備</h2><div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-700); margin-bottom:12px; text-wrap:pretty">各自、自由に登録可能。持ち物リストは他人に共有されません。</div>
 
-    <div style="{{ sec.prep.card }}">
+    <div data-jump="{{ sec.prep.jumpId }}" style="{{ sec.prep.card }}">
       <div onClick="{{ sec.prep.go }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
         <div style="{{ sec.prep.caret }}">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
@@ -723,7 +735,7 @@
       </sc-if>
     </div>
 
-    <div style="margin-top:8px; {{ sec.pack.card }}">
+    <div data-jump="{{ sec.pack.jumpId }}" style="margin-top:8px; {{ sec.pack.card }}">
       <div onClick="{{ sec.pack.go }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
         <div style="{{ sec.pack.caret }}">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
@@ -1791,6 +1803,15 @@ class Component extends DCLogic {
   }
 
   componentDidMount() {
+    this.onScroll = () => {
+      if (this.rafScroll) return;
+      this.rafScroll = requestAnimationFrame(() => {
+        this.rafScroll = null;
+        const y = this.scroller ? this.scroller.scrollTop : 0;
+        const cond = y > 2;
+        if (cond !== !!this.state.condensed) this.setState({ condensed:cond });
+      });
+    };
     try {
       const raw = localStorage.getItem(KEY);
       if (raw) {
@@ -1874,16 +1895,66 @@ class Component extends DCLogic {
     this.save({ ballots:strip(this.state.ballots, true), confirms:strip(this.state.confirms, false), resetV:VOTE_RESET });
   }
 
+  smoothTo(top) {
+    const sc = this.scroller;
+    if (!sc) return;
+    const target = Math.max(0, Math.round(top));
+    const start = sc.scrollTop || 0;
+    const dist = target - start;
+    if (Math.abs(dist) < 3) return;
+    if (typeof requestAnimationFrame !== "function") { sc.scrollTop = target; return; }
+    const dur = 380;
+    const t0 = (window.performance && performance.now) ? performance.now() : Date.now();
+    const step = () => {
+      const now = (window.performance && performance.now) ? performance.now() : Date.now();
+      const p = Math.min(1, (now - t0) / dur);
+      const e = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+      sc.scrollTop = Math.round(start + dist * e);
+      if (p < 1) requestAnimationFrame(step); else sc.scrollTop = target;
+    };
+    requestAnimationFrame(step);
+  }
+
+  offsetIn(el) {
+    const sc = this.scroller;
+    if (!sc || !el) return 0;
+    return el.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop;
+  }
+
   componentDidUpdate() {
     if (this.wantTop) {
       this.wantTop = false;
-      try { window.scrollTo(0, 0); } catch (e) {}
+      const key = this.jumpKey;
+      this.jumpKey = null;
+      if (!key) { try { if (this.scroller) this.scroller.scrollTop = 0; } catch (e) {} }
+      else {
+        let tries = 0;
+        const run = () => {
+          let el = null;
+          try { el = document.querySelector('[data-jump="' + key + '"]'); } catch (e) {}
+          if (el) {
+            try {
+              this.smoothTo(this.offsetIn(el) - 12);
+            } catch (e) {}
+            try {
+              if (el.animate) el.animate(
+                [{ boxShadow:"0 0 0 0 rgba(198,113,57,0)" },
+                 { boxShadow:"0 0 0 6px rgba(198,113,57,.38)", offset:.3 },
+                 { boxShadow:"0 0 0 14px rgba(198,113,57,0)" }],
+                { duration:1000, easing:"ease-out", delay:260 });
+            } catch (e) {}
+          } else if (tries++ < 6) {
+            setTimeout(run, 60);
+          }
+        };
+        if (typeof requestAnimationFrame === "function") requestAnimationFrame(() => requestAnimationFrame(run));
+        else setTimeout(run, 0);
+      }
     }
     if (this.wantConfirm && this.confirmEl) {
       this.wantConfirm = false;
       try {
-        const r = this.confirmEl.getBoundingClientRect();
-        window.scrollTo({ top: window.pageYOffset + r.top - 120, behavior:"smooth" });
+        this.smoothTo(this.offsetIn(this.confirmEl) - 40);
       } catch (e) {}
     }
     this.maybeResetVotes();
@@ -2106,6 +2177,7 @@ class Component extends DCLogic {
         remainStyle: "flex:none; font-family:var(--font-body); font-size:11px; font-weight:700; border-radius:999px; padding:3px 10px; "
           + (urgent ? "background:#57750E; color:#ffffff" : "background:var(--color-neutral-200); color:var(--color-neutral-800)"),
         label:t.label, sub:t.sub, open:open, showMap: open && !!t.map,
+        jumpId: "theme:" + t.id,
         isSingle: !t.multi, isMulti: !!t.multi, showUk: open && !!t.ukmap,
         picks: t.options.map(o => {
           const on = mine[t.id + ":" + o.id] === 1;
@@ -2270,7 +2342,78 @@ class Component extends DCLogic {
       countdown: phase === "before" ? String(Math.max(1, Math.ceil((new Date("2027-02-13T10:05:00+09:00") - now) / 86400000)))
                 : phase === "during" ? String(todayIdx + 1) : "13",
       countdownUnit: phase === "before" ? "日後\n" : phase === "during" ? "日目\n旅行中" : "日間の\n旅は終わりました",
-      tabs: TABS.map(t => ({ label:t.label, style:pill(s.tab === t.id, t.btn || t.theme), go:() => this.save({ tab:t.id }),
+      countdownShort: phase === "before" ? "日後" : phase === "during" ? "日目" : "日間",
+      miniStyle: "position:absolute; top:10px; right:20px; z-index:2; display:flex; align-items:baseline; gap:6px; "
+        + "font-family:'Zen Maru Gothic'; font-size:21px; line-height:1.25; color:#201E1D; "
+        + "border-radius:var(--radius-lg); padding:2px 14px; box-shadow:var(--shadow-sm); background-color:" + ((TABS.find(t => t.id === s.tab) || TABS[0]).theme) + "; "
+        + "transition:transform .3s ease, opacity .24s ease; "
+        + (s.condensed ? "transform:translateY(0); opacity:1" : "transform:translateY(-64px); opacity:0; pointer-events:none"),
+      mainRef: el => {
+        if (!el) return;
+        this.scroller = el;
+        if (!this.onScroll) {
+          this.onScroll = () => {
+            if (this.rafScroll) return;
+            this.rafScroll = requestAnimationFrame(() => {
+              this.rafScroll = null;
+              const y = this.scroller ? this.scroller.scrollTop : 0;
+              const cond = y > 2;
+              if (cond !== !!this.state.condensed) this.setState({ condensed:cond });
+            });
+          };
+        }
+        if (el.__omScrollBound !== true) {
+          el.addEventListener("scroll", this.onScroll, { passive:true });
+          el.__omScrollBound = true;
+          let y0 = 0, pull = 0, active = false, raf = null;
+          const paint = () => {
+            raf = null;
+            el.style.transform = pull ? "translate3d(0," + pull.toFixed(1) + "px,0)" : "translate3d(0,0,0)";
+          };
+          const set = v => {
+            pull = v;
+            if (!raf) raf = requestAnimationFrame(paint);
+          };
+          const release = () => {
+            active = false;
+            el.style.transition = "transform .01s linear";
+            set(0);
+            setTimeout(() => { el.style.willChange = "auto"; el.style.transition = ""; }, 40);
+          };
+          el.addEventListener("touchstart", ev => {
+            if (ev.touches.length !== 1) return;
+            y0 = ev.touches[0].clientY;
+            active = true;
+            el.style.willChange = "transform";
+            el.style.transition = "none";
+          }, { passive:true });
+          el.addEventListener("touchmove", ev => {
+            if (!active || ev.touches.length !== 1) return;
+            const d = ev.touches[0].clientY - y0;
+            const atTop = el.scrollTop <= 0;
+            const atEnd = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+            if ((atTop && d > 0) || (atEnd && d < 0)) {
+              set(Math.sign(d) * Math.min(5, Math.pow(Math.abs(d), .45) * .5));
+            } else if (pull) {
+              set(0);
+            }
+          }, { passive:true });
+          el.addEventListener("touchend", release, { passive:true });
+          el.addEventListener("touchcancel", release, { passive:true });
+        }
+      },
+      stickyStyle: "position:relative; z-index:11; flex:none; background:transparent",
+      headStyle: "position:relative; overflow:clip; display:flex; flex-direction:column; background-color:#FFFFFF; border-radius:var(--radius-lg) var(--radius-lg) 0 0; transition:padding .28s ease; padding:"
+        + (s.condensed ? "10px 20px 6px" : "26px 20px 12px"),
+      kickerStyle: "font-family:var(--font-body); font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--color-accent-2-900); font-weight:700; overflow:hidden; transition:max-height .28s ease, opacity .2s ease; "
+        + (s.condensed ? "max-height:0; opacity:0" : "max-height:20px; opacity:1"),
+      titleStyle: "order:2; line-height:1.25; font-family:'Zen Maru Gothic'; transition:font-size .28s ease, margin .28s ease; "
+        + (s.condensed ? "font-size:21px; margin:2px 0 4px" : "font-size:31px; margin:8px 0 6px"),
+      metaStyle: "order:1; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700); overflow:hidden; transition:max-height .28s ease, opacity .2s ease; "
+        + (s.condensed ? "max-height:0; opacity:0" : "max-height:24px; opacity:1"),
+      cdWrapStyle: "order:3; overflow:hidden; transform-origin:top center; transition:max-height .3s ease, opacity .22s ease, transform .3s ease; "
+        + (s.condensed ? "max-height:0; opacity:0; transform:translateY(-12px) scaleY(.88)" : "max-height:150px; opacity:1; transform:none"),
+      tabs: TABS.map(t => ({ label:t.label,style:pill(s.tab === t.id, t.btn || t.theme), go:() => this.save({ tab:t.id }),
         hasBadge: (t.id === "talk" && this.myUnread() > 0) || (t.id === "route" && this.openUnvotedCount() > 0),
         badge: t.id === "route" ? String(this.openUnvotedCount()) : String(this.myUnread()) })),
       notifyAsk: typeof Notification !== "undefined" && Notification.permission === "default",
@@ -2281,7 +2424,7 @@ class Component extends DCLogic {
       themeStyle: (() => {
         const T = TABS.find(t => t.id === s.tab) || TABS[0];
         const ok = (l, m) => "oklch(" + l + " " + (T.chroma * m).toFixed(4) + " " + T.hue + ")";
-        return "position:relative; padding:6px 20px 0"
+        return "position:relative; flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; padding:6px 20px 40px"
           + ";--color-surface:" + T.theme
           + ";--color-bg:" + ok(0.985, 0.35)
           + ";--color-divider:" + ok(0.905, 0.9)
@@ -2332,22 +2475,29 @@ class Component extends DCLogic {
       todayDow: tzDate.w + "曜日",
       todo: (() => {
         const out = [];
+        const cardStyle = extra => "cursor:pointer; background:var(--color-surface); border-radius:var(--radius-lg); padding:14px 16px; box-shadow:var(--shadow-sm); transition:transform .13s ease, box-shadow .13s ease; " + extra;
+        const destPill = tint => "flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; letter-spacing:.06em; border-radius:999px; padding:3px 10px; color:var(--color-neutral-900); background-color:"
+          + (tint === "route" ? "#d4ecea" : "#FFF0F9");
         this.themeList().forEach(t => {
           if (this.isClosed(t.id)) return;
           const voted = t.multi ? t.options.some(o => mine[t.id + ":" + o.id] === 1) : mine[t.id] !== undefined;
           const rem = this.voteRemain(t.id);
           const urg = !voted && rem.urgent;
           if (!voted) out.push({ x:"「" + t.label + "」に投票する", sub:"期限 " + this.deadlineText(t.id) + " · " + rem.label,
-            style: "cursor:pointer; background:var(--color-surface); border-radius:var(--radius-lg); padding:14px 16px; box-shadow:var(--shadow-sm); "
-              + (urg ? "border:2px solid #57750E; animation:nudge 1.7s ease-in-out infinite" : "border:2px solid transparent"),
-            go:() => this.save({ tab:"route", theme:t.id }) });
+            dest:"検討・投票", destStyle:destPill("route"),
+            style: cardStyle(urg ? "border:2px solid #57750E; animation:nudge 1.7s ease-in-out infinite" : "border:2px solid transparent"),
+            go:() => { this.jumpKey = "theme:" + t.id; this.save({ tab:"route", theme:t.id }); } });
         });
-        const plain = "cursor:pointer; background:var(--color-surface); border-radius:var(--radius-lg); padding:14px 16px; box-shadow:var(--shadow-sm); border:2px solid transparent";
+        const plain = cardStyle("border:2px solid transparent");
         const undone = TODOS.filter(t => !s.done[t.id]);
-        if (undone.length) out.push({ x:"準備が " + undone.length + "件 残っています", sub:"最初は「" + undone[0].title + "」", style:plain, go:() => this.save({ tab:"prep" }) });
+        if (undone.length) out.push({ x:"準備が " + undone.length + "件 残っています", sub:"最初は「" + undone[0].title + "」", style:plain,
+          dest:"準備", destStyle:destPill("prep"),
+          go:() => { this.jumpKey = "sec:prep"; this.save({ tab:"prep", prepOpen:{ prep:true } }); } });
         const packTotal = PACKING.reduce((a,g) => a + g.items.length, 0);
         const packedN = PACKING.reduce((a,g) => a + g.items.filter(i => s.packed[i]).length, 0);
-        if (phase === "before" && packedN < packTotal) out.push({ x:"持ち物 " + packedN + "/" + packTotal, sub:"チェックしながら詰める", style:plain, go:() => this.save({ tab:"prep" }) });
+        if (phase === "before" && packedN < packTotal) out.push({ x:"持ち物 " + packedN + "/" + packTotal, sub:"チェックしながら詰める", style:plain,
+          dest:"準備", destStyle:destPill("prep"),
+          go:() => { this.jumpKey = "sec:pack"; this.save({ tab:"prep", prepOpen:{ pack:true } }); } });
         return out;
       })(),
       todayCard: (() => {
@@ -2654,6 +2804,7 @@ class Component extends DCLogic {
           const on = !!(s.prepOpen || {})[id];
           return {
             open:on,
+            jumpId: "sec:" + id,
             card: "background:var(--color-surface); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); transition:background .2s"
               + (on ? "; background:var(--color-accent-100)" : ""),
             caret: "flex:none; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; color:var(--color-accent-700); "
