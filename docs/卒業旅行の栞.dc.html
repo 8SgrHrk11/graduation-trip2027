@@ -21,6 +21,7 @@
   a:hover { color: var(--color-accent); }
   @keyframes floatUp { from { opacity:0; transform: translateY(14px); } to { opacity:1; transform:none; } }
   @keyframes drift { 0%,100% { transform: translate(0,0) } 50% { transform: translate(-14px,10px) } }
+  @keyframes nudge { 0%,100% { box-shadow: 0 0 0 0 rgba(87,117,14,.34) } 55% { box-shadow: 0 0 0 7px rgba(87,117,14,0) } }
   .om-hide-scroll::-webkit-scrollbar { display:none; }
   .om-page { overflow-x: clip !important; background: transparent !important; padding: 10px 10px 26px; align-items: flex-start; }
   .om-shell { background: #ffffff !important; border-radius: 26px;
@@ -77,15 +78,22 @@
 
   <header class="om-head" style="position:relative; padding:26px 20px 12px">
     <div style="font-family: var(--font-body); font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--color-accent-2-900); font-weight: 700">Graduation Trip · Europe</div>
-    <h1 style="font-size:31px; line-height:1.25; margin:8px 0 6px">ヨーロッパ<br>卒業旅行の栞</h1>
+    <h1 style="font-size: 31px; line-height: 1.25; margin: 8px 0 6px; font-family: Zen Maru Gothic">ヨーロッパ<br>卒業旅行の栞</h1>
     <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700)">
       <span>2027年 2/13 ~ 2/25</span><span>·</span><span>9人</span><span>·</span><span>10泊13日</span>
+    </div><div style="margin-top: 16px; display: flex; align-items: center; gap: 16px; border-radius: var(--radius-lg); padding: 14px 18px; box-shadow: var(--shadow-sm); background-color: {{ themeColor }}; transition: background-color .25s">
+      <div style="flex:none">
+        
+        <div style="font-family: var(--font-heading); font-size: 38px; line-height: 1.15; color: #201E1D; margin-top: 3px; white-space: nowrap; display: flex; align-items: baseline; gap: 8px">{{ todayShort }}<span style="font-size:16px">{{ todayDow }}</span></div>
+      </div>
+      <div style="flex:none; width:1px; align-self:stretch; background:rgba(32,30,29,.14)"></div>
+      <div style="flex:1; min-width:0; display:flex; align-items:baseline; gap:8px; font-family: var(--font-heading); font-size: 38px; line-height: 1.15; color: #201E1D">
+        <div>{{ countdown }}</div>
+        <span style="font-size:16px; white-space:pre-line">{{ countdownUnit }}</span>
+      </div>
     </div>
 
-    <div style="margin-top: 16px; display: flex; align-items: center; gap: 12px; border-radius: var(--radius-lg); padding: 14px 18px; box-shadow: var(--shadow-sm); background-color: {{ themeColor }}; transition: background-color .25s">
-      <div style="font-family: var(--font-heading); font-size: 38px; line-height: 1; color: #201E1D">{{ countdown }}</div>
-      <div style="font-family:var(--font-body); font-size:12px; line-height:1.4; color:var(--color-neutral-700); white-space:pre-line">{{ countdownUnit }}</div>
-    </div>
+    
   </header>
 
   <nav class="om-nav" style="position:sticky; top:0; z-index:9; background:var(--color-bg); padding:10px 0 10px; box-shadow:0 8px 12px -10px rgba(46,43,37,.35)">
@@ -172,7 +180,7 @@
 
     <sc-if value="{{ isBefore }}" hint-placeholder-val="{{ true }}">
       <div style="margin:18px 0 4px">
-        <div style="font-family: var(--font-body); font-size: 22px; letter-spacing: .18em; text-transform: uppercase; color: var(--color-neutral-900); font-weight: 700">{{ todayLabel }} · To Do List</div>
+        <div style="font-family: var(--font-body); font-size: 22px; letter-spacing: .18em; text-transform: uppercase; color: var(--color-neutral-900); font-weight: 700">To Do List</div>
         <div style="display:grid; gap:8px; margin-top:10px">
           <sc-for list="{{ todo }}" as="td2" hint-placeholder-count="3">
             <div onClick="{{ td2.go }}" style="cursor:pointer; background:var(--color-surface); border-radius:var(--radius-lg); padding:14px 16px; box-shadow:var(--shadow-sm)">
@@ -409,7 +417,10 @@
               </sc-if>
 
               <sc-if value="{{ th.showConfirm }}" hint-placeholder-val="{{ true }}">
-                <div style="margin-top:14px; border-radius:var(--radius-md); padding:13px 15px; background-color:#FFFFFF">
+                <div style="{{ th.confirmPanel }}">
+                  <sc-if value="{{ th.confirmNudge }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:#57750E; margin-bottom:7px">変更しない人は、チェック</div>
+                  </sc-if>
                   <div onClick="{{ th.confirmGo }}" style="{{ th.confirmRow }}">
                     <div style="{{ th.confirmBox }}">{{ th.confirmTick }}</div>
                     <div style="font-family:var(--font-body); font-size:13px; font-weight:700">これで投票を確定させます。</div>
@@ -481,28 +492,38 @@
     
     <div style="display:grid; gap:10px; margin-top:12px">
       <sc-for list="{{ results }}" as="rs" hint-placeholder-count="3">
-        <div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:16px; box-shadow:var(--shadow-sm)">
-          <div style="display:flex; align-items:center; gap:8px">
-            <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700; flex:1">{{ rs.label }}</div>
+        <div style="{{ rs.card }}">
+          <div onClick="{{ rs.go }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
+            <div style="{{ rs.caret }}">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+            <div style="flex:1; min-width:0">
+              <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700">{{ rs.label }}</div>
+              <div style="font-family:var(--font-body); font-size:12.5px; color:var(--color-neutral-700); margin-top:3px; text-wrap:pretty">{{ rs.result }}</div>
+            </div>
             <div style="{{ rs.statusStyle }}">{{ rs.status }}</div>
           </div>
-          <div style="display:flex; align-items:center; gap:10px; margin-top:10px">
-            <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-700); flex:none">投票期限</div>
-            <input type="date" class="input" value="{{ rs.deadline }}" onChange="{{ rs.onDeadline }}" style="flex: 1; min-width: 0; background-color: var(--color-neutral-100)">
-          </div>
-          <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-600); margin-top:8px">{{ rs.progress }} · {{ rs.missing }}</div>
-          <div style="display:grid; gap:10px; margin-top:12px">
-            <sc-for list="{{ rs.rows }}" as="rw" hint-placeholder-count="5">
-              <div>
-                <div style="display:flex; justify-content:space-between; gap:10px; align-items:baseline">
-                  <div style="font-family:var(--font-body); font-size:12.5px; font-weight:700">{{ rw.label }}</div>
-                  <div style="font-family:var(--font-heading); font-size:17px; color:var(--color-accent-700); flex:none">{{ rw.count }}</div>
-                </div>
-                <div style="{{ rw.bar }}"></div>
-                <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-700); margin-top:4px">{{ rw.detail }}</div>
+          <sc-if value="{{ rs.open }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:0 16px 16px; animation:floatUp .26s ease both">
+              <sc-if value="{{ rs.hasSub }}" hint-placeholder-val="{{ false }}">
+                <div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-600); margin-bottom:10px; text-wrap:pretty">{{ rs.sub }}</div>
+              </sc-if>
+              <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-700)">投票期限 {{ rs.deadline }}</div>
+              <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-600); margin-top:5px">{{ rs.progress }} · {{ rs.missing }}</div>
+              <div style="display:grid; gap:10px; margin-top:12px">
+                <sc-for list="{{ rs.rows }}" as="rw" hint-placeholder-count="5">
+                  <div>
+                    <div style="display:flex; justify-content:space-between; gap:10px; align-items:baseline">
+                      <div style="font-family:var(--font-body); font-size:12.5px; font-weight:700">{{ rw.label }}</div>
+                      <div style="font-family:var(--font-heading); font-size:17px; color:var(--color-accent-700); flex:none">{{ rw.count }}</div>
+                    </div>
+                    <div style="{{ rw.bar }}"></div>
+                    <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-700); margin-top:4px">{{ rw.detail }}</div>
+                  </div>
+                </sc-for>
               </div>
-            </sc-for>
-          </div>
+            </div>
+          </sc-if>
         </div>
       </sc-for>
     </div>
@@ -524,7 +545,7 @@
 
   <sc-if value="{{ isPlan }}" hint-placeholder-val="{{ true }}">
   <section style="animation:floatUp .45s ease both">
-    <h2 style="font-size:22px; margin:18px 0 4px">日程表（準備中）</h2>
+    <h2 style="font-size:22px; margin:18px 0 4px">日程表（全員自由記載）</h2>
     
     <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px">
       <sc-for list="{{ routeChips }}" as="r2" hint-placeholder-count="4">
@@ -610,6 +631,7 @@
       </div>
       <sc-if value="{{ sec.prep.open }}" hint-placeholder-val="{{ true }}">
         <div style="padding:0 16px 16px; animation:floatUp .28s ease both">
+          <div style="font-family:var(--font-body); font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; color:var(--color-accent-700); margin:0 0 8px">All（全員で共有）</div>
           <div style="display:grid; gap:8px">
             <sc-for list="{{ todos }}" as="td" hint-placeholder-count="6">
               <div style="{{ td.card }}">
@@ -643,10 +665,50 @@
           </div>
 
           <div style="display:flex; gap:7px; margin-top:14px">
-            <input class="input" placeholder="やることを追加" value="{{ newTodo }}" onChange="{{ onNewTodo }}" style="flex: 1; min-width: 0; font-size: 13px; background-color: #FFFFFF">
+            <input class="input" placeholder="やることを追加（備考は追加後に編集）" value="{{ newTodo }}" onChange="{{ onNewTodo }}" style="flex: 1; min-width: 0; font-size: 13px; background-color: #FFFFFF">
             <button type="button" class="btn btn-primary" onClick="{{ addTodo }}" style="flex: none; border-radius: 999px; font-family: var(--font-body); font-size: 12.5px; font-weight: 700; background-color: #FF82CF">追加</button>
           </div>
           <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); margin-top:8px; text-wrap:pretty">追加した項目は上のリストに並び、9人全員に共有されます。時期と備考は「編集」から書けます。</div>
+
+          <div style="font-family:var(--font-body); font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; color:var(--color-accent-700); margin:22px 0 8px">非公開（自分だけ）</div>
+          <sc-if value="{{ hasPrivTodos }}" hint-placeholder-val="{{ true }}">
+            <div style="display:grid; gap:8px">
+              <sc-for list="{{ privTodos }}" as="pv" hint-placeholder-count="2">
+                <div style="{{ pv.card }}">
+                  <div onClick="{{ pv.go }}" style="display:flex; gap:12px; align-items:flex-start; cursor:pointer">
+                    <div style="{{ pv.box }}">{{ pv.tick }}</div>
+                    <div style="flex:1">
+                      <div style="display:flex; gap:8px; align-items:baseline; flex-wrap:wrap">
+                        <div style="font-family:var(--font-body); font-size:14px; font-weight:700">{{ pv.title }}</div>
+                        <sc-if value="{{ pv.hasWhen }}" hint-placeholder-val="{{ false }}">
+                          <span style="font-family:var(--font-body); font-size:10.5px; font-weight:700; color:var(--color-accent-800); border-radius:999px; padding:2px 9px; background-color:var(--color-accent-200)">{{ pv.when }}</span>
+                        </sc-if>
+                      </div>
+                      <sc-if value="{{ pv.hasX }}" hint-placeholder-val="{{ false }}">
+                        <div style="font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700); margin-top:5px; text-wrap:pretty">{{ pv.x }}</div>
+                      </sc-if>
+                    </div>
+                    <button type="button" onClick="{{ pv.del }}" title="この項目を削除" style="flex:none; cursor:pointer; width:26px; height:26px; border-radius:999px; border:1px solid var(--color-divider); background:#ffffff; color:var(--color-neutral-600); font-family:var(--font-body); font-size:13px; line-height:1; display:grid; place-items:center">×</button>
+                  </div>
+                  <div style="display:flex; justify-content:flex-end; margin-top:8px">
+                    <button type="button" onClick="{{ pv.editGo }}" style="cursor:pointer; border:1px solid var(--color-divider); background:#ffffff; border-radius:999px; padding:5px 14px; font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--color-text)">{{ pv.editLabel }}</button>
+                  </div>
+                  <sc-if value="{{ pv.editing }}" hint-placeholder-val="{{ false }}">
+                    <div onClick="{{ pv.stop }}" style="margin-top:9px; background:var(--color-bg); border-radius:var(--radius-md); padding:12px 14px; display:grid; gap:7px; animation:floatUp .22s ease both; cursor:default">
+                      <input class="input" value="{{ pv.title }}" onChange="{{ pv.onTitle }}" placeholder="項目名" style="font-size:13px; background-color:#FFFFFF">
+                      <input class="input" value="{{ pv.when }}" onChange="{{ pv.onWhen }}" placeholder="時期（例：渡航1か月前）" style="font-size:12.5px; background-color:#FFFFFF">
+                      <textarea class="input" onChange="{{ pv.onX }}" placeholder="備考" value="{{ pv.x }}" style="min-height:64px; font-size:12.5px; background-color:#FFFFFF"></textarea>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <div style="display:flex; gap:7px; margin-top:10px">
+            <input class="input" placeholder="自分だけのやることを追加" value="{{ newPriv }}" onChange="{{ onNewPriv }}" style="flex:1; min-width:0; font-size:13px; background-color:#FFFFFF">
+            <button type="button" class="btn btn-primary" onClick="{{ addPriv }}" style="flex:none; border-radius:999px; font-family:var(--font-body); font-size:12.5px; font-weight:700; background-color:#FF82CF">追加</button>
+          </div>
+          <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); margin-top:8px; text-wrap:pretty">ここの項目は共有されず、この端末にだけ残ります。</div>
           <sc-if value="{{ undo.todo.has }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex; align-items:center; gap:8px; margin-top:10px">
               <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600)">削除した項目 {{ undo.todo.n }}</div>
@@ -1575,6 +1637,7 @@ const LINKS = [
 const DEFAULT_MEMBERS = ["堀木","橋口","坂本","長崎","木崎","村井","小野","田中","室谷"];
 const DEFAULT_DEADLINE = "2026-09-30";
 const DECIDED_ROUTE = "D";
+const VOTE_RESET = "2026-08-28a";
 
 const MARKS = [
   { v:2, label:"◎ 行きたい" },
@@ -1582,7 +1645,7 @@ const MARKS = [
   { v:0, label:"△ うーん" }
 ];
 
-const SHARED_KEYS = ["ballots","notes","deadlines","members","lineUrl","reads","meets","lodging","plans","hidden","booked","addBook","foodNotes","spotNotes","confirms","userLinks","themeAdds","themeEdits","themeDel","myTodos","todoEdits","bookEdits"];
+const SHARED_KEYS = ["ballots","notes","deadlines","members","lineUrl","reads","meets","lodging","plans","hidden","booked","addBook","foodNotes","spotNotes","confirms","userLinks","themeAdds","themeEdits","themeDel","myTodos","todoEdits","bookEdits","resetV"];
 const TRIP_YEAR = 2027;
 const TRIP_START = "2027-02-13";
 const TRIP_END = "2027-02-25";
@@ -1605,7 +1668,8 @@ class Component extends DCLogic {
             lineUrl:"", memos:[], draft:"", chat:[], chatDraft:"", sync:"off", reads:{}, identified:false,
             meets:{}, lodging:{}, plans:{}, editDay:"", hidden:{}, booked:{}, addBook:[], newBook:"",
             foodNotes:{}, foodOpen:{}, foodDraft:{}, spotNotes:{}, spotOpen:{}, spotDraft:{},
-            prepOpen:{}, myTodos:[], myPack:[], newTodo:"", newPack:"", todoEdits:{}, bookEdits:{}, prepEdit:{} };
+            prepOpen:{}, myTodos:[], myPack:[], newTodo:"", newPack:"", todoEdits:{}, bookEdits:{}, prepEdit:{},
+            privTodos:[], newPriv:"" };
 
   planKey(rid, d) { return rid + ":" + d.date; }
 
@@ -1758,7 +1822,8 @@ class Component extends DCLogic {
           meets:{}, lodging:{}, reads:{}, plans:{}, hidden:{}, booked:{}, addBook:[], foodNotes:{}, spotNotes:{},
           prepOpen:{}, myTodos:[], myPack:[], newTodo:"", newPack:"", confirms:{}, userLinks:{},
           linkDraftN:{}, linkDraftU:{}, chatBase:null, themeAdds:[], themeEdits:{}, themeDel:{},
-          newThemeLabel:"", newThemeSub:"", adminOpen:false, todoEdits:{}, bookEdits:{}, prepEdit:{} }, saved, { members:members, route:DECIDED_ROUTE, chatBase:null }));
+          newThemeLabel:"", newThemeSub:"", adminOpen:false, todoEdits:{}, bookEdits:{}, prepEdit:{},
+          privTodos:[], newPriv:"" }, saved, { members:members, route:DECIDED_ROUTE, chatBase:null }));
       }
     } catch (e) {}
     try { this.initSupabase(); } catch (e) {}
@@ -1783,7 +1848,7 @@ class Component extends DCLogic {
           confirms:s.confirms, userLinks:s.userLinks,
           themeAdds:s.themeAdds, themeEdits:s.themeEdits, themeDel:s.themeDel,
           prepOpen:s.prepOpen, myTodos:s.myTodos, myPack:s.myPack,
-          todoEdits:s.todoEdits, bookEdits:s.bookEdits
+          todoEdits:s.todoEdits, bookEdits:s.bookEdits, privTodos:s.privTodos, resetV:s.resetV
         }));
       } catch (e) {}
     });
@@ -1794,7 +1859,28 @@ class Component extends DCLogic {
     if (f && f.contentWindow) f.contentWindow.postMessage({ type:"setRoute", route:id }, "*");
   }
 
+  maybeResetVotes() {
+    if (this.state.resetV === VOTE_RESET) return;
+    if (this.state.sync === "connecting") return;
+    const openIds = this.themeList(true).filter(t => !this.isClosed(t.id)).map(t => t.id);
+    const strip = (src, isKeyed) => {
+      const out = {};
+      Object.keys(src || {}).forEach(n => {
+        const v = src[n] || {};
+        const keep = {};
+        Object.keys(v).forEach(k => {
+          const base = isKeyed ? k.split(":")[0] : k;
+          if (openIds.indexOf(base) < 0) keep[k] = v[k];
+        });
+        out[n] = keep;
+      });
+      return out;
+    };
+    this.save({ ballots:strip(this.state.ballots, true), confirms:strip(this.state.confirms, false), resetV:VOTE_RESET });
+  }
+
   componentDidUpdate() {
+    this.maybeResetVotes();
     this.postPicks();
     const n = this.myUnread();
     if (this.lastTitleN !== n) {
@@ -1845,9 +1931,9 @@ class Component extends DCLogic {
     this.save({ ballots:Object.assign({}, this.state.ballots, { [me]:mine }) });
   }
 
-  themeList() {
+  themeList(includeDeleted) {
     const s = this.state;
-    const del = s.themeDel || {};
+    const del = includeDeleted ? {} : (s.themeDel || {});
     const ed = s.themeEdits || {};
     const base = THEMES.filter(t => !del[t.id]).map(t => {
       const e = ed[t.id] || {};
@@ -1925,6 +2011,17 @@ class Component extends DCLogic {
     const todayIdx = route.days.findIndex(d => isoIn(d.tz) === dayIso(d));
     const today = todayIdx >= 0 ? dayIso(route.days[todayIdx]) : isoIn("Asia/Tokyo");
     const phase = todayIdx >= 0 ? "during" : (today < TRIP_START ? "before" : "after");
+    const activeTz = (todayIdx >= 0 && route.days[todayIdx] && route.days[todayIdx].tz) ? route.days[todayIdx].tz : "Asia/Tokyo";
+    const tzDate = (() => {
+      try {
+        const parts = new Intl.DateTimeFormat("ja-JP", { timeZone:activeTz, month:"numeric", day:"numeric", weekday:"short" }).formatToParts(new Date());
+        const g = k => (parts.find(p => p.type === k) || {}).value || "";
+        const w = g("weekday").replace(/曜日$/, "");
+        return { m:g("month").replace(/月$/, ""), d:g("day").replace(/日$/, ""), w:w };
+      } catch (e) {
+        return { m:String(now.getMonth()+1), d:String(now.getDate()), w:"日月火水木金土".charAt(now.getDay()) };
+      }
+    })();
     const ballots = roster.map(n => ({ n:n, v:(s.ballots || {})[n] || {} }));
     const mine = this.myVotes();
     const tallyFor = (t) => t.options.map(o => {
@@ -1942,15 +2039,21 @@ class Component extends DCLogic {
       const unanimous = this.allConfirmed(t.id);
       const decided = t.id === "route";
       const iConfirmed = !!this.confirmsOf(me)[t.id];
+      const votedMine = t.multi ? t.options.some(o => mine[t.id + ":" + o.id] === 1) : mine[t.id] !== undefined;
+      const nudge = votedMine && !iConfirmed && !dPassed;
       const cCount = this.confirmCount(t.id);
       const picked = t.options.filter(o => mine[t.id + ":" + o.id] === 1);
       return {
         closed:closed,
         showConfirm: !decided,
+        confirmNudge: nudge,
+        confirmPanel: "margin-top:14px; border-radius:var(--radius-md); padding:13px 15px; background-color:#FFFFFF; transition:border-color .2s; "
+          + (nudge ? "border:2px solid #57750E; animation:nudge 1.7s ease-in-out infinite" : "border:2px solid transparent"),
         confirmTick: iConfirmed ? "✓" : "",
         confirmRow: "display:flex; gap:10px; align-items:center; " + (dPassed ? "opacity:.45; cursor:not-allowed" : "cursor:pointer"),
         confirmBox: "flex:none; width:21px; height:21px; border-radius:6px; display:grid; place-items:center; font-size:13px; font-weight:700; "
           + (iConfirmed ? "background:var(--color-accent-2-600); color:#ffffff; border:1px solid transparent"
+                        : nudge ? "background:#ffffff; color:transparent; border:2px solid #57750E"
                         : "background:#ffffff; color:transparent; border:1.5px solid var(--color-neutral-400)"),
         confirmNote: unanimous
           ? (roster.length + "人全員が確定したため、この投票は締め切られました。チェックを外すと再開できます。")
@@ -2012,7 +2115,7 @@ class Component extends DCLogic {
       };
     });
 
-    const results = this.themeList().filter(t => this.isClosed(t.id)).map(t => {
+    const results = this.themeList(true).filter(t => this.isClosed(t.id)).map(t => {
       const closed = this.isClosed(t.id);
       const unan = this.allConfirmed(t.id);
       const hasVoted = b => t.multi
@@ -2030,9 +2133,23 @@ class Component extends DCLogic {
                  detail: names.length ? names.join("・") : "—" };
       });
       const max = Math.max(1, ...rows.map(r => r.raw));
+      const topN = Math.max(0, ...rows.map(r => r.raw));
+      const winners = rows.filter(r => r.raw > 0 && r.raw === topN);
+      const rOpen = !!(s.resultOpen || {})[t.id];
       const missing = ballots.filter(b => !hasVoted(b)).map(b => b.n);
       return {
         label:t.label,
+        sub: t.sub || "",
+        hasSub: !!String(t.sub || "").trim(),
+        result: winners.length ? winners.map(w => w.label).join(" / ") : "投票なし",
+        resultCount: winners.length ? (topN + "票" + (winners.length > 1 ? "（同票）" : "")) : "",
+        open: rOpen,
+        go: () => this.setState({ resultOpen:Object.assign({}, this.state.resultOpen || {}, { [t.id]: !rOpen }) }),
+        card: "border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); transition:background .2s; background:"
+          + (rOpen ? "var(--color-accent-100)" : "var(--color-surface)"),
+        caret: "flex:none; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; color:var(--color-accent-700); "
+          + "background:" + (rOpen ? "var(--color-accent-200)" : "transparent")
+          + "; transition:transform .22s ease, background .2s; transform:rotate(" + (rOpen ? "90deg" : "0deg") + ")",
         deadline:this.deadlineOf(t.id),
         onDeadline: e => this.save({ deadlines:Object.assign({}, this.state.deadlines, { [t.id]:e.target.value }) }),
         status: t.id === "route" ? "決定" : unan ? "投票終了" : closed ? "締切" : "受付中",
@@ -2099,7 +2216,9 @@ class Component extends DCLogic {
     const visPacking = PACKING.map(g => ({ g:g.g, items:g.items.filter(i => !hid["pack:" + i]) })).filter(g => g.items.length);
     const visBooking = BOOKING.filter(b => !hid["book:" + b.n]);
     const visMyTodos = (s.myTodos || []).filter(t => !hid["todo:" + t.id]);
-    const doneCount = visTodos.filter(t => s.done[t.id]).length + visMyTodos.filter(t => s.done[t.id]).length;
+    const privList = s.privTodos || [];
+    const doneCount = visTodos.filter(t => s.done[t.id]).length + visMyTodos.filter(t => s.done[t.id]).length
+      + privList.filter(t => s.done[t.id]).length;
     const packedCount = visPacking.reduce((a,g) => a + g.items.filter(i => s.packed[i]).length, 0)
       + (s.myPack || []).filter(p => s.packed[p.id]).length;
     const packTotal = visPacking.reduce((a,g) => a + g.items.length, 0) + (s.myPack || []).length;
@@ -2107,7 +2226,7 @@ class Component extends DCLogic {
     return {
       countdown: phase === "before" ? String(Math.max(1, Math.ceil((new Date("2027-02-13T10:05:00+09:00") - now) / 86400000)))
                 : phase === "during" ? String(todayIdx + 1) : "13",
-      countdownUnit: phase === "before" ? "日後に\n関空を出発" : phase === "during" ? "日目\n旅行中" : "日間の\n旅は終わりました",
+      countdownUnit: phase === "before" ? "日後\n" : phase === "during" ? "日目\n旅行中" : "日間の\n旅は終わりました",
       tabs: TABS.map(t => ({ label:t.label, style:pill(s.tab === t.id, t.btn || t.theme), go:() => this.save({ tab:t.id }),
         hasBadge: t.id === "talk" && this.myUnread() > 0,
         badge: String(this.myUnread()) })),
@@ -2165,7 +2284,9 @@ class Component extends DCLogic {
       isBefore: phase === "before",
       isDuring: phase === "during",
       isAfter: phase === "after",
-      todayLabel: (now.getMonth()+1) + "月" + now.getDate() + "日（" + "日月火水木金土".charAt(now.getDay()) + "）",
+      todayLabel: tzDate.m + "月" + tzDate.d + "日（" + tzDate.w + "）",
+      todayShort: tzDate.m + " / " + tzDate.d,
+      todayDow: tzDate.w + "曜日",
       todo: (() => {
         const out = [];
         THEMES.forEach(t => {
@@ -2441,7 +2562,44 @@ class Component extends DCLogic {
         };
       }),
 
-      prepDone: doneCount + " / " + (visTodos.length + visMyTodos.length) + " 完了",
+      prepDone: doneCount + " / " + (visTodos.length + visMyTodos.length + privList.length) + " 完了",
+      hasPrivTodos: privList.length > 0,
+      newPriv: s.newPriv || "",
+      onNewPriv: e => this.setState({ newPriv:e.target.value }),
+      addPriv: () => {
+        const t = (this.state.newPriv || "").trim();
+        if (!t) return;
+        this.save({ privTodos:(this.state.privTodos || []).concat({ id:"v" + Date.now(), title:t, when:"", x:"" }), newPriv:"" });
+      },
+      privTodos: privList.map(r => {
+        const on = !!s.done[r.id];
+        const setField = f => ev => {
+          const v = ev.target.value;
+          this.save({ privTodos:(this.state.privTodos || []).map(x => x.id === r.id ? Object.assign({}, x, { [f]:v }) : x) });
+        };
+        const eKey = "e:priv:" + r.id;
+        return {
+          title:r.title || "", when:r.when || "", x:r.x || "", tick: on ? "✓" : "",
+          hasWhen: !!String(r.when || "").trim(), hasX: !!String(r.x || "").trim(),
+          card: "border-radius:var(--radius-lg); padding:16px 18px; transition:all .2s; "
+            + (on ? "background:var(--color-accent-200); border:1.5px solid transparent; box-shadow:none"
+                  : "background:var(--color-surface); border:1.5px solid transparent; box-shadow:var(--shadow-sm)"),
+          box: "flex:none; width:24px; height:24px; border-radius:50%; display:grid; place-items:center; font-size:13px; font-weight:700; transition:all .2s; "
+            + (on ? "background:var(--color-accent-600); color:#ffffff; border:1px solid transparent; box-shadow:0 0 0 3px var(--color-accent-300)"
+                  : "background:#ffffff; color:transparent; border:1.5px solid var(--color-neutral-400)"),
+          go: () => this.save({ done:Object.assign({}, this.state.done, { [r.id]:!on }) }),
+          del: ev => { if (ev && ev.stopPropagation) ev.stopPropagation();
+            this.save({ privTodos:(this.state.privTodos || []).filter(x => x.id !== r.id) }); },
+          editing: !!(s.prepEdit || {})[eKey],
+          editLabel: (s.prepEdit || {})[eKey] ? "閉じる" : "編集",
+          editGo: ev => {
+            if (ev && ev.stopPropagation) ev.stopPropagation();
+            this.setState({ prepEdit:Object.assign({}, this.state.prepEdit || {}, { [eKey]: !(this.state.prepEdit || {})[eKey] }) });
+          },
+          stop: ev => { if (ev && ev.stopPropagation) ev.stopPropagation(); },
+          onTitle: setField("title"), onWhen: setField("when"), onX: setField("x")
+        };
+      }),
       sec: (() => {
         const mk = id => {
           const on = !!(s.prepOpen || {})[id];
