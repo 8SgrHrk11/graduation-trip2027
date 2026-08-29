@@ -265,6 +265,36 @@
       </sc-if>
     </div>
 
+    <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:14px; {{ notifCard }}">
+        <div onClick="{{ notifGo }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
+          <div style="{{ notifCaret }}">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </div>
+          <div style="flex:1; min-width:0">
+            <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700">通知の管理</div>
+            <div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-600); margin-top:2px; text-wrap:pretty">メンバーごとに通知のオンオフを切り替えます</div>
+          </div>
+          <div style="flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; background:var(--color-accent-2-300); color:var(--color-accent-2-900); border-radius:999px; padding:3px 10px; white-space:nowrap">{{ notifBadge }}</div>
+        </div>
+        <sc-if value="{{ notifOpen }}" hint-placeholder-val="{{ true }}">
+          <div style="padding:0 16px 16px; display:grid; gap:8px; animation:floatUp .28s ease both">
+            <div style="display:flex; gap:8px">
+              <button type="button" onClick="{{ notifAllOn }}" style="cursor:pointer; border:0; border-radius:999px; padding:7px 16px; background:var(--color-accent-2-600); color:#FFFFFF; font-family:var(--font-body); font-size:12px; font-weight:700">全員ON</button>
+              <button type="button" onClick="{{ notifAllOff }}" style="cursor:pointer; border:1px solid var(--color-neutral-300); border-radius:999px; padding:7px 16px; background:#FFFFFF; color:var(--color-neutral-700); font-family:var(--font-body); font-size:12px; font-weight:700">全員OFF</button>
+            </div>
+            <sc-for list="{{ notifRows }}" as="nr" hint-placeholder-count="9">
+              <div style="{{ nr.rowStyle }}">
+                <div style="flex:1; min-width:0; font-family:var(--font-body); font-size:13.5px; font-weight:700">{{ nr.name }}</div>
+                <button type="button" onClick="{{ nr.go }}" style="{{ nr.style }}">{{ nr.label }}</button>
+              </div>
+            </sc-for>
+            <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-accent-2-800); text-wrap:pretty">OFFにした人の端末では、チャットの新着通知と確認リストの期限通知が届かなくなります。初期状態は全員ONです。</div>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
     <div style="margin-top:14px; {{ ansCard }}">
       <div onClick="{{ ansGo }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
         <div style="{{ ansCaret }}">
@@ -361,7 +391,7 @@
   <section style="animation:floatUp .45s ease both; display:flex; flex-direction:column">
     <div style="order:2">
     <h2 style="font-size:22px; margin:18px 0 4px">検討・投票</h2>
-    <p style="font-family:var(--font-body); font-size:14px; color:var(--color-neutral-700); text-wrap:pretty">いずれかの案が過半数に達した時点で、その案を投票結果として自動的に終了します。9人全員が「確定」をチェックした場合も同様です。</p>
+    <p style="font-family:var(--font-body); font-size:14px; color:var(--color-neutral-700); text-wrap:pretty">9人全員が「確定」をチェックすれば終了します。</p>
     </div>
 
     <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
@@ -389,6 +419,14 @@
                   <div style="flex:none; font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-700)">投票期限</div>
                   <input type="datetime-local" class="input" value="{{ at.deadline }}" onChange="{{ at.onDeadline }}" style="flex: 1; min-width: 0; font-size: 12.5px; background-color: #FFFFFF">
                 </div>
+                <div style="display:grid; gap:6px">
+                  <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--color-accent-2-800)">選ぶ個数（1つ＝過半数で自動終了）</div>
+                  <div style="display:flex; gap:6px; flex-wrap:wrap">
+                    <sc-for list="{{ at.pickChips }}" as="pc" hint-placeholder-count="3">
+                      <button type="button" onClick="{{ pc.go }}" style="{{ pc.style }}">{{ pc.label }}</button>
+                    </sc-for>
+                  </div>
+                </div>
                 <sc-if value="{{ at.canEditOpts }}" hint-placeholder-val="{{ true }}">
                   <div style="display:grid; gap:6px">
                   <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--color-accent-2-800)">選択肢</div>
@@ -401,7 +439,10 @@
                     <button type="button" onClick="{{ at.addOpt }}" style="justify-self:start; cursor:pointer; background:transparent; border:0; color:var(--color-accent-2-800); font-family:var(--font-body); font-size:11.5px; font-weight:700">＋ 選択肢を追加</button>
                   </div>
                 </sc-if>
-                <button type="button" onClick="{{ at.del }}" style="justify-self:start; cursor:pointer; background:transparent; border:0; color:var(--color-accent-2-800); font-family:var(--font-body); font-size:11.5px; font-weight:700">このテーマを削除</button>
+                <div style="display:flex; gap:14px; align-items:center; flex-wrap:wrap">
+                  <button type="button" onClick="{{ at.clearVotes }}" style="cursor:pointer; background:transparent; border:0; padding:0; color:var(--color-accent-700); font-family:var(--font-body); font-size:11.5px; font-weight:700">投票結果を消去</button>
+                  <button type="button" onClick="{{ at.del }}" style="cursor:pointer; background:transparent; border:0; padding:0; color:var(--color-accent-2-800); font-family:var(--font-body); font-size:11.5px; font-weight:700">このテーマを削除</button>
+                </div>
               </div>
             </sc-for>
             <div style="background:rgba(255,255,255,.72); border-radius:var(--radius-md); padding:13px 14px; display:grid; gap:7px; border:1px dashed var(--color-accent-2-400)">
@@ -411,7 +452,13 @@
                 <input class="input" placeholder="説明（任意）" value="{{ newThemeSub }}" onChange="{{ onNewThemeSub }}" style="flex: 1; min-width: 0; font-size: 12.5px; background-color: #FFFFFF">
                 <button type="button" onClick="{{ addTheme }}" style="flex:none; cursor:pointer; border:0; border-radius:999px; padding:9px 18px; background:var(--color-accent-2-600); color:#FFFFFF; font-family:var(--font-body); font-size:12.5px; font-weight:700">追加</button>
               </div>
-              <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-accent-2-800); text-wrap:pretty">追加したテーマは案A・案Bの2選択で作られます。選択肢はあとから変えられます。</div>
+              <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--color-accent-2-800); margin-top:2px">選ぶ個数</div>
+              <div style="display:flex; gap:6px; flex-wrap:wrap">
+                <sc-for list="{{ newThemePickChips }}" as="np" hint-placeholder-count="3">
+                  <button type="button" onClick="{{ np.go }}" style="{{ np.style }}">{{ np.label }}</button>
+                </sc-for>
+              </div>
+              <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-accent-2-800); text-wrap:pretty">追加したテーマは2つの選択肢で作られます。選択肢はあとから変えられます。</div>
             </div>
           </div>
         </sc-if>
@@ -445,6 +492,7 @@
                     <iframe src="uk-map.html" title="本拠地マップ" style="{{ mapStyle }}" ref="{{ th.ukRef }}"></iframe>
                   </div>
                 </sc-if>
+                <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--color-accent-2-800); margin-bottom:7px">{{ th.pickLimitLabel }}</div>
                 <div style="display:grid; gap:6px">
                   <sc-for list="{{ th.picks }}" as="pk" hint-placeholder-count="11">
                     <div onClick="{{ pk.go }}" style="{{ pk.card }}">
@@ -572,6 +620,9 @@
                   </div>
                 </sc-for>
               </div>
+              <sc-if value="{{ rs.canDel }}" hint-placeholder-val="{{ false }}">
+                <button type="button" onClick="{{ rs.del }}" style="margin-top:14px; justify-self:start; cursor:pointer; background:transparent; border:0; padding:0; color:var(--color-accent-700); font-family:var(--font-body); font-size:11.5px; font-weight:700">このテーマを削除（管理者）</button>
+              </sc-if>
             </div>
           </sc-if>
         </div>
@@ -1680,7 +1731,7 @@ const MARKS = [
   { v:0, label:"△ うーん" }
 ];
 
-const SHARED_KEYS = ["ballots","notes","deadlines","members","lineUrl","reads","meets","lodging","plans","hidden","booked","addBook","foodNotes","spotNotes","confirms","userLinks","themeAdds","themeEdits","themeDel","myTodos","todoEdits","bookEdits","resetV","todoWho"];
+const SHARED_KEYS = ["ballots","notes","deadlines","members","lineUrl","reads","meets","lodging","plans","hidden","booked","addBook","foodNotes","spotNotes","confirms","userLinks","themeAdds","themeEdits","themeDel","myTodos","todoEdits","bookEdits","resetV","todoWho","notifyOff"];
 const TRIP_YEAR = 2027;
 const TRIP_START = "2027-02-13";
 const TRIP_END = "2027-02-25";
@@ -1753,8 +1804,14 @@ class Component extends DCLogic {
     } catch (e) {}
   }
 
+  notifyAllowed() {
+    const me = this.activeMe();
+    return !me || !((this.state.notifyOff || {})[me]);
+  }
+
   onNewMessage(m) {
     if (!m || m.who === this.activeMe()) return;
+    if (!this.notifyAllowed()) return;
     this.playPing();
     const away = (typeof document !== "undefined" && document.hidden) || this.state.tab !== "talk";
     if (!away) return;
@@ -1858,6 +1915,7 @@ class Component extends DCLogic {
 
   notifyDue() {
     if (typeof Notification === "undefined" || Notification.permission !== "granted") return;
+    if (!this.notifyAllowed()) return;
     const seen = this.state.notifiedDue || {};
     const next = Object.assign({}, seen);
     let n = 0, first = null;
@@ -1882,9 +1940,15 @@ class Component extends DCLogic {
       if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
       const t = ev.target;
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
-      if (ev.key === "ArrowRight") { ev.preventDefault(); this.shiftTab(1); }
-      else if (ev.key === "ArrowLeft") { ev.preventDefault(); this.shiftTab(-1); }
-      else if (ev.key === "Tab") { ev.preventDefault(); this.shiftTab(ev.shiftKey ? -1 : 1); }
+      const nav = d => {
+        ev.preventDefault();
+        // 直前にクリックしたボタンにフォーカスリングが出るのを防ぐ
+        try { const a = document.activeElement; if (a && a.blur) a.blur(); } catch (e) {}
+        this.shiftTab(d);
+      };
+      if (ev.key === "ArrowRight") nav(1);
+      else if (ev.key === "ArrowLeft") nav(-1);
+      else if (ev.key === "Tab") nav(ev.shiftKey ? -1 : 1);
     };
     window.addEventListener("keydown", this.onKey);
     this.onScroll = () => {
@@ -1930,6 +1994,15 @@ class Component extends DCLogic {
       patch = Object.assign({ openDays:{}, prepOpen:{}, foodOpen:{}, spotOpen:{}, adminOpen:false,
                               resultOpen:{}, prepEdit:{}, linkEdit:{}, theme:null, editDay:"" }, patch);
       this.wantTop = true;
+      if (patch.tab === "route") {
+        const pid = this.pendingConfirm || this.pendingThemeId();
+        this.pendingConfirm = null;
+        if (pid && !this.confirmsOf(this.activeMe())[pid]) {
+          patch = Object.assign({}, patch, { theme:pid });
+          this.wantTop = false;
+          this.wantConfirm = true;
+        }
+      }
       this.preSlide(patch.tab);
       const later = patch;
       let done = false;
@@ -2032,6 +2105,17 @@ class Component extends DCLogic {
       if (p < 1) requestAnimationFrame(step); else sc.scrollTop = target;
     };
     requestAnimationFrame(step);
+  }
+
+  // 対象を画面中央に配置してスクロール
+  centerOn(el) {
+    const sc = this.scroller;
+    if (!sc || !el) return;
+    const vh = sc.clientHeight || 0;
+    const eh = (el.getBoundingClientRect && el.getBoundingClientRect().height) || el.offsetHeight || 0;
+    const max = Math.max(0, (sc.scrollHeight || 0) - vh);
+    const top = Math.min(max, Math.max(0, this.offsetIn(el) - Math.max(12, (vh - eh) / 2)));
+    this.smoothTo(top);
   }
 
   offsetIn(el) {
@@ -2282,7 +2366,7 @@ class Component extends DCLogic {
           try { el = document.querySelector('[data-jump="' + key + '"]'); } catch (e) {}
           if (el) {
             try {
-              this.smoothTo(this.offsetIn(el) - 12);
+              this.centerOn(el);
             } catch (e) {}
             try {
               if (el.animate) el.animate(
@@ -2302,7 +2386,7 @@ class Component extends DCLogic {
     if (this.wantConfirm && this.confirmEl) {
       this.wantConfirm = false;
       try {
-        this.smoothTo(this.offsetIn(this.confirmEl) - 40);
+        this.centerOn(this.confirmEl);
       } catch (e) {}
     }
     this.maybeResetVotes();
@@ -2352,7 +2436,13 @@ class Component extends DCLogic {
     const me = this.activeMe();
     if (!me) return;
     const mine = Object.assign({}, this.myVotes());
-    if (val === null) { delete mine[key]; } else { mine[key] = val; this.wantConfirm = true; }
+    if (val === null) { delete mine[key]; }
+    else {
+      mine[key] = val;
+      // 複数選択（key に ":" を含む）は選ぶたびに飛ばさず、次に「検討・投票」を開いたときに移動する
+      this.pendingConfirm = key.indexOf(":") >= 0 ? key.split(":")[0] : key;
+      if (key.indexOf(":") < 0) this.wantConfirm = true;
+    }
     this.save({ ballots:Object.assign({}, this.state.ballots, { [me]:mine }) });
   }
 
@@ -2360,19 +2450,25 @@ class Component extends DCLogic {
     const s = this.state;
     const del = includeDeleted ? {} : (s.themeDel || {});
     const ed = s.themeEdits || {};
+    // pick: 1 = 単一選択（過半数で自動終了）／数値 = その個数まで／"all" = いくつでも
+    const norm = t => {
+      const p = (t.pick === "all" || (typeof t.pick === "number" && t.pick >= 1)) ? t.pick : (t.multi ? "all" : 1);
+      return Object.assign({}, t, { pick:p, multi:p !== 1 });
+    };
     const base = THEMES.filter(t => !del[t.id]).map(t => {
       const e = ed[t.id] || {};
-      return Object.assign({}, t, {
+      return norm(Object.assign({}, t, {
         label: e.label !== undefined ? e.label : t.label,
         sub: e.sub !== undefined ? e.sub : t.sub,
+        pick: e.pick !== undefined ? e.pick : t.pick,
         options: (e.options && e.options.length)
           ? e.options.map(o => Object.assign({}, (t.options.find(x => x.id === o.id) || {}), o))
           : t.options
-      });
+      }));
     });
-    const adds = (s.themeAdds || []).filter(t => !del[t.id]).map(t => Object.assign({}, t, {
+    const adds = (s.themeAdds || []).filter(t => !del[t.id]).map(t => norm(Object.assign({}, t, {
       options: (t.options && t.options.length) ? t.options : [{ id:"A", name:"賛成" }, { id:"B", name:"反対" }]
-    }));
+    })));
     return base.concat(adds);
   }
 
@@ -2414,6 +2510,19 @@ class Component extends DCLogic {
   }
 
   confirmsOf(n) { return (this.state.confirms || {})[n] || {}; }
+
+  // 投票済みだが未確定のテーマ（複数選択・単一選択の両方）— 検討・投票を開いたときに自動で開く対象
+  pendingThemeId() {
+    const me = this.activeMe();
+    if (!me) return null;
+    const mine = this.myVotes();
+    const conf = this.confirmsOf(me);
+    const hit = this.themeList().find(t => {
+      if (t.id === "route" || this.isClosed(t.id) || this.deadlinePassed(t.id) || conf[t.id]) return false;
+      return t.multi ? t.options.some(o => mine[t.id + ":" + o.id] === 1) : mine[t.id] !== undefined;
+    });
+    return hit ? hit.id : null;
+  }
 
   confirmCount(id) { return this.roster().filter(n => this.confirmsOf(n)[id]).length; }
 
@@ -2554,7 +2663,9 @@ class Component extends DCLogic {
                         : "background:#ffffff; color:transparent; border:1.5px solid var(--color-neutral-400)"),
         confirmNote: unanimous
           ? (roster.length + "人全員が確定したため、この投票は締め切られました。チェックを外すと再開できます。")
-          : ("確定 " + cCount + " / " + roster.length + "人。いずれかの案が過半数（" + (Math.floor(roster.length / 2) + 1) + "票）に達するか、全員が確定すると自動で締め切られます。迷っているうちはチェックを外したままにしてください。"),
+          : t.multi
+            ? ("確定 " + cCount + " / " + roster.length + "人。複数選択のテーマでは過半数による自動終了はありません。期限を過ぎるか、全員が確定すると締め切られます。迷っているうちはチェックを外したままにしてください。")
+            : ("確定 " + cCount + " / " + roster.length + "人。いずれかの案が過半数（" + (Math.floor(roster.length / 2) + 1) + "票）に達するか、全員が確定すると自動で締め切られます。迷っているうちはチェックを外したままにしてください。"),
         confirmGo: () => { if (!dPassed) this.toggleConfirm(t.id); },
         deadlineLabel: decided ? ("案" + DECIDED_ROUTE + " に決定しました")
           : unanimous ? (roster.length + "人全員の確定により投票終了")
@@ -2566,24 +2677,28 @@ class Component extends DCLogic {
         label:t.label, sub:t.sub, open:open, showMap: open && !!t.map,
         jumpId: "theme:" + t.id,
         isSingle: !t.multi, isMulti: !!t.multi, showUk: open && !!t.ukmap,
+        pickLimitLabel: t.pick === "all" ? "いくつでも選べます" : ("最大 " + t.pick + " つまで選べます（現在 " + picked.length + " つ）"),
         picks: t.options.map(o => {
           const on = mine[t.id + ":" + o.id] === 1;
+          const full = t.pick !== "all" && !on && picked.length >= t.pick;
           return {
-            label: CIRC[Number(o.id)] + "  " + o.name,
-            sub: o.city + " · " + o.venue,
+            label: (CIRC[Number(o.id)] || "・") + "  " + o.name,
+            sub: o.city ? (o.city + " · " + o.venue) : (o.tagline || ""),
+            full: full,
             tick: on ? "✓" : "",
-            card: "cursor:pointer; display:flex; gap:11px; align-items:flex-start; border-radius:var(--radius-md); padding:11px 13px; transition:background .2s; background:"
-              + (on ? "var(--color-accent-2-200)" : "var(--color-bg)"),
+            card: "display:flex; gap:11px; align-items:flex-start; border-radius:var(--radius-md); padding:11px 13px; transition:background .2s; background:"
+              + (on ? "var(--color-accent-2-200)" : "var(--color-bg)")
+              + (full ? "; cursor:not-allowed; opacity:.5" : "; cursor:pointer"),
             box: "flex:none; width:21px; height:21px; border-radius:50%; display:grid; place-items:center; font-size:12px; font-weight:700; "
               + (on ? "background:var(--color-accent-2-600); color:var(--color-bg); border:1px solid transparent"
                     : "background:transparent; color:transparent; border:1.5px solid var(--color-neutral-400)"),
-            go: () => { if (!closed) this.setVote(t.id + ":" + o.id, on ? null : 1); }
+            go: () => { if (!closed && !full) this.setVote(t.id + ":" + o.id, on ? null : 1); }
           };
         }),
         multiTally: t.options.map(o => {
           const key = t.id + ":" + o.id;
           const names = ballots.filter(b => b.v && b.v[key] === 1).map(b => b.n);
-          return { label: CIRC[Number(o.id)] + "  " + o.name, count: names.length, detail: names.length ? names.join("・") : "—" };
+          return { label: (CIRC[Number(o.id)] || "・") + "  " + o.name, count: names.length, detail: names.length ? names.join("・") : "—" };
         }),
         ukRef: el => { this.ukEl = el; if (el) el.addEventListener("load", () => this.postPicks()); },
         badge: t.multi ? (picked.length + "件") : ("案" + selId),
@@ -2617,7 +2732,7 @@ class Component extends DCLogic {
       };
     });
 
-    const results = this.themeList(true).filter(t => this.isClosed(t.id)).map(t => {
+    const results = this.themeList().filter(t => this.isClosed(t.id)).map(t => {
       const closed = this.isClosed(t.id);
       const unan = this.allConfirmed(t.id);
       const maj = this.majorityOf(t.id);
@@ -2628,7 +2743,7 @@ class Component extends DCLogic {
         const key = t.id + ":" + o.id;
         if (t.multi) {
           const names = ballots.filter(b => b.v[key] === 1).map(b => b.n);
-          return { label: CIRC[Number(o.id)] + "  " + o.name, count:names.length, raw:names.length,
+          return { label: (CIRC[Number(o.id)] || "・") + "  " + o.name, count:names.length, raw:names.length,
                    detail: names.length ? names.join("・") : "—" };
         }
         const names = ballots.filter(b => b.v[t.id] === o.id).map(b => b.n);
@@ -2647,6 +2762,12 @@ class Component extends DCLogic {
         result: winners.length ? winners.map(w => w.label).join(" / ") : "投票なし",
         resultCount: winners.length ? (topN + "票" + (winners.length > 1 ? "（同票）" : maj ? "（過半数）" : "")) : "",
         open: rOpen,
+        canDel: me === "堀木" && t.id !== "route",
+        del: () => {
+          if (typeof window !== "undefined" && window.confirm
+              && !window.confirm("「" + t.label + "」を削除します。投票結果も表示されなくなります。よろしいですか？")) return;
+          this.save({ themeDel:Object.assign({}, this.state.themeDel || {}, { [t.id]:true }) });
+        },
         go: () => this.setState({ resultOpen:Object.assign({}, this.state.resultOpen || {}, { [t.id]: !rOpen }) }),
         card: "border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); transition:background .2s; background:"
           + (rOpen ? "var(--color-accent-100)" : "var(--color-surface)"),
@@ -2689,7 +2810,41 @@ class Component extends DCLogic {
       deadline: this.deadlineLocal(t.id),
       onDeadline: e => this.save({ deadlines:Object.assign({}, this.state.deadlines, { [t.id]:e.target.value }) }),
       del: () => this.save({ themeDel:Object.assign({}, this.state.themeDel || {}, { [t.id]:true }) }),
-      canEditOpts: !t.multi,
+      clearVotes: () => {
+        if (typeof window !== "undefined" && window.confirm
+            && !window.confirm("「" + t.label + "」の投票結果をすべて消去します。よろしいですか？")) return;
+        const src = this.state.ballots || {};
+        const next = {};
+        Object.keys(src).forEach(n => {
+          const mine = {};
+          Object.keys(src[n] || {}).forEach(k => {
+            if (k === t.id || k.indexOf(t.id + ":") === 0) return;
+            mine[k] = src[n][k];
+          });
+          next[n] = mine;
+        });
+        this.save({ ballots:next });
+      },
+      pickLabel: t.pick === "all" ? "すべて" : (t.pick + "つ"),
+      pickChips: (() => {
+        const n = (t.options || []).length;
+        const arr = [];
+        for (let i = 1; i <= n; i++) arr.push(i);
+        return arr.map(v => ({
+          label: v + "つ",
+          style: "cursor:pointer; border-radius:999px; padding:5px 13px; font-family:var(--font-body); font-size:11.5px; font-weight:700; border:1px solid var(--color-divider); "
+            + (t.pick === v ? "background:var(--color-accent-2-600); color:#ffffff; border-color:var(--color-accent-2-600)"
+                            : "background:#ffffff; color:var(--color-text)"),
+          go: () => patchTheme(t.id, { pick:v })
+        })).concat([{
+          label: "すべて",
+          style: "cursor:pointer; border-radius:999px; padding:5px 13px; font-family:var(--font-body); font-size:11.5px; font-weight:700; border:1px solid var(--color-divider); "
+            + (t.pick === "all" ? "background:var(--color-accent-2-600); color:#ffffff; border-color:var(--color-accent-2-600)"
+                                : "background:#ffffff; color:var(--color-text)"),
+          go: () => patchTheme(t.id, { pick:"all" })
+        }]);
+      })(),
+      canEditOpts: !t.ukmap,
       opts: optsOf(t).map((o, i) => ({
         name: o.name,
         onName: e => { const arr = optsOf(t); arr[i] = { id:o.id, name:e.target.value }; patchTheme(t.id, { options:arr }); },
@@ -2697,9 +2852,13 @@ class Component extends DCLogic {
       })),
       addOpt: () => {
         const arr = optsOf(t);
-        const used = arr.map(o => o.id);
+        const used = arr.map(o => String(o.id));
         let nid = "";
-        for (let i = 0; i < NEXTID.length; i++) { if (used.indexOf(NEXTID[i]) < 0) { nid = NEXTID[i]; break; } }
+        if (t.multi) {
+          for (let i = 1; i <= 10; i++) { if (used.indexOf(String(i)) < 0) { nid = String(i); break; } }
+        } else {
+          for (let i = 0; i < NEXTID.length; i++) { if (used.indexOf(NEXTID[i]) < 0) { nid = NEXTID[i]; break; } }
+        }
         if (!nid) return;
         arr.push({ id:nid, name:"新しい選択肢" });
         patchTheme(t.id, { options:arr });
@@ -2936,6 +3095,37 @@ class Component extends DCLogic {
         };
       }),
       whoAmI: me || "未設定",
+      notifOpen: s.notifOpen === true,
+      notifGo: () => this.setState({ notifOpen: !s.notifOpen }),
+      notifCard: "border-radius:var(--radius-lg); background:var(--color-accent-2-100); border:1.5px dashed var(--color-accent-2-400); box-shadow:none; transition:background .2s"
+        + (s.notifOpen ? "; background:var(--color-accent-2-200)" : ""),
+      notifCaret: "flex:none; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; color:var(--color-accent-2-800); "
+        + "background:" + (s.notifOpen ? "var(--color-accent-2-300)" : "transparent")
+        + "; transition:transform .22s ease, background .2s; transform:rotate(" + (s.notifOpen ? "90deg" : "0deg") + ")",
+      notifBadge: (roster.length - roster.filter(n => (s.notifyOff || {})[n]).length) + " / " + roster.length + " ON",
+      notifRows: roster.map(n => {
+        const on = !((s.notifyOff || {})[n]);
+        return {
+          name: n,
+          label: on ? "ON" : "OFF",
+          go: () => {
+            const cur = Object.assign({}, this.state.notifyOff || {});
+            if (cur[n]) delete cur[n]; else cur[n] = true;
+            this.save({ notifyOff:cur });
+          },
+          style: "flex:none; cursor:pointer; border:1px solid transparent; border-radius:999px; padding:5px 15px; font-family:var(--font-body); font-size:11.5px; font-weight:700; transition:all .18s; "
+            + (on ? "background:var(--color-accent-2-600); color:#ffffff"
+                  : "background:#ffffff; color:var(--color-neutral-700); border-color:var(--color-neutral-300)"),
+          rowStyle: "display:flex; align-items:center; gap:10px; background:rgba(255,255,255,.72); border-radius:var(--radius-md); padding:9px 13px"
+            + (on ? "" : "; opacity:.72")
+        };
+      }),
+      notifAllOn: () => this.save({ notifyOff:{} }),
+      notifAllOff: () => {
+        const cur = {};
+        roster.forEach(n => { cur[n] = true; });
+        this.save({ notifyOff:cur });
+      },
       ansOpen: s.ansOpen === true,
       ansGo: () => this.setState({ ansOpen: !s.ansOpen }),
       ansCard: "border-radius:var(--radius-lg); background:var(--color-surface); box-shadow:var(--shadow-sm); transition:background .2s"
@@ -3273,14 +3463,26 @@ class Component extends DCLogic {
       newThemeSub: s.newThemeSub || "",
       onNewThemeLabel: e => this.setState({ newThemeLabel:e.target.value }),
       onNewThemeSub: e => this.setState({ newThemeSub:e.target.value }),
+      newThemePickChips: [1, 2, "all"].map(v => ({
+        label: v === "all" ? "すべて" : (v + "つ"),
+        style: "cursor:pointer; border-radius:999px; padding:5px 13px; font-family:var(--font-body); font-size:11.5px; font-weight:700; border:1px solid var(--color-divider); "
+          + (((s.newThemePick === undefined ? 1 : s.newThemePick) === v)
+              ? "background:var(--color-accent-2-600); color:#ffffff; border-color:var(--color-accent-2-600)"
+              : "background:#ffffff; color:var(--color-text)"),
+        go: () => this.setState({ newThemePick:v })
+      })),
       addTheme: () => {
         const label = (this.state.newThemeLabel || "").trim();
         if (!label) return;
+        const pick = this.state.newThemePick === undefined ? 1 : this.state.newThemePick;
+        const multi = pick !== 1;
         this.save({ themeAdds:(this.state.themeAdds || []).concat({
           id:"c" + Date.now(), label:label, sub:(this.state.newThemeSub || "").trim(),
-          options:[{ id:"A", name:"案A" }, { id:"B", name:"案B" }]
+          pick:pick, multi:multi,
+          options: multi ? [{ id:"1", name:"選択肢1" }, { id:"2", name:"選択肢2" }]
+                         : [{ id:"A", name:"案A" }, { id:"B", name:"案B" }]
         }) });
-        this.setState({ newThemeLabel:"", newThemeSub:"" });
+        this.setState({ newThemeLabel:"", newThemeSub:"", newThemePick:1 });
       },
       roles: ROLES, meals: MEALS, emergency: EMERGENCY,
       decidedRoute: "案" + DECIDED_ROUTE + "　" + ((ROUTES.find(r => r.id === DECIDED_ROUTE) || {}).name || ""),
