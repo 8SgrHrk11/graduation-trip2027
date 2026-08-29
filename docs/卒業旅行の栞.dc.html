@@ -49,33 +49,43 @@
     .om-main { padding: 8px 40px 0 !important; }
     .om-foot { padding: 28px 40px 40px !important; }
   }
+  /* 背景写真（スマホは縦位置のまま、PCは中央の帯を使う） */
+  .om-bg { background-color: #EFE7DB;
+    background-image: linear-gradient(rgba(252,249,245,.42), rgba(252,249,245,.42)), var(--bg-photo, url("bg-1.png"));
+    background-size: auto, cover;
+    background-position: center, center 12%;
+    background-repeat: no-repeat, no-repeat; }
+  @media (min-width: 780px) {
+    .om-bg { background-size: auto, 100% auto; background-position: center, center 42%; }
+  }
 </style>
 </helmet>
 
 <sc-if value="{{ needsId }}" hint-placeholder-val="{{ true }}">
-<div style="position: fixed; inset: 0; z-index: 99; display: flex; align-items: center; justify-content: center; padding: 24px; overflow-y: auto; background-color: var(--color-neutral-200)">
-  <div style="width:100%; max-width:380px">
-    <div style="font-family:var(--font-body); font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--color-accent-700); font-weight:700">Graduation Trip · Europe</div>
-    <h1 style="font-size:27px; line-height:1.3; margin:8px 0 6px">ヨーロッパ<br>卒業旅行の栞</h1>
-    <p style="font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700); margin:0 0 20px; text-wrap:pretty">端末ごとに、次回ログイン以降、個人を識別します。</p>
+<div style="position: fixed; inset: 0; z-index: 99; display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; background-color: #FCFAF6; background-image: radial-gradient(circle at 18% 8%, rgba(255,255,255,.95) 0, rgba(255,255,255,0) 48%), radial-gradient(circle at 88% 96%, rgba(122,138,94,.09) 0, rgba(122,138,94,0) 42%), repeating-linear-gradient(45deg, rgba(198,113,57,.05) 0 1px, rgba(198,113,57,0) 1px 22px), repeating-linear-gradient(-45deg, rgba(198,113,57,.05) 0 1px, rgba(198,113,57,0) 1px 22px)">
+  <div style="width:100%; max-width:400px; position:relative; border-radius:var(--radius-lg); padding:26px 22px 24px; background:rgba(255,255,255,.86); border:1px solid rgba(198,113,57,.22); box-shadow:var(--shadow-sm)">
+    <div style="position:absolute; inset:7px; border-radius:calc(var(--radius-lg) - 5px); border:1px solid rgba(198,113,57,.16); pointer-events:none"></div>
+    <div style="display:flex; align-items:center; gap:9px">
+      <div style="flex:none; width:26px; height:1px; background:var(--color-accent-600)"></div>
+      <div style="font-family:var(--font-body); font-size:10.5px; letter-spacing:.24em; text-transform:uppercase; color:var(--color-accent-700); font-weight:700">Graduation Trip · Europe</div>
+    </div>
+    <h1 style="font-size:28px; line-height:1.28; margin:10px 0 6px">ヨーロッパ<br>卒業旅行の栞</h1>
+    <p style="font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700); margin:0 0 6px; text-wrap:pretty">端末ごとに、次回ログイン以降、個人を識別します。</p>
+    <div style="display:flex; align-items:center; gap:10px; margin:16px 0 14px">
+      <div style="flex:1; height:1px; background:rgba(198,113,57,.22)"></div>
+      <div style="flex:none; width:5px; height:5px; border-radius:50%; background:var(--color-accent-2-500)"></div>
+      <div style="flex:1; height:1px; background:rgba(198,113,57,.22)"></div>
+    </div>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:9px">
       <sc-for list="{{ idChips }}" as="ic" hint-placeholder-count="9">
-        <button type="button" onClick="{{ ic.go }}" style="{{ ic.style }}">{{ ic.label }}</button>
+        <button type="button" onClick="{{ ic.go }}" style="{{ ic.style }}" style-hover="{{ ic.styleHover }}">{{ ic.label }}</button>
       </sc-for>
     </div>
   </div>
 </div>
 </sc-if>
 
-<div style="position:fixed; inset:0; z-index:0; pointer-events:none; background:
-  radial-gradient(circle at 50% 42%, rgba(255,255,255,.92) 0, rgba(255,255,255,.45) 16%, rgba(255,255,255,0) 42%),
-  conic-gradient(from -7.5deg at 50% 42%,
-    #FFFCD6 0deg 15deg, #E2EFE4 15deg 30deg, #F2EAE8 30deg 45deg, #E2E2E2 45deg 60deg,
-    #E8F4F1 60deg 75deg, #F7E8D6 75deg 90deg, #F5EDED 90deg 105deg, #F0E8ED 105deg 120deg,
-    #E8F4D9 120deg 135deg, #F2F2EC 135deg 150deg, #E8E2EC 150deg 165deg, #F2EEE2 165deg 180deg,
-    #F7E8D6 180deg 195deg, #FFFCD6 195deg 210deg, #F2F2EC 210deg 225deg, #E2EFE4 225deg 240deg,
-    #E2E2E2 240deg 255deg, #F0E8ED 255deg 270deg, #E8F4F1 270deg 285deg, #F2EAE8 285deg 300deg,
-    #F2EEE2 300deg 315deg, #E8F4D9 315deg 330deg, #F5EDED 330deg 345deg, #E8E2EC 345deg 360deg)"></div>
+<div class="om-bg" style="position:fixed; inset:0; z-index:0; pointer-events:none"></div>
 
 <div class="om-page" style="position:relative; z-index:1; height:100vh; overflow:hidden; color:var(--color-text); display:flex; justify-content:center; align-items:stretch; padding:12px">
 <div class="om-shell" style="width:100%; max-width:440px; position:relative; display:flex; flex-direction:column; height:100%; background-color:#FFFFFF; border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow-md)">
@@ -275,7 +285,7 @@
             <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700">通知の管理</div>
             <div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-600); margin-top:2px; text-wrap:pretty">メンバーごとに通知のオンオフを切り替えます</div>
           </div>
-          <div style="flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; background:var(--color-accent-2-300); color:var(--color-accent-2-900); border-radius:999px; padding:3px 10px; white-space:nowrap">{{ notifBadge }}</div>
+          <div style="flex: none; font-family: var(--font-body); font-size: 10.5px; font-weight: 700; color: var(--color-accent-2-900); border-radius: 999px; padding: 3px 10px; white-space: nowrap; background-color: #EBE9E4">{{ notifBadge }}</div>
         </div>
         <sc-if value="{{ notifOpen }}" hint-placeholder-val="{{ true }}">
           <div style="padding:0 16px 16px; display:grid; gap:8px; animation:floatUp .28s ease both">
@@ -334,7 +344,7 @@
     <h3 style="font-size: 22px; margin: 26px 0 8px">チャット</h3>
     
     <div style="border-radius: var(--radius-lg); padding: 14px; box-shadow: var(--shadow-sm); margin-top: 10px; background-color: #FBDAC8">
-      <div ref="{{ chatRef }}" style="display: flex; flex-direction: column; gap: 8px; height: 380px; overflow-y: auto; overscroll-behavior-y: auto; -webkit-overflow-scrolling: touch; padding: 4px 2px 10px; border-radius: var(--radius-md); position: relative; background-color: #FBF7F2">
+      <div ref="{{ chatRef }}" style="display: flex; flex-direction: column; gap: 8px; height: 380px; overflow-y: auto; overscroll-behavior-y: auto; -webkit-overflow-scrolling: touch; padding: 8px 10px 12px; border-radius: var(--radius-md); position: relative; background-color: #FBF7F2; scrollbar-gutter: stable; box-sizing: border-box">
         <sc-for list="{{ chat }}" as="cm" hint-placeholder-count="4">
           <div style="{{ cm.wrap }}">
             <sc-if value="{{ cm.firstUnread }}" hint-placeholder-val="{{ false }}">
@@ -352,7 +362,6 @@
           </div>
         </sc-for>
       </div>
-      <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); margin-top:8px; text-wrap:pretty">{{ unreadLabel }}</div>
       <sc-if value="{{ notifyAsk }}" hint-placeholder-val="{{ false }}">
         <button type="button" onClick="{{ askNotify }}" style="margin-top:8px; width:100%; cursor:pointer; border:1px solid rgba(58,42,32,.18); background:#ffffff; border-radius:999px; padding:9px 14px; font-family:'Zen Maru Gothic', var(--font-body); font-weight:700; font-size:12.5px; color:#3A2A20">新着を端末の通知で受け取る</button>
         <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-600); margin-top:5px; text-wrap:pretty">サイトを開いている間（別タブでも可）に通知が届きます。</div>
@@ -1934,6 +1943,7 @@ class Component extends DCLogic {
   }
 
   componentDidMount() {
+    this.pickBackground();
     this.dueTimer = setInterval(() => this.notifyDue(), 60000);
     setTimeout(() => this.notifyDue(), 4000);
     this.onKey = ev => {
@@ -2507,6 +2517,16 @@ class Component extends DCLogic {
 
   openUnvotedCount() {
     return this.themeList().filter(t => !this.isClosed(t.id) && !this.hasVotedOn(t)).length;
+  }
+
+  // 訪問ごとに背景写真をランダムに選ぶ（同一セッション中は固定）
+  pickBackground() {
+    try {
+      const N = 14;
+      let n = sessionStorage.getItem("bgPhoto");
+      if (!n) { n = String(1 + Math.floor(Math.random() * N)); sessionStorage.setItem("bgPhoto", n); }
+      document.documentElement.style.setProperty("--bg-photo", 'url("bg-' + n + '.png")');
+    } catch (e) {}
   }
 
   confirmsOf(n) { return (this.state.confirms || {})[n] || {}; }
@@ -3090,7 +3110,9 @@ class Component extends DCLogic {
         return {
           label:nm,
           style: "cursor:pointer; font-family:var(--font-body); font-size:15px; font-weight:700; border-radius:999px; "
-            + "padding:13px 10px; border:1px solid var(--color-divider); background:var(--color-surface); color:var(--color-text); transition:all .18s",
+            + "padding:13px 10px; border:1px solid rgba(198,113,57,.3); background:#FFFFFF; color:var(--color-text); "
+            + "box-shadow:0 1px 0 rgba(198,113,57,.14); transition:all .18s",
+          styleHover: "background:var(--color-accent-100); border-color:var(--color-accent-600)",
           go: () => this.save({ me:nm, identified:true })
         };
       }),
@@ -3336,7 +3358,12 @@ class Component extends DCLogic {
           row: "display:flex; flex-direction:column; max-width:82%; " + (own ? "align-self:flex-end; align-items:flex-end" : "align-self:flex-start"),
           bubble: "display:inline-block; border-radius:20px; padding:12px 17px; font-family:'Zen Maru Gothic', var(--font-body); font-weight:700; font-size:13.5px; line-height:1.6; white-space:pre-wrap; text-wrap:pretty; "
             + (own ? "background:" + ((TABS.find(t => t.id === "talk") || {}).theme || "#F5B090") + "; color:#3A2A20; border:1px solid rgba(58,42,32,.14)" : "background:#FFFFFF; color:var(--color-text); border:1px solid #EADFD3"),
-          readLabel: own ? ("既読 " + seen.length + "/" + Math.max(0, roster.length - 1)) : "",
+          readLabel: own
+            ? ((() => {
+                const behind = isNaN(id) ? [] : roster.filter(n => n !== m.who && (reads[n] || 0) < id);
+                return behind.length ? ("未読 " + behind.join("・") + " · ") : "";
+              })() + "既読 " + seen.length + "/" + Math.max(0, roster.length - 1))
+            : "",
           readStyle: "font-family:var(--font-body); font-size:10px; color:var(--color-neutral-600); margin-top:3px; "
             + (own ? "" : "display:none")
         };
