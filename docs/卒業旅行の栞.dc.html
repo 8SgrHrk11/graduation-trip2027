@@ -26,6 +26,7 @@
   @keyframes floatUp { from { opacity:0; transform: translateY(14px); } to { opacity:1; transform:none; } }
   @keyframes drift { 0%,100% { transform: translate(0,0) } 50% { transform: translate(-14px,10px) } }
   @keyframes nudge { 0%,100% { box-shadow: 0 0 0 0 rgba(87,117,14,.34) } 55% { box-shadow: 0 0 0 7px rgba(87,117,14,0) } }
+  @keyframes nudgeWarm { 0%,100% { box-shadow: 0 0 0 0 rgba(198,113,57,.34) } 55% { box-shadow: 0 0 0 7px rgba(198,113,57,0) } }
   @keyframes arriveGlow { 0% { box-shadow: 0 0 0 0 rgba(198,113,57,0) } 25% { box-shadow: 0 0 0 6px rgba(198,113,57,.34) } 100% { box-shadow: 0 0 0 14px rgba(198,113,57,0) } }
   .om-hide-scroll::-webkit-scrollbar { display:none; }
   input[type="date"] { position: relative; padding-left: 34px; }
@@ -3017,25 +3018,35 @@ class Component extends DCLogic {
         const out = [];
         const cardStyle = extra => "cursor:pointer; background:var(--color-surface); border-radius:var(--radius-lg); padding:14px 16px; box-shadow:var(--shadow-sm); transition:transform .13s ease, box-shadow .13s ease; " + extra;
         const destPill = tint => "flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; letter-spacing:.06em; border-radius:999px; padding:3px 10px; color:var(--color-neutral-900); background-color:"
-          + (tint === "route" ? "#d4ecea" : "#FFF0F9");
+          + (tint === "route" ? "#ECF4D9" : "#FFF0F9");
         this.themeList().forEach(t => {
           if (this.isClosed(t.id)) return;
           const voted = t.multi ? t.options.some(o => mine[t.id + ":" + o.id] === 1) : mine[t.id] !== undefined;
           const rem = this.voteRemain(t.id);
           const urg = !voted && rem.urgent;
-          if (!voted) out.push({ x:"「" + t.label + "」に投票する", sub:"期限 " + this.deadlineText(t.id) + " · " + rem.label,
+          if (!voted) out.push({ x:(urg ? "まもなく締切：「" : "「") + t.label + "」に投票する", sub:"期限 " + this.deadlineText(t.id) + " · " + rem.label,
             dest:"検討・投票", destStyle:destPill("route"),
-            style: cardStyle(urg ? "border:2px solid #57750E; animation:nudge 1.7s ease-in-out infinite" : "border:2px solid transparent"),
+            style: cardStyle(urg ? "border:2px solid var(--color-accent); animation:nudgeWarm 1.7s ease-in-out infinite" : "border:2px solid transparent"),
             go:() => { this.jumpKey = "theme:" + t.id; this.save({ tab:"route", theme:t.id }); } });
         });
         const plain = cardStyle("border:2px solid transparent");
-        const undone = TODOS.filter(t => !s.done[t.id]);
+        const due = this.dueTodos();
+        const dueIds = {};
+        due.forEach(r => { dueIds[r.id] = 1; });
+        if (due.length) out.push({
+          x:"確認リストの期限が近づいています",
+          sub: due[0].title + (due.length > 1 ? " ほか" + (due.length - 1) + "件" : "") + " · 期限 " + this.whenText(due[0].when),
+          dest:"準備", destStyle:destPill("prep"),
+          style: cardStyle("border:2px solid var(--color-accent); animation:nudgeWarm 1.7s ease-in-out infinite"),
+          go:() => { this.jumpKey = "sec:prep"; this.save({ tab:"prep", prepOpen:{ prep:true } }); } });
+        const undone = this.todoRows().filter(t => !s.done[t.id] && !dueIds[t.id]);
         if (undone.length) out.push({ x:"準備が " + undone.length + "件 残っています", sub:"最初は「" + undone[0].title + "」", style:plain,
           dest:"準備", destStyle:destPill("prep"),
           go:() => { this.jumpKey = "sec:prep"; this.save({ tab:"prep", prepOpen:{ prep:true } }); } });
         const packTotal = PACKING.reduce((a,g) => a + g.items.length, 0);
         const packedN = PACKING.reduce((a,g) => a + g.items.filter(i => s.packed[i]).length, 0);
-        if (phase === "before" && packedN < packTotal) out.push({ x:"持ち物 " + packedN + "/" + packTotal, sub:"チェックしながら詰める", style:plain,
+        const packWinOn = Date.now() >= new Date(2027, 1, 7, 18, 0).getTime() && Date.now() <= new Date(2027, 1, 13, 5, 0).getTime();
+        if (packWinOn && packedN < packTotal) out.push({ x:"持ち物 " + packedN + "/" + packTotal, sub:"チェックしながら詰める", style:plain,
           dest:"準備", destStyle:destPill("prep"),
           go:() => { this.jumpKey = "sec:pack"; this.save({ tab:"prep", prepOpen:{ pack:true } }); } });
         return out;
