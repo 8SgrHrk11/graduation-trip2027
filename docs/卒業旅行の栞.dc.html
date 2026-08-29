@@ -1874,7 +1874,6 @@ class Component extends DCLogic {
   }
 
   componentDidMount() {
-    setTimeout(() => { try { if (this.scroller) this.scroller.scrollTop = 0; } catch (e) {} }, 60);
     this.dueTimer = setInterval(() => this.notifyDue(), 60000);
     setTimeout(() => this.notifyDue(), 4000);
     this.onKey = ev => {
@@ -1916,7 +1915,7 @@ class Component extends DCLogic {
           prepOpen:{}, myTodos:[], myPack:[], newTodo:"", newPack:"", confirms:{}, userLinks:{},
           linkDraftN:{}, linkDraftU:{}, chatBase:null, themeAdds:[], themeEdits:{}, themeDel:{},
           newThemeLabel:"", newThemeSub:"", adminOpen:false, todoEdits:{}, bookEdits:{}, prepEdit:{},
-          privTodos:[], newPriv:"" }, saved, { members:members, route:DECIDED_ROUTE, chatBase:null, tab:"home" }));
+          privTodos:[], newPriv:"" }, saved, { members:members, route:DECIDED_ROUTE, chatBase:null }));
       }
     } catch (e) {}
     try { this.initSupabase(); } catch (e) {}
@@ -2072,6 +2071,7 @@ class Component extends DCLogic {
       sec.style.top = "0"; sec.style.left = "0"; sec.style.right = "0"; sec.style.bottom = "0";
       sec.style.overflowY = "auto";
       sec.style.overflowX = "hidden";
+      sec.style.touchAction = "pan-y";
       sec.style.padding = "6px 20px 40px";
       sec.style.animation = "none";
       sec.style.willChange = "transform";
@@ -2797,20 +2797,23 @@ class Component extends DCLogic {
           active = false; axis = null; dxNow = 0; lastTouch = Date.now();
         };
         if (window.PointerEvent) {
-          let pid = null;
+          let pid = null, captured = false;
           el.addEventListener("pointerdown", ev => {
             if (ev.pointerType === "mouse") return;
-            pid = ev.pointerId;
+            pid = ev.pointerId; captured = false;
             onStart(ev.clientX, ev.clientY);
           }, { passive:true });
           el.addEventListener("pointermove", ev => {
             if (!active || ev.pointerId !== pid) return;
             onMove(ev.clientX, ev.clientY);
-            if (axis === "x" && el.setPointerCapture) { try { el.setPointerCapture(pid); } catch (e) {} }
-          }, { passive:true });
+            if (axis === "x") {
+              if (ev.cancelable) ev.preventDefault();
+              if (!captured && el.setPointerCapture) { try { el.setPointerCapture(pid); captured = true; } catch (e) {} }
+            }
+          }, { passive:false });
           const pend = ev => {
             if (pid === null || (ev && ev.pointerId !== pid)) return;
-            pid = null; finish();
+            pid = null; captured = false; finish();
           };
           el.addEventListener("pointerup", pend, { passive:true });
           el.addEventListener("pointercancel", pend, { passive:true });
@@ -2823,7 +2826,8 @@ class Component extends DCLogic {
           el.addEventListener("touchmove", ev => {
             if (ev.touches.length !== 1) return;
             onMove(ev.touches[0].clientX, ev.touches[0].clientY);
-          }, { passive:true });
+            if (axis === "x" && ev.cancelable) ev.preventDefault();
+          }, { passive:false });
           el.addEventListener("touchend", finish, { passive:true });
           el.addEventListener("touchcancel", finish, { passive:true });
         }
@@ -2998,8 +3002,7 @@ class Component extends DCLogic {
           go:() => { this.jumpKey = "sec:prep"; this.save({ tab:"prep", prepOpen:{ prep:true } }); } });
         const packTotal = PACKING.reduce((a,g) => a + g.items.length, 0);
         const packedN = PACKING.reduce((a,g) => a + g.items.filter(i => s.packed[i]).length, 0);
-        const packWinOn = Date.now() >= new Date(2027, 1, 8, 0, 0).getTime() && Date.now() <= new Date(2027, 1, 13, 5, 0).getTime();
-        if (packWinOn && packedN < packTotal) out.push({ x:"持ち物 " + packedN + "/" + packTotal, sub:"チェックしながら詰める", style:plain,
+        if (phase === "before" && packedN < packTotal) out.push({ x:"持ち物 " + packedN + "/" + packTotal, sub:"チェックしながら詰める", style:plain,
           dest:"準備", destStyle:destPill("prep"),
           go:() => { this.jumpKey = "sec:pack"; this.save({ tab:"prep", prepOpen:{ pack:true } }); } });
         return out;
