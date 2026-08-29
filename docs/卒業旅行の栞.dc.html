@@ -2072,6 +2072,7 @@ class Component extends DCLogic {
       sec.style.overflowY = "auto";
       sec.style.overflowX = "hidden";
       sec.style.touchAction = "pan-y";
+      sec.style.overscrollBehaviorX = "contain";
       sec.style.padding = "6px 20px 40px";
       sec.style.animation = "none";
       sec.style.willChange = "transform";
@@ -2747,14 +2748,14 @@ class Component extends DCLogic {
         if (el.__omTrackBound === true) return;
         el.__omTrackBound = true;
         let x0 = 0, y0 = 0, axis = null, active = false, dxNow = 0, lastTouch = 0;
-        try { el.style.touchAction = "pan-y"; } catch (e) {}
+        try { el.style.touchAction = "pan-y"; el.style.overscrollBehaviorX = "contain"; } catch (e) {}
         const W = () => el.clientWidth || 320;
         const can = dir => true;
         const onStart = (x, y) => { x0 = x; y0 = y; axis = null; active = true; dxNow = 0; lastTouch = Date.now(); };
         const onMove = (x, y) => {
           if (!active) return;
           const dx = x - x0, dy = y - y0;
-          if (!axis && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) axis = Math.abs(dx) > Math.abs(dy) * 1.2 ? "x" : "y";
+          if (!axis && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
           if (axis !== "x") {
             const sc = this.scroller;
             if (!sc) return;
@@ -2796,7 +2797,50 @@ class Component extends DCLogic {
           }
           active = false; axis = null; dxNow = 0; lastTouch = Date.now();
         };
-        if (window.PointerEvent) {
+        // Touch events own the gesture on every touch-capable device: iOS Safari
+        // fires pointercancel the moment it recognises a scroll, which killed the
+        // drag before the axis could be decided. Touch events keep firing and a
+        // non-passive touchmove is the only thing that suppresses the native pan.
+        const hasTouch = ("ontouchstart" in window) || (navigator.maxTouchPoints || 0) > 0;
+        if (hasTouch) {
+          let tid = null;
+          const pick = list => {
+            for (let i = 0; i < list.length; i++) if (list[i].identifier === tid) return list[i];
+            return null;
+          };
+          const blocked = node => {
+            let n = node;
+            while (n && n !== el && n.nodeType === 1) {
+              if (n.tagName === "IFRAME" || n.hasAttribute("data-noswipe")) return true;
+              const st = getComputedStyle(n);
+              if ((st.overflowX === "auto" || st.overflowX === "scroll") && n.scrollWidth > n.clientWidth + 4) return true;
+              n = n.parentNode;
+            }
+            return false;
+          };
+          const inside = t => t && el.contains(t.nodeType === 1 ? t : t.parentNode);
+          document.addEventListener("touchstart", ev => {
+            tid = null; active = false;
+            if (ev.touches.length !== 1) return;
+            if (!inside(ev.target) || blocked(ev.target)) return;
+            tid = ev.touches[0].identifier;
+            onStart(ev.touches[0].clientX, ev.touches[0].clientY);
+          }, { passive:true, capture:true });
+          document.addEventListener("touchmove", ev => {
+            if (tid === null || !active) return;
+            const t = pick(ev.touches);
+            if (!t) return;
+            onMove(t.clientX, t.clientY);
+            if (axis === "x" && ev.cancelable) ev.preventDefault();
+          }, { passive:false, capture:true });
+          const tend = ev => {
+            if (tid === null) return;
+            if (ev && ev.changedTouches && !pick(ev.changedTouches)) return;
+            tid = null; finish();
+          };
+          document.addEventListener("touchend", tend, { passive:true, capture:true });
+          document.addEventListener("touchcancel", tend, { passive:true, capture:true });
+        } else if (window.PointerEvent) {
           let pid = null, captured = false;
           el.addEventListener("pointerdown", ev => {
             if (ev.pointerType === "mouse") return;
@@ -2818,18 +2862,6 @@ class Component extends DCLogic {
           el.addEventListener("pointerup", pend, { passive:true });
           el.addEventListener("pointercancel", pend, { passive:true });
           el.addEventListener("lostpointercapture", pend, { passive:true });
-        } else {
-          el.addEventListener("touchstart", ev => {
-            if (ev.touches.length !== 1) return;
-            onStart(ev.touches[0].clientX, ev.touches[0].clientY);
-          }, { passive:true });
-          el.addEventListener("touchmove", ev => {
-            if (ev.touches.length !== 1) return;
-            onMove(ev.touches[0].clientX, ev.touches[0].clientY);
-            if (axis === "x" && ev.cancelable) ev.preventDefault();
-          }, { passive:false });
-          el.addEventListener("touchend", finish, { passive:true });
-          el.addEventListener("touchcancel", finish, { passive:true });
         }
         let wx = 0, wlock = false, wt = null, wrelease = null;
         const unlock = () => { wlock = false; wx = 0; if (wrelease) { clearTimeout(wrelease); wrelease = null; } };
