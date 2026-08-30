@@ -2711,10 +2711,11 @@ class Component extends DCLogic {
   // 端末の本人設定と管理者登録を一度だけ初期化する
   maybeResetIdentity() {
     if (this.state.idResetV === IDENTITY_RESET) return;
-    if (this.state.sync === "connecting") return;
+    // 共有データが届いてから消す。先に消すと、あとから届いた登録で上書きされてしまう
+    if (this.state.sync !== "on" && this.state.sync !== "off") return;
     try { sessionStorage.setItem("adminOK", "0"); } catch (e) {}
-    this.setState({ me:"", adminOK:false, adminMsg:"" });
-    this.save({ adminCred:null, idResetV:IDENTITY_RESET, me:"" });
+    this.setState({ me:"", identified:false, adminOK:false, adminMsg:"" });
+    this.save({ adminCred:null, idResetV:IDENTITY_RESET, me:"", identified:false });
   }
 
   // 立替の記録を一度だけまるごと初期化する（何も立替が発生していない状態に戻す）
@@ -3094,8 +3095,11 @@ class Component extends DCLogic {
 
   activeMe() {
     const r = this.roster();
-    return r.indexOf(this.state.me) >= 0 ? this.state.me : (r[0] || "");
+    // 本人未選択のときは空のまま返す（先頭の人になりすますと全員が堀木として操作できてしまう）
+    return r.indexOf(this.state.me) >= 0 ? this.state.me : "";
   }
+
+  needsIdentity() { return !this.activeMe(); }
 
   myVotes() { return (this.state.ballots || {})[this.activeMe()] || {}; }
 
@@ -3723,6 +3727,8 @@ class Component extends DCLogic {
   }
 
   enrollAdmin() {
+    if (this.needsIdentity()) { this.setState({ adminMsg:"先に「この端末は誰か」を選んでください。" }); return; }
+    if (!this.isAdminName()) return;
     if (!this.bioSupported()) { this.setState({ adminMsg:"この端末では生体認証を使えません。合言葉で解錠してください。" }); return; }
     const ch = new Uint8Array(32);
     try { crypto.getRandomValues(ch); } catch (e) {}
@@ -4436,9 +4442,9 @@ class Component extends DCLogic {
         + "; transition:transform .22s ease, background .2s; transform:rotate(" + (s.cfg === "me" ? "90deg" : "0deg") + ")",
       cfgGo: () => this.setState({ cfg: s.cfg === "me" ? "" : "me" }),
 
-      needsId: !s.identified,
+      needsId: !s.identified || this.needsIdentity(),
       idChips: DEFAULT_MEMBERS.map((n, i) => {
-        const nm = (s.members && s.members[i]) ? s.members[i] : n;
+        const nm = n;
         return {
           label:nm,
           style: "cursor:pointer; font-family:var(--font-body); font-size:15px; font-weight:700; border-radius:999px; "
@@ -5329,7 +5335,9 @@ class Component extends DCLogic {
 
       meChips: roster.map(n => ({ label:n, style:pill(n === me) + "; font-size:12.5px; padding:6px 14px",
         go: () => this.save({ me:n }) })),
-      meLabel: me,
+      meLabel: me || "未選択",
+      needMe: this.needsIdentity(),
+      needMeText: "この端末は誰かを選んでください。選ばないと投票・チャット・確認リスト・立替の記録が使えません。",
       memberInputs: this.roster().map((m, i) => ({ value:m, placeholder:"メンバー" + (i + 1), locked:true })),
       memberRows: this.roster().map(n => ({
         name: n,
