@@ -27,19 +27,20 @@
   @keyframes drift { 0%,100% { transform: translate(0,0) } 50% { transform: translate(-14px,10px) } }
   @keyframes nudge { 0%,100% { box-shadow: 0 0 0 0 rgba(87,117,14,.34) } 55% { box-shadow: 0 0 0 7px rgba(87,117,14,0) } }
   @keyframes nudgeWarm { 0%,100% { box-shadow: 0 0 0 0 rgba(198,113,57,.34) } 55% { box-shadow: 0 0 0 7px rgba(198,113,57,0) } }
+  @keyframes nudgeHome { 0%,100% { box-shadow: 0 0 0 0 rgba(214,178,42,.42) } 55% { box-shadow: 0 0 0 8px rgba(214,178,42,0) } }
   @keyframes arriveGlow { 0% { box-shadow: 0 0 0 0 rgba(198,113,57,0) } 25% { box-shadow: 0 0 0 6px rgba(198,113,57,.34) } 100% { box-shadow: 0 0 0 14px rgba(198,113,57,0) } }
   .om-hide-scroll::-webkit-scrollbar { display:none; }
   input[type="date"] { position: relative; padding-left: 34px; }
   input[type="date"]::-webkit-calendar-picker-indicator { position: absolute; left: 10px; margin: 0; padding: 0; opacity: .7; cursor: pointer; }
   .om-page { height: 100dvh !important;
-    overflow-x: clip !important; background: transparent !important; padding: 10px 10px 26px; align-items: flex-start; }
+    overflow-x: clip !important; background: transparent !important; padding: 28px 26px 40px; align-items: flex-start; }
   .om-shell { background: #ffffff !important; border-radius: 26px;
               box-shadow: 0 14px 34px color-mix(in srgb, #2e2b25 10%, transparent); }
   .om-nav { background: #ffffff !important; }
   .om-blobs { display: none !important; }
   @media (min-width: 780px) {
-    .om-page { padding: 28px 0 56px; }
-    .om-shell { max-width: 700px !important; border-radius: 34px;
+    .om-page { padding: 48px 0 76px; }
+    .om-shell { max-width: 660px !important; border-radius: 34px;
                 box-shadow: 0 18px 44px color-mix(in srgb, #2e2b25 16%, transparent);
                 padding-bottom: 8px; }
     .om-head { padding: 40px 40px 16px !important; }
@@ -171,8 +172,12 @@
         <div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:16px; box-shadow:var(--shadow-sm); margin-top:10px">
           <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--color-accent-700); margin-bottom:6px">今夜の宿</div>
           <div style="font-family:var(--font-body); font-size:14px; font-weight:700">{{ todayCard.lodgeName }}</div>
-          <div style="font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700); margin-top:4px; text-wrap:pretty">{{ todayCard.lodgeAddr }}</div>
-          <div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-600); margin-top:4px">チェックイン {{ todayCard.lodgeIn }}</div>
+          <sc-if value="{{ todayCard.hasLodgeIn }}" hint-placeholder-val="{{ true }}">
+            <div style="font-family:var(--font-body); font-size:12.5px; color:var(--color-neutral-700); margin-top:4px">チェックイン {{ todayCard.lodgeIn }}</div>
+          </sc-if>
+          <sc-if value="{{ todayCard.hasLodgeOut }}" hint-placeholder-val="{{ true }}">
+            <div style="font-family:var(--font-body); font-size:12.5px; color:var(--color-neutral-700); margin-top:2px">チェックアウト {{ todayCard.lodgeOut }}</div>
+          </sc-if>
           <sc-if value="{{ todayCard.hasLodgeMap }}" hint-placeholder-val="{{ true }}">
             <a href="{{ todayCard.lodgeMap }}" target="_blank" rel="noopener" style="display:inline-block; margin-top:10px; font-family:var(--font-body); font-size:12.5px; font-weight:700">地図で開く</a>
           </sc-if>
@@ -201,9 +206,12 @@
       </div>
     </sc-if>
 
-    <sc-if value="{{ isBefore }}" hint-placeholder-val="{{ true }}">
+    <sc-if value="{{ showTodo }}" hint-placeholder-val="{{ true }}">
       <div style="margin:18px 0 4px">
         <div style="font-family: var(--font-body); font-size: 22px; letter-spacing: .18em; text-transform: uppercase; color: var(--color-neutral-900); font-weight: 700">To Do List</div>
+        <sc-if value="{{ noTodo }}" hint-placeholder-val="{{ false }}">
+          <div style="font-family:var(--font-body); font-size:13px; color:var(--color-neutral-600); margin-top:8px; text-wrap:pretty">いま対応が必要なものはありません。</div>
+        </sc-if>
         <div style="display:grid; gap:8px; margin-top:10px">
           <sc-for list="{{ todo }}" as="td2" hint-placeholder-count="3">
             <div onClick="{{ td2.go }}" style="{{ td2.style }}" style-active="transform:scale(.975); box-shadow:none">
@@ -237,8 +245,28 @@
     
 
     <div style="display:grid; gap:12px; margin-top:20px">
-      
-      
+      <sc-if value="{{ hasHomeDues }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div onClick="{{ homeDuesGo }}" style="cursor:pointer; display:flex; align-items:baseline; gap:10px; margin-bottom:8px">
+            <div style="font-family:var(--font-body); font-size:22px; letter-spacing:.18em; text-transform:uppercase; color:var(--color-neutral-900); font-weight:700">Payments</div>
+          </div>
+          <div style="display:grid; gap:8px">
+            <sc-for list="{{ homeDues }}" as="hd" hint-placeholder-count="2">
+              <div onClick="{{ hd.go }}" style="{{ hd.rowStyle }}" style-active="transform:scale(.985); box-shadow:none">
+                <div style="flex:1; min-width:150px">
+                  <div style="font-family:var(--font-body); font-size:13.5px; font-weight:700; text-wrap:pretty">{{ hd.title }}</div>
+                  <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); margin-top:2px; text-wrap:pretty">{{ hd.sub }}</div>
+                </div>
+                <div style="{{ hd.remainStyle }}">{{ hd.remain }}</div>
+                <div style="{{ hd.tagStyle }}">{{ hd.tag }}</div>
+              </div>
+            </sc-for>
+            <sc-if value="{{ hasHomeDuesMore }}" hint-placeholder-val="{{ false }}">
+              <div onClick="{{ homeDuesGo }}" style="cursor:pointer; font-family:var(--font-body); font-size:11.5px; font-weight:700; color:var(--color-accent-700)">{{ homeDuesMore }}</div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
     </div>
 
     
@@ -271,9 +299,62 @@
             <button type="button" onClick="{{ changeId }}" style="margin-left:auto; flex:none; cursor:pointer; background:transparent; border:0; color:var(--color-accent-700); font-family:var(--font-body); font-size:11.5px; font-weight:700">変更</button>
           </div>
           <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-600); margin-top:10px; text-wrap:pretty">投票とチャットはこの名前で記録されます。端末を貸し借りするときだけ変更してください。</div>
+          <div style="margin-top:14px; display:grid; gap:6px">
+            <div style="font-family:var(--font-body); font-size:11.5px; font-weight:700; color:var(--color-neutral-700)">メンバー</div>
+            <sc-for list="{{ memberRows }}" as="mr" hint-placeholder-count="9">
+              <div style="{{ mr.style }}">
+                <div style="flex:1; min-width:0; font-family:var(--font-body); font-size:13.5px; font-weight:700">{{ mr.name }}</div>
+                <sc-if value="{{ mr.hasTag }}" hint-placeholder-val="{{ false }}">
+                  <div style="{{ mr.tagStyle }}">{{ mr.tag }}</div>
+                </sc-if>
+              </div>
+            </sc-for>
+            <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-600); text-wrap:pretty">{{ memberNote }}</div>
+          </div>
         </div>
       </sc-if>
     </div>
+
+    <sc-if value="{{ isAdminName }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:14px; border-radius:var(--radius-lg); background:var(--color-surface); box-shadow:var(--shadow-sm); padding:14px 16px; display:grid; gap:10px">
+        <div style="display:flex; align-items:center; gap:10px">
+          <div style="flex:1; min-width:0">
+            <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700">管理者権限</div>
+            <div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-600); margin-top:2px; text-wrap:pretty">登録した端末で Face ID / Touch ID を通したときだけ有効になります</div>
+          </div>
+          <sc-if value="{{ adminUnlocked }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; background:var(--color-accent-200); color:var(--color-accent-800); border-radius:999px; padding:3px 10px; white-space:nowrap">解錠中</div>
+          </sc-if>
+          <sc-if value="{{ adminLocked }}" hint-placeholder-val="{{ true }}">
+            <div style="flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; background:var(--color-neutral-200); color:var(--color-neutral-700); border-radius:999px; padding:3px 10px; white-space:nowrap">施錠中</div>
+          </sc-if>
+        </div>
+        <sc-if value="{{ adminNeedEnroll }}" hint-placeholder-val="{{ true }}">
+          <div style="display:grid; gap:8px">
+            <button type="button" onClick="{{ adminEnrollGo }}" style="{{ adminBtn }}; justify-self:start">この端末を管理者端末として登録</button>
+            <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); text-wrap:pretty">登録は他の人に触られない状態で行ってください。登録後は、この端末で生体認証を通さないと管理者機能は開きません。</div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ adminLocked }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; gap:8px; flex-wrap:wrap">
+            <button type="button" onClick="{{ adminUnlockGo }}" style="{{ adminBtn }}">Face ID / Touch ID で解錠</button>
+            <button type="button" onClick="{{ adminPassGo }}" style="{{ adminBtn2 }}">合言葉で解錠</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ adminUnlocked }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; gap:8px; flex-wrap:wrap">
+            <button type="button" onClick="{{ adminLockGo }}" style="{{ adminBtn2 }}">施錠する</button>
+            <button type="button" onClick="{{ adminResetGo }}" style="{{ adminBtn2 }}">端末の登録を解除</button>
+          </div>
+        </sc-if>
+        <div style="display:flex; gap:10px; align-items:baseline; flex-wrap:wrap">
+          <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-600)">{{ adminCredAt }}</div>
+          <sc-if value="{{ hasAdminMsg }}" hint-placeholder-val="{{ false }}">
+            <div style="font-family:var(--font-body); font-size:10.5px; font-weight:700; color:var(--color-accent-2-800)">{{ adminMsg }}</div>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
 
     <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
       <div style="margin-top:14px; {{ notifCard }}">
@@ -300,6 +381,27 @@
               </div>
             </sc-for>
             <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-accent-2-800); text-wrap:pretty">OFFにした人の端末では、チャットの新着通知と確認リストの期限通知が届かなくなります。初期状態は全員ONです。</div>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:14px; {{ payCard }}">
+        <div onClick="{{ payGo }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
+          <div style="{{ payCaret }}">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </div>
+          <div style="flex:1; min-width:0">
+            <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700">共通の支払い期限</div>
+            <div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-600); margin-top:2px; text-wrap:pretty">立替の記録で期限を指定しなかったときの期限</div>
+          </div>
+          <div style="flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; background:var(--color-accent-200); color:var(--color-accent-800); border-radius:999px; padding:3px 10px; white-space:nowrap">{{ payDueText }}</div>
+        </div>
+        <sc-if value="{{ payOpen }}" hint-placeholder-val="{{ true }}">
+          <div style="padding:0 16px 16px; display:grid; gap:9px; animation:floatUp .28s ease both">
+            <input class="input" type="datetime-local" value="{{ payDueValue }}" onChange="{{ onPayDue }}" style="font-size:13.5px">
+            <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); text-wrap:pretty">9人全員に同じ期限が適用されます。立替1件ごとに別の期限を指定した記録は、そのまま残ります。</div>
           </div>
         </sc-if>
       </div>
@@ -356,7 +458,13 @@
             </sc-if>
             <div style="{{ cm.row }}">
               <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-600); margin-bottom:3px">{{ cm.who }} · {{ cm.when }}</div>
+              <sc-if value="{{ cm.hasTo }}" hint-placeholder-val="{{ false }}">
+                <div style="{{ cm.toStyle }}">{{ cm.toLabel }}</div>
+              </sc-if>
               <div style="{{ cm.bubble }}">{{ cm.body }}</div>
+              <sc-if value="{{ cm.canUnsend }}" hint-placeholder-val="{{ false }}">
+                <button type="button" onClick="{{ cm.unsendGo }}" style="cursor:pointer; outline:none; background:transparent; border:0; padding:0; margin-top:3px; color:#8A4A28; font-family:var(--font-body); font-size:10px; font-weight:700">送信を取り消す</button>
+              </sc-if>
               <div style="{{ cm.readStyle }}">{{ cm.readLabel }}</div>
             </div>
           </div>
@@ -366,7 +474,16 @@
         <button type="button" onClick="{{ askNotify }}" style="margin-top:8px; width:100%; cursor:pointer; border:1px solid rgba(58,42,32,.18); background:#ffffff; border-radius:999px; padding:9px 14px; font-family:'Zen Maru Gothic', var(--font-body); font-weight:700; font-size:12.5px; color:#3A2A20">新着を端末の通知で受け取る</button>
         <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-600); margin-top:5px; text-wrap:pretty">サイトを開いている間（別タブでも可）に通知が届きます。</div>
       </sc-if>
+      <sc-if value="{{ chatToOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; animation:floatUp .22s ease both">
+          <button type="button" onClick="{{ chatToAllGo }}" style="{{ chatToAllStyle }}">全員</button>
+          <sc-for list="{{ chatToChips }}" as="ct" hint-placeholder-count="8">
+            <button type="button" onClick="{{ ct.go }}" style="{{ ct.style }}">{{ ct.name }}</button>
+          </sc-for>
+        </div>
+      </sc-if>
       <div style="display:flex; gap:8px; align-items:flex-end; margin-top:6px">
+        <button type="button" onClick="{{ chatToGo }}" style="{{ chatToBtn }}">{{ chatToLabel }}</button>
         <textarea class="input" style="flex: 1; min-height: 44px; background-color: var(--color-neutral-100)" placeholder="メッセージを入力" value="{{ chatDraft }}" onChange="{{ onChatDraft }}" onKeyDown="{{ onChatKey }}"></textarea>
         <button type="button" class="btn btn-primary" onClick="{{ sendChat }}" style="flex: none; border-radius: 999px; font-family: 'Zen Maru Gothic', var(--font-body); font-weight: 700; background-color: #C4643A; color: #FFFFFF">送信</button>
       </div>
@@ -400,7 +517,7 @@
   <section style="animation:floatUp .45s ease both; display:flex; flex-direction:column">
     <div style="order:2">
     <h2 style="font-size:22px; margin:18px 0 4px">検討・投票</h2>
-    <p style="font-family:var(--font-body); font-size:14px; color:var(--color-neutral-700); text-wrap:pretty">9人全員が「確定」をチェックすれば終了します。</p>
+    <p style="font-family:var(--font-body); font-size:14px; color:var(--color-neutral-700); text-wrap:pretty">1つだけ選ぶテーマは、首位の案が2位に6票差をつけた時点で自動終了します。9人全員が「確定」をチェックした場合も終了します。</p>
     </div>
 
     <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
@@ -420,16 +537,16 @@
             <sc-for list="{{ adminThemes }}" as="at" hint-placeholder-count="4">
               <div style="background:rgba(255,255,255,.72); border-radius:var(--radius-md); padding:13px 14px; display:grid; gap:8px; border:1px solid var(--color-accent-2-300)">
                 <div style="display:flex; gap:8px; align-items:center">
-                  <input class="input" value="{{ at.label }}" onChange="{{ at.onLabel }}" placeholder="テーマ名" style="flex: 1; min-width: 0; font-size: 13.5px; font-weight: 700; background-color: #FFFFFF">
+                  <input class="input" value="{{ at.label }}" onChange="{{ at.onLabel }}" onBlur="{{ at.commitLabel }}" placeholder="テーマ名" style="flex: 1; min-width: 0; font-size: 13.5px; font-weight: 700; background-color: #FFFFFF">
                   <div style="{{ at.statusStyle }}">{{ at.status }}</div>
                 </div>
-                <input class="input" value="{{ at.sub }}" onChange="{{ at.onSub }}" placeholder="説明（任意）" style="font-size: 12.5px; background-color: #FFFFFF">
+                <input class="input" value="{{ at.sub }}" onChange="{{ at.onSub }}" onBlur="{{ at.commitSub }}" placeholder="説明（任意）" style="font-size: 12.5px; background-color: #FFFFFF">
                 <div style="display:flex; gap:9px; align-items:center">
                   <div style="flex:none; font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-700)">投票期限</div>
                   <input type="datetime-local" class="input" value="{{ at.deadline }}" onChange="{{ at.onDeadline }}" style="flex: 1; min-width: 0; font-size: 12.5px; background-color: #FFFFFF">
                 </div>
                 <div style="display:grid; gap:6px">
-                  <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--color-accent-2-800)">選ぶ個数（1つ＝過半数で自動終了）</div>
+                  <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--color-accent-2-800)">選ぶ個数（1つ＝6票差で自動終了）</div>
                   <div style="display:flex; gap:6px; flex-wrap:wrap">
                     <sc-for list="{{ at.pickChips }}" as="pc" hint-placeholder-count="3">
                       <button type="button" onClick="{{ pc.go }}" style="{{ pc.style }}">{{ pc.label }}</button>
@@ -441,7 +558,7 @@
                   <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--color-accent-2-800)">選択肢</div>
                     <sc-for list="{{ at.opts }}" as="ao" hint-placeholder-count="2">
                       <div style="display:flex; gap:8px; align-items:center; background:var(--color-accent-2-100); border-radius:var(--radius-md); padding:6px 10px">
-                        <input class="input" value="{{ ao.name }}" onChange="{{ ao.onName }}" style="flex: 1; min-width: 0; font-size: 12.5px; background-color: #FFFFFF">
+                        <input class="input" value="{{ ao.name }}" onChange="{{ ao.onName }}" onBlur="{{ ao.commitName }}" style="flex: 1; min-width: 0; font-size: 12.5px; background-color: #FFFFFF">
                         <button type="button" onClick="{{ ao.del }}" style="flex:none; cursor:pointer; background:transparent; border:0; color:var(--color-accent-2-800); font-family:var(--font-body); font-size:11px; font-weight:700">削除</button>
                       </div>
                     </sc-for>
@@ -709,7 +826,10 @@
                     <div style="display:flex; gap:7px; flex-wrap:wrap">
                       <button type="button" class="btn btn-secondary" onClick="{{ d.addRow }}" style="border-radius:999px; font-family:var(--font-body); font-size:12px; font-weight:700">行を追加</button>
                       <button type="button" class="btn btn-ghost" onClick="{{ d.sortRows }}" style="border-radius:999px; font-family:var(--font-body); font-size:12px; font-weight:700">時刻順に並べる</button>
-                      <button type="button" class="btn btn-ghost" onClick="{{ d.resetRows }}" style="border-radius:999px; font-family:var(--font-body); font-size:12px; font-weight:700">元に戻す</button>
+                      <sc-if value="{{ d.canUndo }}" hint-placeholder-val="{{ false }}">
+                        <button type="button" class="btn btn-ghost" onClick="{{ d.undoGo }}" style="border-radius:999px; font-family:var(--font-body); font-size:12px; font-weight:700">{{ d.undoLabel }}</button>
+                      </sc-if>
+                      <button type="button" class="btn btn-ghost" onClick="{{ d.resetRows }}" style="border-radius:999px; font-family:var(--font-body); font-size:12px; font-weight:700">最初の状態に戻す</button>
                     </div>
                     <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); text-wrap:pretty">変更は9人全員に共有されます。</div>
                   </div>
@@ -749,7 +869,7 @@
           
           <div style="display:grid; gap:8px">
             <sc-for list="{{ todos }}" as="td" hint-placeholder-count="6">
-              <div style="{{ td.card }}">
+              <div data-jump="{{ td.jumpId }}" style="{{ td.card }}">
                 <div onClick="{{ td.go }}" style="{{ td.rowStyle }}">
                   <div style="{{ td.box }}">{{ td.tick }}</div>
                   <div style="flex:1">
@@ -758,14 +878,23 @@
                       <sc-if value="{{ td.hasWhen }}" hint-placeholder-val="{{ true }}">
                         <span style="{{ td.whenStyle }}">{{ td.whenLabel }}</span>
                       </sc-if>
-                      <span style="{{ td.whoStyle }}">{{ td.whoLabel }}</span>
+                      <span style="{{ td.doneHint }}"></span>
+                    </div>
+                    <div style="display:flex; flex-wrap:wrap; gap:5px; align-items:center; margin-top:7px">
+                      <div style="flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; color:var(--color-neutral-700)">回答者</div>
+                      <sc-for list="{{ td.doneWho }}" as="dw" hint-placeholder-count="9">
+                        <div style="{{ dw.style }}">{{ dw.name }}</div>
+                      </sc-for>
                     </div>
                     <sc-if value="{{ td.hasX }}" hint-placeholder-val="{{ true }}">
                       <div style="font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700); margin-top:5px; text-wrap:pretty">{{ td.x }}</div>
                     </sc-if>
                   </div>
                 </div>
-                <div style="display:flex; justify-content:flex-end; margin-top:8px">
+                <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px">
+                  <sc-if value="{{ td.canDel }}" hint-placeholder-val="{{ false }}">
+                    <button type="button" onClick="{{ td.del }}" style="cursor:pointer; border:1px solid var(--color-divider); background:#ffffff; border-radius:999px; padding:5px 14px; font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--color-accent-700)">削除</button>
+                  </sc-if>
                   <button type="button" onClick="{{ td.editGo }}" style="cursor:pointer; border:1px solid var(--color-divider); background:#ffffff; border-radius:999px; padding:5px 14px; font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--color-text)">{{ td.editLabel }}</button>
                 </div>
                 <sc-if value="{{ td.editing }}" hint-placeholder-val="{{ false }}">
@@ -888,58 +1017,408 @@
     </div>
 
     
-    <div style="margin-top:8px; {{ sec.book.card }}">
-      <div onClick="{{ sec.book.go }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
-        <div style="{{ sec.book.caret }}">
+  </section>
+  </sc-if>
+
+  <sc-if value="{{ isCost }}" hint-placeholder-val="{{ true }}">
+  <section style="animation:floatUp .45s ease both">
+    <h2 style="font-size:22px; margin:18px 0 4px">費用・割り勘</h2>
+    <p style="font-family:var(--font-body); font-size:14px; color:var(--color-neutral-700); text-wrap:pretty">立替を記録し、支払／受取にチェックを入れて、貸借早見表を参照してください。</p>
+
+    <div style="margin-top:14px; border-radius:var(--radius-md); background:var(--color-surface); padding:12px 14px; box-shadow:var(--shadow-sm)">
+      <div style="display:flex; gap:8px; flex-wrap:wrap">
+        <sc-for list="{{ fxRows }}" as="fr" hint-placeholder-count="4">
+          <div style="flex:1; min-width:112px; background:#F3F3FB; border-radius:var(--radius-md); padding:8px 10px">
+            <div style="display:flex; align-items:baseline; gap:5px">
+              <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:#4A4470">{{ fr.name }}</div>
+              <div style="font-family:var(--font-heading); font-size:13px; color:#4A4470">{{ fr.mark }}</div>
+            </div>
+            <div style="display:flex; align-items:baseline; gap:4px; margin-top:2px">
+              <div style="flex:none; font-family:var(--font-body); font-size:9.5px; font-weight:700; letter-spacing:.04em; color:var(--color-neutral-600); white-space:nowrap">{{ fr.pre }}</div>
+              <div style="font-family:var(--font-heading); font-size:20px; color:var(--color-text); white-space:nowrap">{{ fr.rate }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-600); margin-top:7px">{{ fxNote }}</div>
+    </div>
+
+    <div style="margin-top:16px; border-radius:var(--radius-lg); background:#E6E6FA">
+      <div onClick="{{ exFormGo }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:16px">
+        <div style="{{ exFormCaret }}">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </div>
-        <div style="flex:1; min-width:0">
-          <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700">事前予約リスト</div>
-        </div>
-        <div style="flex: none; font-family: var(--font-body); font-size: 10.5px; font-weight: 700; color: var(--color-accent-2-800); border-radius: 999px; padding: 3px 10px; background-color: var(--color-accent-200)">{{ bookBadge }}</div>
+        <div style="flex:1; min-width:0; font-family:'Zen Maru Gothic', var(--font-body); font-size:17px; font-weight:700; color:#3A3560">帳簿記入</div>
       </div>
-      <sc-if value="{{ sec.book.open }}" hint-placeholder-val="{{ true }}">
-        <div style="padding:0 16px 16px; animation:floatUp .28s ease both">
-          <div style="display:grid; gap:8px">
-            <sc-for list="{{ booking }}" as="bk" hint-placeholder-count="5">
-              <div style="{{ bk.card }}">
-                <div onClick="{{ bk.go }}" style="display:flex; gap:12px; align-items:flex-start; cursor:pointer">
-                  <div style="{{ bk.box }}">{{ bk.tick }}</div>
-                  <div style="flex:1">
-                    <div style="display:flex; gap:8px; align-items:baseline; flex-wrap:wrap">
-                      <div style="font-family:var(--font-body); font-size:14px; font-weight:700">{{ bk.n }}</div>
-                      <sc-if value="{{ bk.hasLead }}" hint-placeholder-val="{{ true }}">
-                        <span style="font-family: var(--font-body); font-size: 10.5px; font-weight: 700; color: var(--color-accent-800); border-radius: 999px; padding: 2px 9px; background-color: var(--color-accent-200)">{{ bk.leadLabel }}</span>
-                      </sc-if>
+      <sc-if value="{{ exFormOpen }}" hint-placeholder-val="{{ true }}">
+      <div style="padding:0 16px 16px; display:grid; gap:11px; animation:floatUp .26s ease both">
+      <div style="display:grid; gap:6px">
+        <div style="font-family:var(--font-body); font-size:11.5px; color:#4A4470">支払った人</div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap">
+          <sc-for list="{{ exWhoChips }}" as="ew" hint-placeholder-count="9">
+            <button type="button" onClick="{{ ew.go }}" style="{{ ew.style }}">{{ ew.name }}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:grid; gap:6px">
+        <div style="font-family:var(--font-body); font-size:11.5px; color:#4A4470">通貨</div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap">
+          <sc-for list="{{ exCurChips }}" as="ec" hint-placeholder-count="5">
+            <button type="button" onClick="{{ ec.go }}" style="{{ ec.style }}">{{ ec.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px">
+        <input class="input" type="number" inputmode="decimal" placeholder="金額" value="{{ exAmt }}" onChange="{{ onExAmt }}" style="flex: 1; min-width: 0; font-size: 13px; background-color: #FFFFFF">
+        <input class="input" placeholder="用途（任意）" value="{{ exX }}" onChange="{{ onExX }}" style="flex: 1.4; min-width: 0; font-size: 13px; background-color: #FFFFFF">
+      </div>
+      <div style="display:grid; gap:6px">
+        <div style="font-family:var(--font-body); font-size:11.5px; color:#4A4470">この支払いを分担する人</div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap">
+          <button type="button" onClick="{{ exAllGo }}" style="{{ exAllStyle }}">全員</button>
+          <sc-for list="{{ exForChips }}" as="ef" hint-placeholder-count="9">
+            <button type="button" onClick="{{ ef.go }}" style="{{ ef.style }}">{{ ef.name }}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:grid; gap:6px">
+        <div style="font-family:var(--font-body); font-size:11.5px; color:#4A4470">精算のしかた</div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap">
+          <sc-for list="{{ exModeChips }}" as="em" hint-placeholder-count="2">
+            <button type="button" onClick="{{ em.go }}" style="{{ em.style }}">{{ em.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:grid; gap:6px">
+        <div style="font-family:var(--font-body); font-size:11.5px; color:#4A4470">支払い期限</div>
+        <input class="input" type="datetime-local" value="{{ exDue }}" onChange="{{ onExDue }}" style="font-size:13px; background-color:#FFFFFF">
+        <div style="display:flex; align-items:center; gap:10px">
+          <div style="flex:1; min-width:0; font-family:var(--font-body); font-size:10.5px; color:#4A4470; text-wrap:pretty">{{ exDueNote }}</div>
+          <button type="button" onClick="{{ exDueReset }}" style="flex:none; cursor:pointer; outline:none; background:transparent; border:0; padding:0; color:#5B54A0; font-family:var(--font-body); font-size:10.5px; font-weight:700">共通期限に戻す</button>
+        </div>
+      </div>
+      <button type="button" onClick="{{ exAdd }}" style="justify-self:start; cursor:pointer; outline:none; border:0; border-radius:999px; padding:10px 22px; background:#8C86C4; color:#FFFFFF; font-family:'Zen Maru Gothic', var(--font-body); font-size:13px; font-weight:700">記録する</button>
+      <sc-if value="{{ hasExErr }}" hint-placeholder-val="{{ false }}">
+        <div style="font-family:var(--font-body); font-size:11.5px; font-weight:700; color:#8A2F14; background:#F6DAD2; border-radius:var(--radius-md); padding:8px 10px; text-wrap:pretty">{{ exErr }}</div>
+      </sc-if>
+      <sc-if value="{{ fxStale }}" hint-placeholder-val="{{ false }}">
+        <div style="font-family:var(--font-body); font-size:10.5px; color:#7A4A0E; background:#FBEDE0; border-radius:var(--radius-md); padding:8px 10px; text-wrap:pretty">実勢レートを取得できていません。外貨で記録すると参考レートが使われ、その旨が記録に残ります。</div>
+      </sc-if>
+      </div>
+      </sc-if>
+    </div>
+
+    <sc-if value="{{ hasMyTx }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:14px; border-radius:var(--radius-lg); background:var(--color-surface); box-shadow:var(--shadow-sm)">
+        <div onClick="{{ myTxGo }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px">
+          <div style="{{ myTxCaret }}">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </div>
+          <div style="flex:1; min-width:0; font-family:'Zen Maru Gothic', var(--font-body); font-size:15px; font-weight:700; color:#3A3560">貸借早見表</div>
+        </div>
+        <sc-if value="{{ myTxOpen }}" hint-placeholder-val="{{ true }}">
+        <div style="padding:0 14px 14px; display:grid; gap:8px; animation:floatUp .26s ease both">
+        <sc-for list="{{ myTxGroups }}" as="mg" hint-placeholder-count="3">
+          <div style="border-radius:var(--radius-md); background:#F3F3FB">
+            <div onClick="{{ mg.go }}" style="cursor:pointer; display:flex; align-items:center; gap:9px; padding:10px 12px">
+              <div style="{{ mg.caret }}">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </div>
+              <div style="flex:1; min-width:0">
+                <div style="display:flex; align-items:center; gap:7px">
+                  <div style="font-family:var(--font-body); font-size:13px; font-weight:700">{{ mg.x }}</div>
+                  <sc-if value="{{ mg.warn }}" hint-placeholder-val="{{ false }}">
+                    <div style="flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; background:#F6E0B8; color:#7A4A0E; border:1px solid #D9A64A; border-radius:999px; padding:2px 8px; white-space:nowrap">⚠️ 要確認</div>
+                  </sc-if>
+                </div>
+                <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-700); margin-top:1px">{{ mg.summary }}</div>
+              </div>
+            </div>
+            <sc-if value="{{ mg.open }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:0 12px 12px; display:grid; gap:6px">
+          <sc-for list="{{ mg.rows }}" as="mt" hint-placeholder-count="2">
+            <div style="{{ mt.row }}">
+              <div style="flex:1; min-width:0">
+                <div style="display:flex; align-items:center; gap:7px">
+                  <div style="font-family:var(--font-body); font-size:13px; font-weight:700">{{ mt.label }}</div>
+                  <sc-if value="{{ mt.warn }}" hint-placeholder-val="{{ false }}">
+                    <div style="flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; background:#F6E0B8; color:#7A4A0E; border:1px solid #D9A64A; border-radius:999px; padding:2px 8px; white-space:nowrap">⚠️ 要確認</div>
+                  </sc-if>
+                </div>
+                <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-700); margin-top:1px">{{ mt.sub }}</div>
+              </div>
+              <div style="{{ mt.amtStyle }}">{{ mt.amt }}</div>
+            </div>
+          </sc-for>
+            </div>
+            </sc-if>
+          </div>
+        </sc-for>
+        </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <h3 style="font-size:20px; margin:26px 0 4px">支払／受取　確認</h3>
+    <sc-if value="{{ hasOver }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:10px; display:grid; gap:6px">
+        <sc-for list="{{ overRows }}" as="ov" hint-placeholder-count="1">
+          <div style="border-radius:var(--radius-md); background:#FBEDE0; border:1.5px solid #D9A64A; padding:11px 13px">
+            <div style="font-family:var(--font-body); font-size:12.5px; font-weight:700; color:#7A4A0E">⚠️ {{ ov.text }}</div>
+            <div style="font-family:var(--font-body); font-size:10.5px; color:#7A4A0E; margin-top:2px; text-wrap:pretty">{{ ov.sub }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ hasTx }}" hint-placeholder-val="{{ true }}">
+      <div style="display:grid; gap:8px; margin-top:10px">
+        <sc-for list="{{ exTxGroups }}" as="tg" hint-placeholder-count="3">
+        <div id="{{ tg.anchor }}" style="border-radius:var(--radius-md); background:var(--color-surface); box-shadow:var(--shadow-sm)">
+          <div onClick="{{ tg.go }}" style="{{ tg.head }}">
+            <div style="{{ tg.caret }}">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+            <div style="flex:1; min-width:0; font-family:var(--font-body); font-size:13.5px; font-weight:700">{{ tg.pair }}</div>
+            <sc-if value="{{ tg.warn }}" hint-placeholder-val="{{ false }}">
+              <div style="flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; background:#F6E0B8; color:#7A4A0E; border:1px solid #D9A64A; border-radius:999px; padding:2px 8px; white-space:nowrap">⚠️ 要確認</div>
+            </sc-if>
+            <sc-if value="{{ tg.hasCount }}" hint-placeholder-val="{{ false }}">
+              <div style="flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; color:#4A4470">{{ tg.count }}</div>
+            </sc-if>
+            <div style="{{ tg.dueRemainStyle }}">{{ tg.dueRemainLabel }}</div>
+            <div style="flex:none; font-family:var(--font-heading); font-size:17px; color:#4A4470">{{ tg.total }}</div>
+          </div>
+          <sc-if value="{{ tg.open }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:0 12px 12px; display:grid; gap:8px">
+            <sc-if value="{{ tg.hasMixNote }}" hint-placeholder-val="{{ false }}">
+              <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-700); text-wrap:pretty">{{ tg.mixNote }}</div>
+            </sc-if>
+        <sc-for list="{{ tg.rows }}" as="tx" hint-placeholder-count="1">
+          <div style="{{ tx.card }}">
+            <div style="display:flex; align-items:center; gap:10px">
+              <div style="{{ tx.tagStyle }}">{{ tx.tag }}</div>
+              <div style="flex:1; min-width:0"></div>
+              <div style="flex:none; font-family:var(--font-heading); font-size:16px; color:#4A4470">{{ tx.amt }}</div>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+              <sc-if value="{{ tx.canAct }}" hint-placeholder-val="{{ false }}">
+                <button type="button" onClick="{{ tx.actGo }}" style="{{ tx.actStyle }}">{{ tx.actLabel }}</button>
+              </sc-if>
+              <div style="{{ tx.statusStyle }}">{{ tx.statusText }}</div>
+            </div>
+            <sc-if value="{{ tx.stale }}" hint-placeholder-val="{{ false }}">
+              <div style="font-family:var(--font-body); font-size:10.5px; font-weight:700; color:#7A4A0E; background:#FBEDE0; border-radius:var(--radius-md); padding:7px 9px; text-wrap:pretty">⚠️ {{ tx.staleText }}</div>
+            </sc-if>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+              <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-700)">{{ tx.dueLabel }}</div>
+              <div style="{{ tx.dueRemainStyle }}">{{ tx.dueRemainLabel }}</div>
+              <sc-if value="{{ tx.canReq }}" hint-placeholder-val="{{ false }}">
+                <button type="button" onClick="{{ tx.reqGo }}" style="{{ tx.reqBtnStyle }}">期限の延長を申請</button>
+              </sc-if>
+            </div>
+            <sc-if value="{{ tx.hasDueMore }}" hint-placeholder-val="{{ false }}">
+              <div style="font-family:var(--font-body); font-size:10px; color:var(--color-neutral-600); text-wrap:pretty">{{ tx.dueMoreText }}</div>
+            </sc-if>
+            <sc-if value="{{ tx.isPartial }}" hint-placeholder-val="{{ false }}">
+              <div style="font-family:var(--font-body); font-size:10.5px; font-weight:700; color:#7A4A0E; background:#FBEDE0; border-radius:var(--radius-md); padding:7px 9px; text-wrap:pretty">⚠️ {{ tx.partialText }}</div>
+            </sc-if>
+            <div style="display:flex; align-items:center; gap:9px; flex-wrap:wrap">
+              <sc-if value="{{ tx.canNudge }}" hint-placeholder-val="{{ false }}">
+                <button type="button" onClick="{{ tx.nudgeGo }}" style="{{ tx.nudgeStyle }}">催促する</button>
+              </sc-if>
+              <sc-if value="{{ tx.hasNudged }}" hint-placeholder-val="{{ false }}">
+                <div style="font-family:var(--font-body); font-size:10px; color:var(--color-neutral-600)">{{ tx.nudgedText }}</div>
+              </sc-if>
+            </div>
+            <sc-if value="{{ tx.reqOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="display:grid; gap:7px; background:#FBEDE0; border-radius:var(--radius-md); padding:10px 11px">
+                <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:#7A4A0E">いつまで待ってほしいか</div>
+                <input class="input" type="datetime-local" value="{{ tx.reqWant }}" onChange="{{ tx.onReqWant }}" style="font-size:13px; background-color:#FFFFFF">
+                <input class="input" placeholder="理由や一言（任意）" value="{{ tx.reqNote }}" onChange="{{ tx.onReqNote }}" style="font-size:13px; background-color:#FFFFFF">
+                <button type="button" onClick="{{ tx.reqSubmit }}" style="{{ tx.reqSendStyle }}; justify-self:start">申請する</button>
+              </div>
+            </sc-if>
+            <sc-if value="{{ tx.isReq }}" hint-placeholder-val="{{ false }}">
+              <div style="display:grid; gap:7px; background:#FBEDE0; border-radius:var(--radius-md); padding:10px 11px">
+                <div style="font-family:var(--font-body); font-size:11.5px; font-weight:700; color:#7A4A0E; text-wrap:pretty">{{ tx.reqText }}</div>
+                <sc-if value="{{ tx.hasReqNote }}" hint-placeholder-val="{{ false }}">
+                  <div style="font-family:var(--font-body); font-size:11px; color:#7A4A0E; text-wrap:pretty">{{ tx.reqNoteText }}</div>
+                </sc-if>
+                <sc-if value="{{ tx.canJudge }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:grid; gap:7px">
+                    <div style="font-family:var(--font-body); font-size:10.5px; color:#7A4A0E">許可する期限（変えてもかまいません）</div>
+                    <input class="input" type="datetime-local" value="{{ tx.judgeDue }}" onChange="{{ tx.onJudgeDue }}" style="font-size:13px; background-color:#FFFFFF">
+                    <div style="display:flex; gap:8px">
+                      <button type="button" onClick="{{ tx.okGo }}" style="{{ tx.okStyle }}">許可する</button>
+                      <button type="button" onClick="{{ tx.noGo }}" style="{{ tx.noStyle }}">拒否する</button>
                     </div>
-                    <sc-if value="{{ bk.hasX }}" hint-placeholder-val="{{ true }}">
-                      <div style="font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700); margin-top:5px; text-wrap:pretty">{{ bk.x }}</div>
-                    </sc-if>
                   </div>
-                  <button type="button" onClick="{{ bk.del }}" title="この項目を削除" style="flex:none; cursor:pointer; width:26px; height:26px; border-radius:999px; border:1px solid var(--color-divider); background:#ffffff; color:var(--color-neutral-600); font-family:var(--font-body); font-size:13px; line-height:1; display:grid; place-items:center">×</button>
+                </sc-if>
+                <sc-if value="{{ tx.canWithdraw }}" hint-placeholder-val="{{ false }}">
+                  <button type="button" onClick="{{ tx.withdrawGo }}" style="{{ tx.withdrawStyle }}; justify-self:start">{{ tx.withdrawLabel }}</button>
+                </sc-if>
+              </div>
+            </sc-if>
+            <sc-if value="{{ tx.isChg }}" hint-placeholder-val="{{ false }}">
+              <div style="display:grid; gap:7px; background:#FBEDE0; border-radius:var(--radius-md); padding:10px 11px">
+                <div style="font-family:var(--font-body); font-size:11.5px; font-weight:700; color:#7A4A0E; text-wrap:pretty">{{ tx.chgText }}</div>
+                <sc-if value="{{ tx.canAck }}" hint-placeholder-val="{{ false }}">
+                  <button type="button" onClick="{{ tx.ackGo }}" style="{{ tx.ackStyle }}; justify-self:start">この期限で確認</button>
+                </sc-if>
+                <sc-if value="{{ tx.canWithdraw }}" hint-placeholder-val="{{ false }}">
+                  <button type="button" onClick="{{ tx.withdrawGo }}" style="{{ tx.withdrawStyle }}; justify-self:start">{{ tx.withdrawLabel }}</button>
+                </sc-if>
+              </div>
+            </sc-if>
+            <sc-if value="{{ tx.isNo }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex; gap:9px; align-items:center; flex-wrap:wrap; background:#F6DAD2; border-radius:var(--radius-md); padding:9px 11px">
+                <div style="flex:1; min-width:0; font-family:var(--font-body); font-size:11.5px; font-weight:700; color:#8A2F14; text-wrap:pretty">{{ tx.noText }}</div>
+                <sc-if value="{{ tx.canClearNo }}" hint-placeholder-val="{{ false }}">
+                  <button type="button" onClick="{{ tx.clearNoGo }}" style="flex:none; cursor:pointer; outline:none; background:transparent; border:0; padding:0; color:#8A2F14; font-family:var(--font-body); font-size:10.5px; font-weight:700">閉じる</button>
+                </sc-if>
+              </div>
+            </sc-if>
+            <sc-if value="{{ tx.isOk }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex; gap:9px; align-items:center; flex-wrap:wrap; background:#EDF3E2; border-radius:var(--radius-md); padding:9px 11px">
+                <div style="flex:1; min-width:0; font-family:var(--font-body); font-size:11.5px; font-weight:700; color:#3F5A18; text-wrap:pretty">{{ tx.okText }}</div>
+                <sc-if value="{{ tx.canCancelOk }}" hint-placeholder-val="{{ false }}">
+                  <button type="button" onClick="{{ tx.cancelOkGo }}" style="flex:none; cursor:pointer; outline:none; background:transparent; border:0; padding:0; color:#3F5A18; font-family:var(--font-body); font-size:10.5px; font-weight:700">延納を取り消す</button>
+                </sc-if>
+              </div>
+            </sc-if>
+            <sc-if value="{{ tx.hasItems }}" hint-placeholder-val="{{ true }}">
+            <div style="display:grid; gap:4px; padding-top:4px; border-top:1px solid rgba(58,42,32,.1)">
+              <sc-for list="{{ tx.items }}" as="ti" hint-placeholder-count="2">
+                <div style="display:flex; align-items:baseline; gap:8px">
+                  <div style="flex:1; min-width:0; font-family:var(--font-body); font-size:11px; color:var(--color-neutral-700)">{{ ti.x }}</div>
+                  <div style="flex:none; font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--color-neutral-700)">{{ ti.label }}</div>
                 </div>
-                <div style="display:flex; justify-content:flex-end; margin-top:8px">
-                  <button type="button" onClick="{{ bk.editGo }}" style="cursor:pointer; border:1px solid var(--color-divider); background:#ffffff; border-radius:999px; padding:5px 14px; font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--color-text)">{{ bk.editLabel }}</button>
+              </sc-for>
+            </div>
+            </sc-if>
+          </div>
+        </sc-for>
+          </div>
+          </sc-if>
+        </div>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ hasSettled }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:12px; border-radius:var(--radius-md); background:#EDF3E2">
+        <div onClick="{{ settledGo }}" style="cursor:pointer; display:flex; align-items:center; gap:9px; padding:11px 13px">
+          <div style="{{ settledCaret }}">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </div>
+          <div style="flex:1; min-width:0; font-family:var(--font-body); font-size:13px; font-weight:700; color:#3F5A18">精算済みの記録</div>
+        </div>
+        <sc-if value="{{ settledOpen }}" hint-placeholder-val="{{ true }}">
+          <div style="padding:0 13px 13px; display:grid; gap:6px">
+            <sc-for list="{{ settledRows }}" as="sd" hint-placeholder-count="2">
+              <div style="display:flex; align-items:center; gap:10px; background:#FFFFFF; border-radius:var(--radius-md); padding:9px 12px; flex-wrap:wrap">
+                <div style="flex:1; min-width:140px">
+                  <div style="font-family:var(--font-body); font-size:12.5px; font-weight:700">{{ sd.pair }}</div>
+                  <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-600); margin-top:1px">{{ sd.when }}</div>
+                  <sc-if value="{{ sd.hasUndoNote }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-family:var(--font-body); font-size:10.5px; font-weight:700; color:#7A4A0E; margin-top:2px; text-wrap:pretty">{{ sd.undoNote }}</div>
+                  </sc-if>
                 </div>
-                <sc-if value="{{ bk.editing }}" hint-placeholder-val="{{ false }}">
-                  <div onClick="{{ bk.stop }}" style="margin-top:9px; background:var(--color-bg); border-radius:var(--radius-md); padding:12px 14px; display:grid; gap:7px; animation:floatUp .22s ease both; cursor:default">
-                    <input class="input" value="{{ bk.n }}" onChange="{{ bk.onName }}" placeholder="項目名" style="font-size:13px; background-color:#FFFFFF">
-                    <input type="date" class="input" value="{{ bk.lead }}" onChange="{{ bk.onLead }}" placeholder="予約期限" style="font-size:12.5px; background-color:#FFFFFF">
-                    <textarea class="input" onChange="{{ bk.onX }}" placeholder="備考" value="{{ bk.x }}" style="min-height:64px; font-size:12.5px; background-color:#FFFFFF"></textarea>
-                  </div>
+                <div style="flex:none; font-family:var(--font-heading); font-size:14px; color:#4B6B14">{{ sd.amt }}</div>
+                <sc-if value="{{ sd.canUndo }}" hint-placeholder-val="{{ false }}">
+                  <button type="button" onClick="{{ sd.undo }}" style="flex:none; cursor:pointer; outline:none; background:transparent; border:0; padding:0; color:var(--color-accent-700); font-family:var(--font-body); font-size:10.5px; font-weight:700">{{ sd.undoLabel }}</button>
                 </sc-if>
               </div>
             </sc-for>
           </div>
+        </sc-if>
+      </div>
+    </sc-if>
 
-          <div style="display:flex; gap:7px; margin-top:14px">
-            <input class="input" placeholder="予約するものを追加" value="{{ newBook }}" onChange="{{ onNewBook }}" style="flex: 1; min-width: 0; font-size: 13px; background-color: #FFFFFF">
-            <button type="button" class="btn btn-primary" onClick="{{ addBook }}" style="flex:none; border-radius:999px; font-family:var(--font-body); font-size:12.5px; font-weight:700">追加</button>
+    <sc-if value="{{ hasEx }}" hint-placeholder-val="{{ false }}">
+      <h3 style="font-size:17px; margin:24px 0 4px">立替の記録</h3>
+      <div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-700); margin-top:2px">合計 {{ exTotal }}</div>
+      <div style="display:grid; gap:8px; margin-top:10px">
+        <sc-for list="{{ exRows }}" as="ex" hint-placeholder-count="3">
+          <div style="background:var(--color-surface); border-radius:var(--radius-md); padding:12px 14px; box-shadow:var(--shadow-sm)">
+            <div style="display:flex; align-items:baseline; gap:10px">
+              <div style="flex:1; min-width:0; font-family:var(--font-body); font-size:13.5px; font-weight:700">{{ ex.x }}</div>
+              <div style="{{ ex.modeStyle }}">{{ ex.modeLabel }}</div>
+              <div style="flex:none; font-family:var(--font-heading); font-size:16px; color:#4A4470">{{ ex.amt }}</div>
+            </div>
+            <sc-if value="{{ ex.hasRate }}" hint-placeholder-val="{{ false }}">
+              <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-600); margin-top:3px">{{ ex.rateNote }}</div>
+            </sc-if>
+            <div style="display:flex; align-items:center; gap:10px; margin-top:4px">
+              <div style="flex:1; min-width:0; font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-700)">{{ ex.who }} が立替 · {{ ex.forLabel }} · {{ ex.share }}</div>
+              <sc-if value="{{ ex.canEdit }}" hint-placeholder-val="{{ true }}">
+                <button type="button" onClick="{{ ex.editGo }}" style="flex:none; cursor:pointer; outline:none; background:transparent; border:0; padding:0; color:#5B54A0; font-family:var(--font-body); font-size:11px; font-weight:700">編集</button>
+              </sc-if>
+              <sc-if value="{{ ex.noDel }}" hint-placeholder-val="{{ false }}">
+                <div style="flex:none; font-family:var(--font-body); font-size:10px; color:var(--color-neutral-600); text-align:right">{{ ex.lockNote }}</div>
+              </sc-if>
+            </div>
+            <div style="display:flex; gap:8px; margin-top:3px">
+              <sc-if value="{{ ex.hasAt }}" hint-placeholder-val="{{ true }}">
+                <div style="font-family:var(--font-body); font-size:10px; color:var(--color-neutral-600)">{{ ex.at }}</div>
+              </sc-if>
+              <sc-if value="{{ ex.hasEdits }}" hint-placeholder-val="{{ false }}">
+                <div style="font-family:var(--font-body); font-size:10px; color:var(--color-neutral-600)">{{ ex.editCount }}</div>
+              </sc-if>
+              <div style="font-family:var(--font-body); font-size:10px; color:var(--color-neutral-600)">{{ ex.dueLabel }}</div>
+            </div>
+            <sc-if value="{{ ex.editing }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:10px; padding-top:10px; border-top:1px solid var(--color-divider); display:grid; gap:8px; animation:floatUp .24s ease both">
+                <div style="display:flex; gap:6px; flex-wrap:wrap">
+                  <sc-for list="{{ ex.dCurChips }}" as="dc" hint-placeholder-count="5">
+                    <button type="button" onClick="{{ dc.go }}" style="{{ dc.style }}">{{ dc.label }}</button>
+                  </sc-for>
+                </div>
+                <div style="display:flex; gap:8px">
+                  <input class="input" type="number" inputmode="decimal" placeholder="金額" value="{{ ex.dAmt }}" onChange="{{ ex.onDAmt }}" style="flex: 1; min-width: 0; font-size: 13px; background-color: #FFFFFF">
+                  <input class="input" placeholder="用途" value="{{ ex.dX }}" onChange="{{ ex.onDX }}" style="flex: 1.4; min-width: 0; font-size: 13px; background-color: #FFFFFF">
+                </div>
+                <div style="display:flex; gap:6px; flex-wrap:wrap">
+                  <sc-for list="{{ ex.dModeChips }}" as="dm" hint-placeholder-count="2">
+                    <button type="button" onClick="{{ dm.go }}" style="{{ dm.style }}">{{ dm.label }}</button>
+                  </sc-for>
+                </div>
+                <div style="display:grid; gap:5px">
+                  <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-700)">支払い期限</div>
+                  <input class="input" type="datetime-local" value="{{ ex.dDue }}" onChange="{{ ex.onDDue }}" style="font-size:13px; background-color:#FFFFFF">
+                  <button type="button" onClick="{{ ex.dDueReset }}" style="justify-self:start; cursor:pointer; outline:none; background:transparent; border:0; padding:0; color:#5B54A0; font-family:var(--font-body); font-size:10.5px; font-weight:700">共通期限に戻す</button>
+                </div>
+                <div style="display:flex; gap:14px; align-items:center">
+                  <button type="button" onClick="{{ ex.saveEdit }}" style="cursor:pointer; outline:none; border:0; border-radius:999px; padding:8px 18px; background:#8C86C4; color:#FFFFFF; font-family:var(--font-body); font-size:12px; font-weight:700">保存</button>
+                  <sc-if value="{{ ex.canDel }}" hint-placeholder-val="{{ false }}">
+                    <button type="button" onClick="{{ ex.del }}" style="cursor:pointer; outline:none; background:transparent; border:0; padding:0; color:var(--color-accent-700); font-family:var(--font-body); font-size:11px; font-weight:700">この記録を削除</button>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-if>
           </div>
-          <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); margin-top:8px">追加とチェックは9人全員に共有されます。</div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:20px; border-radius:var(--radius-lg); background:var(--color-accent-2-100); border:1.5px dashed var(--color-accent-2-400)">
+        <div onClick="{{ exLogGo }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:13px 15px">
+          <div style="flex:1; min-width:0; font-family:var(--font-body); font-size:13.5px; font-weight:700">編集履歴（管理者のみ）</div>
+          <div style="flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; background:var(--color-accent-2-600); color:#FFFFFF; border-radius:999px; padding:3px 9px">管理者権限</div>
         </div>
-      </sc-if>
-    </div>
+        <sc-if value="{{ exLogOpen }}" hint-placeholder-val="{{ true }}">
+          <div style="padding:0 15px 15px; display:grid; gap:7px; animation:floatUp .26s ease both">
+            <sc-for list="{{ exLogRows }}" as="lg" hint-placeholder-count="3">
+              <div style="background:rgba(255,255,255,.72); border-radius:var(--radius-md); padding:9px 12px">
+                <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-600)">{{ lg.when }} · {{ lg.by }}</div>
+                <div style="font-family:var(--font-body); font-size:12px; font-weight:700; margin-top:2px; text-wrap:pretty">{{ lg.text }}</div>
+              </div>
+            </sc-for>
+            <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-accent-2-800); text-wrap:pretty">編集回数と履歴は自動で記録され、管理者を含め誰も書き換えられません。</div>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
   </section>
   </sc-if>
 
@@ -964,9 +1443,12 @@
               <div style="font-family:var(--font-body); font-size:13px; font-weight:700; margin-bottom:9px">{{ lf.city }}</div>
               <div style="display:grid; gap:7px">
                 <input class="input" placeholder="宿の名前" value="{{ lf.name }}" onChange="{{ lf.onName }}" style="background-color: #FFFFFF">
-                <input class="input" placeholder="チェックイン日時" value="{{ lf.addr }}" onChange="{{ lf.onAddr }}" style="background-color: #FFFFFF">
-                <input class="input" placeholder="チェックアウト日時" value="{{ lf.checkin }}" onChange="{{ lf.onCheckin }}" style="background-color: #FFFFFF">
+                <input class="input" placeholder="チェックイン日時" value="{{ lf.checkIn }}" onChange="{{ lf.onCheckIn }}" style="background-color: #FFFFFF">
+                <input class="input" placeholder="チェックアウト日時" value="{{ lf.checkOut }}" onChange="{{ lf.onCheckOut }}" style="background-color: #FFFFFF">
                 <input class="input" placeholder="GoogleマップのURL (AirBnb など)" value="{{ lf.map }}" onChange="{{ lf.onMap }}" style="background-color: #FFFFFF">
+                <sc-if value="{{ lf.noMap }}" hint-placeholder-val="{{ false }}">
+                  <div style="font-family:var(--font-body); font-size:10.5px; font-weight:700; color:#8A4A18; background:#FBEDE0; border-radius:var(--radius-md); padding:7px 9px; text-wrap:pretty">⚠️ 地图URL未入力。住所の代わりなので、入れておかないと現地で宿にたどり着けません。</div>
+                </sc-if>
               </div>
             </div>
           </sc-for>
@@ -1557,12 +2039,13 @@ const THEMES = [
 const CIRC = ["⓪","①","②","③","④","⑤","⑥","⑦","⑧","⑨","⑩"];
 
 const TABS = [
-  { id:"home",  label:"ホーム",     theme:"#fffcdb", btn:"#FFFCDB", hue:100, chroma:0.055 },
+  { id:"home",  label:"ホーム",     theme:"#FFFCD8", btn:"#FFFCD8", hue:100, chroma:0.055 },
   { id:"talk",  label:"チャット",   theme:"#fbdac8", btn:"#FBDAC8", hue:52,  chroma:0.060 },
   { id:"route", label:"検討・投票", theme:"#ecf4d9", btn:"#ecf4d9", hue:126, chroma:0.055 },
   { id:"plan",  label:"日程表",     theme:"#EEF7FF", btn:"#EEF7FF", hue:262, chroma:0.050 },
   { id:"prep",  label:"準備",       theme:"#FFF0F9", btn:"#FFF0F9", hue:350, chroma:0.055 },
   { id:"local", label:"現地のこと", theme:"#E7FCFB", btn:"#E7FCFB", hue:192, chroma:0.045 },
+  { id:"cost",  label:"費用・割り勘", theme:"#E6E6FA", btn:"#E6E6FA", hue:278, chroma:0.035 },
   { id:"config", label:"設定",      theme:"#efefef", btn:"#efefef", hue:80,  chroma:0.006 }
 ];
 
@@ -1732,7 +2215,8 @@ const LINKS = [
 const DEFAULT_MEMBERS = ["堀木","橋口","坂本","長崎","木崎","村井","小野","田中","室谷"];
 const DEFAULT_DEADLINE = "2026-09-30";
 const DECIDED_ROUTE = "D";
-const VOTE_RESET = "2026-08-28a";
+const VOTE_RESET =  "2026-08-28a";
+const EXPENSE_RESET = "2026-08-30a";
 
 const MARKS = [
   { v:2, label:"◎ 行きたい" },
@@ -1740,7 +2224,8 @@ const MARKS = [
   { v:0, label:"△ うーん" }
 ];
 
-const SHARED_KEYS = ["ballots","notes","deadlines","members","lineUrl","reads","meets","lodging","plans","hidden","booked","addBook","foodNotes","spotNotes","confirms","userLinks","themeAdds","themeEdits","themeDel","myTodos","todoEdits","bookEdits","resetV","todoWho","notifyOff"];
+const SHARED_KEYS = ["ballots","notes","deadlines","members","lineUrl","reads","meets","lodging","plans","hidden","booked","addBook","foodNotes","spotNotes","confirms","userLinks","themeAdds","themeEdits","themeDel","myTodos","todoEdits","bookEdits","resetV","todoWho","notifyOff","expenses","settledTx","settlements","payDue","defer","nudges","txKeyV","exDel","doneBy","adminCred","exResetV","planLog","delMsgs"];
+const PAY_DUE_DEFAULT = "2027-03-11T23:59";
 const TRIP_YEAR = 2027;
 const TRIP_START = "2027-02-13";
 const TRIP_END = "2027-02-25";
@@ -1764,7 +2249,7 @@ class Component extends DCLogic {
             meets:{}, lodging:{}, plans:{}, editDay:"", hidden:{}, booked:{}, addBook:[], newBook:"",
             foodNotes:{}, foodOpen:{}, foodDraft:{}, spotNotes:{}, spotOpen:{}, spotDraft:{},
             prepOpen:{}, myTodos:[], myPack:[], newTodo:"", newPack:"", todoEdits:{}, bookEdits:{}, prepEdit:{},
-            privTodos:[], newPriv:"" };
+            privTodos:[], newPriv:"", adminOK:false, adminMsg:"" };
 
   planKey(rid, d) { return rid + ":" + d.date; }
 
@@ -1775,7 +2260,33 @@ class Component extends DCLogic {
 
   setPlan(rid, d, rows) {
     const key = this.planKey(rid, d);
-    this.save({ plans:Object.assign({}, this.state.plans, { [key]:rows }) });
+    // 変更前の状態を「誰が・いつ」と一緒に10件まで残す
+    const log = Object.assign({}, this.state.planLog || {});
+    const prev = (log[key] || []).slice(0, 9);
+    log[key] = [{ rows:this.planOf(rid, d).map(q => Object.assign({}, q)), by:this.activeMe(), at:Date.now() }].concat(prev);
+    this.save({ plans:Object.assign({}, this.state.plans, { [key]:rows }), planLog:log });
+  }
+
+  // 直前の変更を1つだけ戻す
+  undoPlan(rid, d) {
+    const key = this.planKey(rid, d);
+    const log = Object.assign({}, this.state.planLog || {});
+    const list = (log[key] || []).slice();
+    const top = list.shift();
+    if (!top) return;
+    log[key] = list;
+    const plans = Object.assign({}, this.state.plans);
+    plans[key] = top.rows;
+    this.save({ plans:plans, planLog:log });
+  }
+
+  planUndoInfo(rid, d) {
+    const list = (this.state.planLog || {})[this.planKey(rid, d)] || [];
+    if (!list.length) return null;
+    const t = list[0];
+    const dt = new Date(t.at);
+    return { by:t.by || "誰か", when:String(dt.getHours()).padStart(2,"0") + ":" + String(dt.getMinutes()).padStart(2,"0"),
+      month:(dt.getMonth() + 1) + "/" + dt.getDate(), n:list.length };
   }
 
   resetPlan(rid, d) {
@@ -1839,9 +2350,24 @@ class Component extends DCLogic {
     const seq = this.chatSeq();
     if (!me || !seq) return;
     const reads = this.state.reads || {};
-    if (reads[me] === seq) return;
-    this.save({ reads:Object.assign({}, reads, { [me]:seq }) });
+    // 「見た番号の最大値」を持つ。取り消しでメッセージが減っても既読が巻き戻らない
+    if (Number(reads[me] || 0) >= seq) return;
+    this.save({ reads:Object.assign({}, reads, { [me]:Math.max(Number(reads[me] || 0), seq) }) });
   }
+
+  // 自分のメッセージの送信取り消し。跡は残す
+  unsendChat(m) {
+    const me = this.activeMe();
+    if (!m || m.who !== me) return;
+    if (typeof window !== "undefined" && window.confirm
+        && !window.confirm("このメッセージの送信を取り消します。よろしいですか？")) return;
+    const id = String(m.id);
+    this.save({ delMsgs:Object.assign({}, this.state.delMsgs || {}, { [id]:{ who:me, at:Date.now(), created_at:m.created_at } }) });
+    if (this.db && !/^l/.test(id)) this.db.from("trip_messages").delete().eq("id", m.id).then(() => {});
+    else this.setState(st => ({ chat:(st.chat || []).filter(x => String(x.id) !== id) }));
+  }
+
+  delMsgOf(id) { return (this.state.delMsgs || {})[String(id)] || null; }
 
   initSupabase() {
     const cfg = (typeof window !== "undefined" && window.TRIP_SUPABASE) || {};
@@ -1867,6 +2393,26 @@ class Component extends DCLogic {
         if (!r || SHARED_KEYS.indexOf(r.k) < 0) return;
         const mineAt = (this.sentAt || {})[r.k];
         if (mineAt && r.updated_at && r.updated_at <= mineAt) return;
+        // 立替と精算は行ごとに突き合わせる（同時入力で片方が消えないように）
+        if (r.k === "expenses" || r.k === "settlements" || r.k === "exDel") {
+          const mine = this.state[r.k] || [];
+          const remote = Array.isArray(r.v) ? r.v : [];
+          const byId = {};
+          remote.forEach(x => { if (x && x.id) byId[x.id] = x; });
+          let added = 0;
+          mine.forEach(x => {
+            if (!x || !x.id) return;
+            const o = byId[x.id];
+            if (!o) { byId[x.id] = x; added++; return; }
+            // 同じ行なら編集回数が多いほうを残す
+            if (Number(x.edits || 0) > Number(o.edits || 0)) byId[x.id] = x;
+          });
+          const merged = Object.keys(byId).map(k => byId[k])
+            .sort((a, b) => Number(a.at || a.ts || 0) - Number(b.at || b.ts || 0));
+          this.setState({ [r.k]:merged });
+          if (added) this.save({ [r.k]:merged });
+          return;
+        }
         this.setState({ [r.k]:r.v });
       })
       .on("postgres_changes", { event:"INSERT", schema:"public", table:"trip_messages" }, p => {
@@ -1888,16 +2434,40 @@ class Component extends DCLogic {
     if (rows.length) this.db.from("trip_kv").upsert(rows).then(() => {});
   }
 
+  // 本文の先頭に [@名前・名前] の形でメンションを埋め込む
+  parseMention(raw) {
+    const m = String(raw || "").match(/^\[@([^\]]*)\]\s*/);
+    if (!m) return { to:[], body:String(raw || "") };
+    const names = m[1] === "全員" ? "ALL" : m[1].split("・").filter(Boolean);
+    return { to:names, body:String(raw || "").slice(m[0].length) };
+  }
+
+  mentionsMe(raw) {
+    const p = this.parseMention(raw);
+    if (p.to === "ALL") return true;
+    return Array.isArray(p.to) && p.to.indexOf(this.activeMe()) >= 0;
+  }
+
+  unreadMentions() {
+    const me = this.activeMe();
+    const last = Number((this.state.reads || {})[me] || 0);
+    return (this.state.chat || []).filter(m => m.who !== me && Number(m.id) > last && this.mentionsMe(m.body));
+  }
+
   sendChat() {
-    const body = (this.state.chatDraft || "").trim();
+    let body = (this.state.chatDraft || "").trim();
     if (!body) return;
+    const to = this.state.chatTo || [];
+    const all = this.state.chatToAll === true;
+    if (all) body = "[@全員] " + body;
+    else if (to.length) body = "[@" + to.join("・") + "] " + body;
     const who = this.activeMe() || "名無し";
     if (!this.db) {
-      this.setState(s => ({ chatDraft:"",
+      this.setState(s => ({ chatDraft:"", chatTo:[], chatToAll:false, chatToOpen:false,
         chat:(s.chat || []).concat({ id:"l" + Date.now(), who:who, body:body, created_at:new Date().toISOString() }) }));
       return;
     }
-    this.setState({ chatDraft:"" });
+    this.setState({ chatDraft:"", chatTo:[], chatToAll:false, chatToOpen:false });
     this.db.from("trip_messages").insert({ who:who, body:body }).then(() => {});
   }
 
@@ -1913,10 +2483,9 @@ class Component extends DCLogic {
   }
 
   dueTodos() {
-    const done = this.state.done || {};
     const limit = Date.now() + 7 * 86400000;
     return this.todoRows().filter(r => {
-      if (done[r.id]) return false;
+      if (this.doneMine(r.id)) return false;
       const rk = this.whenRank(r.when);
       return isFinite(rk) && rk <= limit;
     });
@@ -1942,10 +2511,62 @@ class Component extends DCLogic {
     this.save({ notifiedDue:next });
   }
 
+  // 支払い期限の通知（自分の未払いと、返事を待たせている延納の申請）
+  notifyPay() {
+    if (typeof Notification === "undefined" || Notification.permission !== "granted") return;
+    if (!this.notifyAllowed()) return;
+    const seen = this.state.notifiedDue || {};
+    const next = Object.assign({}, seen);
+    let n = 0, first = null;
+    this.myDues().forEach(x => {
+      const need = (x.pay && x.rm.urgent && !(x.defer && x.defer.state === "ok"))
+        || (!x.pay && x.defer && x.defer.state === "req")
+        || (x.pay && x.defer && x.defer.state === "chg");
+      if (!need) return;
+      const key = "pay|" + x.key + "|" + x.due + "|" + (x.rm.over ? "over" : "near") + "|" + ((x.defer && x.defer.state) || "-");
+      if (seen[key]) return;
+      next[key] = 1; n++;
+      if (!first) first = x;
+    });
+    if (!n || !first) return;
+    const body = (first.defer && first.defer.state === "req")
+      ? (first.defer.by + " から延納の申請が届いています")
+      : ((first.pay ? (first.t.to + " へ ¥" + first.t.amt.toLocaleString("ja-JP"))
+                    : (first.t.from + " から ¥" + first.t.amt.toLocaleString("ja-JP")))
+         + "（" + first.rm.label + "）");
+    try {
+      const note = new Notification("支払いの期限が近づいています", {
+        body: body + (n > 1 ? " ほか" + (n - 1) + "件" : ""), tag:"trip-pay", renotify:true });
+      note.onclick = () => { try { window.focus(); } catch (e) {} this.save({ tab:"cost" }); note.close(); };
+    } catch (e) {}
+    this.save({ notifiedDue:next });
+  }
+
+  // 受け取る側からの催促。チャットに履歴が残る
+  nudgeAt(key) { return Number((this.state.nudges || {})[key] || 0); }
+
+  sendNudge(key, tx, due) {
+    const me = this.activeMe();
+    const body = "[@" + tx.from + "] 支払いのお願い：¥" + Number(tx.amt).toLocaleString("ja-JP")
+      + "（期限 " + this.dueText(due) + "）が未払いです。";
+    this.save({ nudges:Object.assign({}, this.state.nudges || {}, { [key]:Date.now() }) });
+    if (!this.db) {
+      this.setState(s => ({ chat:(s.chat || []).concat({ id:"l" + Date.now(), who:me, body:body,
+        created_at:new Date().toISOString() }) }));
+      return;
+    }
+    this.db.from("trip_messages").insert({ who:me, body:body }).then(() => {});
+  }
+
   componentDidMount() {
     this.pickBackground();
-    this.dueTimer = setInterval(() => this.notifyDue(), 60000);
-    setTimeout(() => this.notifyDue(), 4000);
+    try { if (sessionStorage.getItem("adminOK") === "1") this.setState({ adminOK:true }); } catch (e) {}
+    this.loadFx();
+    this.fxTimer = setInterval(() => this.loadFx(), 1800000);
+    this.dueTimer = setInterval(() => { this.notifyDue(); this.notifyPay(); }, 60000);
+    setTimeout(() => { this.notifyDue(); this.notifyPay(); }, 4000);
+    setTimeout(() => this.migrateTxKeys(), 2500);
+    setTimeout(() => this.migrateDone(), 2800);
     this.onKey = ev => {
       if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
       const t = ev.target;
@@ -2027,7 +2648,7 @@ class Component extends DCLogic {
   preSlide(tabId) {
     const main = this.trackEl;
     if (!main) return;
-    const DOM = ["home","config","talk","route","plan","prep","local"];
+    const DOM = ["home","config","talk","route","plan","prep","cost","local"];
     const ids = TABS.map(t => t.id);
     const n = ids.length;
     const target = ids.indexOf(tabId);
@@ -2064,8 +2685,10 @@ class Component extends DCLogic {
           booked:s.booked, addBook:s.addBook, foodNotes:s.foodNotes, foodOpen:s.foodOpen, spotNotes:s.spotNotes,
           confirms:s.confirms, userLinks:s.userLinks,
           themeAdds:s.themeAdds, themeEdits:s.themeEdits, themeDel:s.themeDel,
-          prepOpen:s.prepOpen, myTodos:s.myTodos, packAdd:s.packAdd, packAddG:s.packAddG, packHidden:s.packHidden, notifiedDue:s.notifiedDue,
-          todoEdits:s.todoEdits, bookEdits:s.bookEdits, privTodos:s.privTodos, resetV:s.resetV
+          expenses:s.expenses, settledTx:s.settledTx, settlements:s.settlements, prepOpen:s.prepOpen, myTodos:s.myTodos, packAdd:s.packAdd, packAddG:s.packAddG, packHidden:s.packHidden, notifiedDue:s.notifiedDue,
+          todoEdits:s.todoEdits, bookEdits:s.bookEdits, privTodos:s.privTodos, resetV:s.resetV,
+          payDue:s.payDue, defer:s.defer, nudges:s.nudges, txKeyV:s.txKeyV, exDel:s.exDel, doneBy:s.doneBy,
+          adminCred:s.adminCred, exResetV:s.exResetV, planLog:s.planLog, delMsgs:s.delMsgs
         }));
       } catch (e) {}
       }, 350);
@@ -2075,6 +2698,14 @@ class Component extends DCLogic {
   setRoute(id) {
     const f = this.mapEl;
     if (f && f.contentWindow) f.contentWindow.postMessage({ type:"setRoute", route:id }, "*");
+  }
+
+  // 立替の記録を一度だけまるごと初期化する（何も立替が発生していない状態に戻す）
+  maybeResetExpenses() {
+    if (this.state.exResetV === EXPENSE_RESET) return;
+    if (this.state.sync === "connecting") return;
+    this.save({ expenses:[], settlements:[], settledTx:{}, defer:{}, nudges:{}, exDel:[],
+      exResetV:EXPENSE_RESET });
   }
 
   maybeResetVotes() {
@@ -2153,7 +2784,7 @@ class Component extends DCLogic {
   layoutTrack(dx, anim) {
     const main = this.trackEl;
     if (!main) return;
-    const DOM = ["home","config","talk","route","plan","prep","local"];
+    const DOM = ["home","config","talk","route","plan","prep","cost","local"];
     const secs = Array.prototype.filter.call(main.children, n => n.tagName === "SECTION");
     const visIds = DOM.filter(id => this.visTab(id));
     main.style.position = "relative";
@@ -2400,6 +3031,7 @@ class Component extends DCLogic {
       } catch (e) {}
     }
     this.maybeResetVotes();
+    this.maybeResetExpenses();
     this.postPicks();
     const n = this.myUnread();
     if (this.lastTitleN !== n) {
@@ -2416,8 +3048,14 @@ class Component extends DCLogic {
       const jump = this.needScroll;
       this.needScroll = false;
       this.lastChatLen = len;
-      if (jump && this.firstUnreadId() !== null && this.unreadEl) el.scrollTop = Math.max(0, this.unreadEl.offsetTop - 12);
-      else el.scrollTop = el.scrollHeight;
+      if (jump && this.firstUnreadId() !== null && this.unreadEl) {
+        // 未読の区切りを中央へ。中央に届かない場合は最新が最下部に来る
+        const vh = el.clientHeight || 0;
+        const eh = this.unreadEl.offsetHeight || 0;
+        const center = this.unreadEl.offsetTop - Math.max(0, (vh - eh) / 2);
+        const max = Math.max(0, el.scrollHeight - vh);
+        el.scrollTop = Math.min(max, Math.max(0, center));
+      } else el.scrollTop = el.scrollHeight;
     }
     if (this.state.tab === "talk") {
       clearTimeout(this.readTimer);
@@ -2433,7 +3071,8 @@ class Component extends DCLogic {
     this.ukEl.contentWindow.postMessage({ type:"setPicks", picks:picks }, "*");
   }
 
-  roster() { return (this.state.members || []).map(m => (m || "").trim()).filter(Boolean); }
+  // メンバーの名前は固定。変更すると管理者権限・メンション・立替の参照が壊れるため
+  roster() { return DEFAULT_MEMBERS.slice(); }
 
   activeMe() {
     const r = this.roster();
@@ -2529,7 +3168,640 @@ class Component extends DCLogic {
     } catch (e) {}
   }
 
+  // 支払い期限：共通期限が既定値。立替1件ごとに上書きできる
+  payDueBase() { return this.state.payDue || PAY_DUE_DEFAULT; }
+
+  dueOfEx(e) { return (e && e.due) ? e.due : this.payDueBase(); }
+
+  dueTs(iso) {
+    const d = new Date(String(iso || "").length === 10 ? (iso + "T23:59") : iso);
+    return isNaN(d.getTime()) ? new Date(PAY_DUE_DEFAULT).getTime() : d.getTime();
+  }
+
+  dueText(iso) {
+    const s = String(iso || "");
+    return s.slice(0,10).replace(/-/g, "/") + " " + (s.slice(11,16) || "23:59");
+  }
+
+  dueRemain(iso) {
+    const ms = this.dueTs(iso) - Date.now();
+    if (ms <= 0) {
+      const over = Math.max(1, Math.ceil(-ms / 86400000));
+      return { label:"期限切れ " + over + "日", over:true, urgent:true };
+    }
+    const hours = Math.ceil(ms / 3600000);
+    if (hours <= 24) return { label:"あと" + hours + "時間", over:false, urgent:true };
+    const days = Math.ceil(ms / 86400000);
+    return { label:"あと" + days + "日", over:false, urgent:days <= 3 };
+  }
+
+  // 延納（滞納の申請）。支払う側が申請し、受け取る側が許可／拒否する
+  deferOf(key) { return (this.state.defer || {})[key] || null; }
+
+  // ペアのキーは名前順で固定する。貸し借りの向きが逆転しても参照先を失わない
+  txKeyOf(t) {
+    if (!t) return "";
+    if (t.solo) return t.key;
+    return "pool:" + [t.from, t.to].slice().sort().join(">");
+  }
+
+  // 古い形式（pool:支払う人>受け取る人）のキーを一度だけ名前順に並び替える
+  migrateTxKeys() {
+    if (Number(this.state.txKeyV || 0) >= 2) return;
+    const fix = src => {
+      const out = {};
+      Object.keys(src || {}).forEach(k => {
+        if (k.indexOf("pool:") !== 0) { out[k] = src[k]; return; }
+        const pp = k.slice(5).split(">");
+        const nk = "pool:" + pp.slice().sort().join(">");
+        out[nk] = Object.assign({}, src[k], src[k] && src[k].payer ? {} : { payer:pp[0] });
+      });
+      return out;
+    };
+    this.save({ txKeyV:2, settledTx:fix(this.state.settledTx), defer:fix(this.state.defer) });
+  }
+
+  // 実際に効く期限：延納が確定していればその日時
+  // ただし延納のあとで「より早い期限の立替」が足された場合、その分は延納の対象外なので元の期限に戻す
+  dueOfTx(t, key) {
+    const base = t.due || this.payDueBase();
+    const d = this.deferOf(key);
+    if (!(d && d.state === "ok" && d.due)) return base;
+    if (d.payer && t.from && d.payer !== t.from) return base;
+    if (d.baseDue && this.dueTs(base) < this.dueTs(d.baseDue)) return base;
+    return d.due;
+  }
+
+  // 延納が部分的にしか効いていない状態
+  deferPartial(t, key) {
+    const d = this.deferOf(key);
+    if (!(d && d.state === "ok" && d.due && d.baseDue)) return false;
+    return this.dueTs(t.due || this.payDueBase()) < this.dueTs(d.baseDue);
+  }
+
+  setDefer(key, val) {
+    const next = Object.assign({}, this.state.defer || {});
+    if (val) next[key] = val; else delete next[key];
+    this.save({ defer:next });
+  }
+
+  // ホームの PAYMENTS から、費用・割り勘の該当トグルを開いてそこまで送る
+  txAnchor(k) { return "tx-" + String(k).replace(/[^0-9A-Za-z]/g, c => c.charCodeAt(0).toString(16)); }
+
+  gotoTx(k) {
+    this.setState({ exGrpOpen:Object.assign({}, this.state.exGrpOpen || {}, { [k]:true }) });
+    this.save({ tab:"cost" });
+    const id = this.txAnchor(k);
+    const tryScroll = n => {
+      try {
+        const el = document.getElementById(id);
+        if (!el) { if (n < 12) setTimeout(() => tryScroll(n + 1), 90); return; }
+        // 実際にスクロールしているのはタブごとの <section> なので、要素から遡って探す
+        let sc = null;
+        for (let p = el.parentElement; p; p = p.parentElement) {
+          const oy = getComputedStyle(p).overflowY;
+          if ((oy === "auto" || oy === "scroll") && p.scrollHeight > p.clientHeight + 4) { sc = p; break; }
+        }
+        if (sc) {
+          const top = el.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop - 14;
+          sc.scrollTo({ top:Math.max(0, top), behavior:"smooth" });
+          return;
+        }
+        const doc = document.scrollingElement || document.documentElement;
+        if (doc && doc.scrollHeight > doc.clientHeight + 4) {
+          const top = el.getBoundingClientRect().top + doc.scrollTop - 18;
+          doc.scrollTo({ top:Math.max(0, top), behavior:"smooth" });
+          return;
+        }
+        window.scrollTo({ top:Math.max(0, el.getBoundingClientRect().top + (window.pageYOffset || 0) - 18), behavior:"smooth" });
+      } catch (e) {}
+    };
+    setTimeout(() => tryScroll(0), 260);
+  }
+
+  // 自分に関わる未精算の返金を、期限が近い順に返す
+  myDues() {
+    if (this._duesS === this.state && this._dues) return this._dues;
+    const out = this.myDuesCalc();
+    this._duesS = this.state; this._dues = out;
+    return out;
+  }
+
+  myDuesCalc() {
+    const me = this.activeMe();
+    return this.settlement().tx.concat(this.soloTx())
+      .filter(t => t.from === me || t.to === me)
+      .map(t => {
+        const key = this.txKeyOf(t);
+        if (this.txSide(key, "from", t.amt, t.from) && this.txSide(key, "to", t.amt, t.from)) return null;
+        const due = this.dueOfTx(t, key);
+        return { key:key, t:t, due:due, ts:this.dueTs(due), pay:t.from === me,
+          rm:this.dueRemain(due), defer:this.deferOf(key) };
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.ts - b.ts);
+  }
+
+  // お知らせバッジ：期限が近い自分の未払い、返事を待たせている延納の申請
+  payAlertCount() {
+    return this.myDues().filter(x =>
+      (x.pay && x.rm.urgent && !(x.defer && x.defer.state === "ok"))
+      || (!x.pay && x.defer && x.defer.state === "req")
+      || (x.pay && x.defer && x.defer.state === "chg")
+    ).length;
+  }
+
+  // 記録時点の分担メンバーを固定する（あとからメンバーが増減しても割り勘は変わらない）
+  forOf(e) {
+    if (e.for && e.for.length) return e.for.slice();
+    if (e.roster && e.roster.length) return e.roster.slice();
+    return this.roster().slice();
+  }
+
+  // 精算チェック（支払った側・受け取った側の双方が✓で完了）
+  // チェック時の金額を控えておき、あとで金額が変わったらチェックを無効にする
+  txStale(key, amt, payer) {
+    const st = (this.state.settledTx || {})[key];
+    if (!st) return false;
+    if (payer && st.payer && st.payer !== payer) return true;
+    return !!(st.amt != null && Number(st.amt) !== Number(amt));
+  }
+
+  txSide(key, side, amt, payer) {
+    const st = (this.state.settledTx || {})[key] || {};
+    if (amt != null && this.txStale(key, amt, payer)) return false;
+    return !!st[side];
+  }
+
+  toggleTxSide(key, side, tx) {
+    const cur = this.state.settledTx || {};
+    const amt = tx ? Number(tx.amt) : null;
+    // 金額が変わっていたら、それまでのチェックは破棄して新しい金額で取り直す
+    const stale = amt != null && this.txStale(key, amt, tx && tx.from);
+    const one = stale ? {} : Object.assign({}, cur[key] || {});
+    if (one[side]) delete one[side]; else one[side] = true;
+    if (amt != null && (one.from || one.to)) { one.amt = amt; one.payer = tx.from; }
+    // 双方が✓になった時点で金額を確定させ、以降の残高から差し引く
+    if (one.from && one.to && tx) {
+      const next = Object.assign({}, cur);
+      delete next[key];
+      const nd = Object.assign({}, this.state.defer || {});
+      delete nd[key];
+      this.save({
+        settledTx: next,
+        defer: nd,
+        settlements: (this.state.settlements || []).concat({
+          id:"s" + Date.now(), from:tx.from, to:tx.to, amt:tx.amt,
+          at: Date.now(), soloId: tx.solo ? tx.soloId : null, soloKey: tx.solo ? tx.key : null
+        })
+      });
+      return;
+    }
+    this.save({ settledTx:Object.assign({}, cur, { [key]:one }) });
+  }
+
+  txChecks(key, from, to, tx) {
+    const me = this.activeMe();
+    const admin = this.adminOn();
+    const amt = tx ? Number(tx.amt) : null;
+    const stale = amt != null && this.txStale(key, amt, tx && tx.from);
+    const fd = this.txSide(key, "from", amt, tx && tx.from), td = this.txSide(key, "to", amt, tx && tx.from);
+    const side = me === from ? "from" : me === to ? "to" : null;
+    const chip = on => "cursor:pointer; outline:none !important; box-shadow:none; -webkit-tap-highlight-color:transparent; "
+      + "border-radius:999px; padding:5px 13px; font-family:var(--font-body); font-size:11px; font-weight:700; "
+      + "border:1px solid var(--color-divider); transition:all .16s; "
+      + (on ? "background:#57750E; color:#ffffff; border-color:#57750E" : "background:#ffffff; color:var(--color-neutral-700)");
+    const on = side === "to" ? td : fd;
+    return Object.assign({
+      done: fd && td,
+      mine: !!side,
+      canAct: !!side || admin,
+      actLabel: side === "to" ? ((td ? "✓ " : "") + "受け取った")
+              : side === "from" ? ((fd ? "✓ " : "") + "支払った")
+              : (admin ? "管理者として両方を完了にする" : ""),
+      actStyle: chip(side ? on : (fd && td)),
+      actGo: ev => {
+        try { if (ev && ev.currentTarget && ev.currentTarget.blur) ev.currentTarget.blur(); } catch (e) {}
+        if (side) this.toggleTxSide(key, side, tx);
+        else if (admin && tx) {
+          const cur = Object.assign({}, this.state.settledTx || {});
+          delete cur[key];
+          const nd = Object.assign({}, this.state.defer || {});
+          delete nd[key];
+          this.save({ settledTx:cur, defer:nd, settlements:(this.state.settlements || []).concat({
+            id:"s" + Date.now(), from:tx.from, to:tx.to, amt:tx.amt, at:Date.now(),
+            soloId: tx.solo ? tx.soloId : null, soloKey: tx.solo ? tx.key : null, by:me }) });
+        }
+      },
+      stale: stale,
+      staleText: "記録が追加・変更されて金額が変わりました。もう一度お互いに確認してください。",
+      statusText: (fd ? "支払い済み ✓" : "支払い 未") + " · " + (td ? "受取確認 ✓" : "受取確認 未"),
+      statusStyle: "font-family:var(--font-body); font-size:10.5px; font-weight:700; "
+        + (fd && td ? "color:#4B6B14" : "color:var(--color-neutral-600)")
+    }, this.txDueParts(key, from, to, tx, side, admin, fd && td));
+  }
+
+  // 期限の表示と、延納（滞納）の申請・許可・拒否
+  txDueParts(key, from, to, tx, side, admin, done) {
+    const me = this.activeMe();
+    const d = this.deferOf(key);
+    const due = this.dueOfTx(tx || {}, key);
+    const rm = this.dueRemain(due);
+    const deferred = !!(d && d.state === "ok");
+    const pill = (bg, fg, bd) => "flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; border-radius:999px; "
+      + "padding:2px 9px; white-space:nowrap; background:" + bg + "; color:" + fg + "; border:1px solid " + bd;
+    const btn = (bg, fg, bd) => "cursor:pointer; outline:none !important; box-shadow:none; -webkit-tap-highlight-color:transparent; "
+      + "border-radius:999px; padding:5px 13px; font-family:var(--font-body); font-size:11px; font-weight:700; "
+      + "background:" + bg + "; color:" + fg + "; border:1px solid " + bd;
+    const wantVal = (this.state.deferWant || {})[key] || "";
+    const setWant = v => this.setState({ deferWant:Object.assign({}, this.state.deferWant || {}, { [key]:v }) });
+    const noteVal = (this.state.deferNote || {})[key] || "";
+    const setNote = v => this.setState({ deferNote:Object.assign({}, this.state.deferNote || {}, { [key]:v }) });
+
+    return {
+      dueLabel: (deferred ? "延納 " : "") + this.dueText(due) + " まで",
+      dueRemainLabel: rm.label,
+      dueRemainStyle: done ? pill("var(--color-neutral-200)", "var(--color-neutral-700)", "transparent")
+        : rm.over ? pill("#F6DAD2", "#8A2F14", "#C87A5E")
+        : rm.urgent ? pill("#F6E0B8", "#7A4A0E", "#D9A64A")
+        : pill("#EDF3E2", "#3F5A18", "#C3D6A0"),
+      dueOver: !done && rm.over,
+
+      // 申請フォーム（支払う側だけ）
+      canReq: side === "from" && !done && !(d && (d.state === "req" || d.state === "chg" || d.state === "ok")),
+      reqOpen: (this.state.deferOpen || {})[key] === true,
+      reqGo: () => this.setState({ deferOpen:Object.assign({}, this.state.deferOpen || {}, { [key]: !((this.state.deferOpen || {})[key]) }) }),
+      reqWant: wantVal || String(due).slice(0,16),
+      onReqWant: ev => setWant(ev.target.value),
+      reqNote: noteVal,
+      onReqNote: ev => setNote(ev.target.value),
+      reqSubmit: () => {
+        const want = wantVal || String(due).slice(0,16);
+        if (!want) return;
+        this.setDefer(key, { state:"req", by:me, at:Date.now(), want:want, note:String(noteVal || "").trim(), payer:(tx && tx.from) || me });
+        this.setState({ deferOpen:Object.assign({}, this.state.deferOpen || {}, { [key]:false }) });
+      },
+      reqBtnStyle: btn("#FFFFFF", "#7A4A0E", "#D9A64A"),
+      reqSendStyle: btn("#8C86C4", "#FFFFFF", "#8C86C4"),
+
+      // 申請中（受け取る側が許可／拒否する）
+      isReq: !!(d && d.state === "req"),
+      reqText: d && d.state === "req"
+        ? (d.by + " から「" + this.dueText(d.want) + " まで待ってほしい」と申請が来ています")
+        : "",
+      reqNoteText: d && d.state === "req" && d.note ? ("「" + d.note + "」") : "",
+      hasReqNote: !!(d && d.state === "req" && d.note),
+      canJudge: !!(d && d.state === "req" && (side === "to" || (admin && !side))),
+      judgeDue: (this.state.deferWant || {})[key + ":j"] || (d && d.want ? String(d.want).slice(0,16) : String(due).slice(0,16)),
+      onJudgeDue: ev => this.setState({ deferWant:Object.assign({}, this.state.deferWant || {}, { [key + ":j"]:ev.target.value }) }),
+      okGo: () => {
+        const set = (this.state.deferWant || {})[key + ":j"];
+        const chosen = set || (d && d.want) || due;
+        const same = String(chosen).slice(0,16) === String((d && d.want) || "").slice(0,16);
+        const bd = (tx && tx.due) || this.payDueBase();
+        const py = (tx && tx.from) || d.payer;
+        this.setDefer(key, same
+          ? { state:"ok", by:d.by, at:d.at, okAt:Date.now(), okBy:me, due:chosen, note:d.note, baseDue:bd, payer:py }
+          : { state:"chg", by:d.by, at:d.at, okAt:Date.now(), okBy:me, due:chosen, want:d.want, note:d.note, baseDue:bd, payer:py });
+      },
+      noGo: () => {
+        this.setDefer(key, { state:"no", by:d.by, at:d.at, okAt:Date.now(), okBy:me, want:d.want, note:d.note, payer:d.payer });
+      },
+      okStyle: btn("#57750E", "#FFFFFF", "#57750E"),
+      noStyle: btn("#FFFFFF", "#8A2F14", "#C87A5E"),
+
+      // 受け取る側が日付を変えた場合だけ、支払う側の確認を求める
+      isChg: !!(d && d.state === "chg"),
+      chgText: d && d.state === "chg"
+        ? (d.okBy + " が期限を " + this.dueText(d.due) + " に変えて許可しました。確認してください。")
+        : "",
+      canAck: !!(d && d.state === "chg" && (side === "from" || (admin && !side))),
+      ackGo: () => this.setDefer(key, { state:"ok", by:d.by, at:d.at, okAt:d.okAt, okBy:d.okBy, due:d.due, note:d.note,
+        baseDue: d.baseDue || (tx && tx.due) || this.payDueBase(), payer: d.payer || (tx && tx.from) }),
+      ackStyle: btn("#57750E", "#FFFFFF", "#57750E"),
+
+      // 申請した側は取り下げられる。返事が止まったときは管理者が取り下げる
+      canWithdraw: !!(d && (d.state === "req" || d.state === "chg") && (side === "from" || admin)),
+      withdrawLabel: (d && d.state === "chg") ? "延納をことわる" : "申請を取り下げる",
+      withdrawGo: () => this.setDefer(key, null),
+      withdrawStyle: "cursor:pointer; outline:none; background:transparent; border:0; padding:0; color:#7A4A0E; font-family:var(--font-body); font-size:10.5px; font-weight:700",
+
+      // 延納のあとで、より早い期限の立替が足された
+      isPartial: !!(tx && this.deferPartial(tx, key)),
+      partialText: "延納を許可したあとで、より早い期限の立替が追加されました。この分は延納の対象外なので、必要ならもう一度申請してください。",
+
+      // 期限が複数あるペア
+      hasDueMore: !!(tx && tx.dues && tx.dues.length > 1),
+      dueMoreText: (tx && tx.dues && tx.dues.length > 1)
+        ? ("このペアには期限が " + tx.dues.length + " つあります（最も遅いのは " + this.dueText(tx.dues[tx.dues.length - 1]) + "）")
+        : "",
+
+      // 催促（受け取る側だけ。期限を過ぎてから、24時間に1回まで）
+      canNudge: side === "to" && !done && !!tx && rm.over && (Date.now() - this.nudgeAt(key) > 86400000),
+      nudgeGo: () => { if (tx) this.sendNudge(key, tx, due); },
+      nudgeStyle: btn("#FFFFFF", "#8A2F14", "#C87A5E"),
+      hasNudged: this.nudgeAt(key) > 0,
+      nudgedText: this.nudgeAt(key) > 0
+        ? ("催促を送りました · " + new Date(this.nudgeAt(key)).toLocaleString("ja-JP", { month:"numeric", day:"numeric", hour:"2-digit", minute:"2-digit" }))
+        : "",
+
+      // 拒否された
+      isNo: !!(d && d.state === "no"),
+      noText: d && d.state === "no" ? (d.okBy + " が延納を断りました。もとの期限のままです。") : "",
+      canClearNo: !!(d && d.state === "no" && (side === "from" || side === "to" || admin)),
+      clearNoGo: () => this.setDefer(key, null),
+
+      // 延納が確定
+      isOk: deferred,
+      okText: deferred ? (d.okBy + " の許可で " + this.dueText(d.due) + " まで延納しています") : "",
+      canCancelOk: deferred && (side === "to" || admin),
+      cancelOkGo: () => {
+        if (typeof window !== "undefined" && window.confirm
+            && !window.confirm("延納を取り消して、もとの期限に戻します。よろしいですか？")) return;
+        this.setDefer(key, null);
+      },
+      dueTs: this.dueTs(due)
+    };
+  }
+
+  // 「個別に」精算する立替は、1件ごとに返金する
+  soloTx() {
+    if (this._soloS === this.state && this._solo) return this._solo;
+    const out = this.soloTxCalc();
+    this._soloS = this.state; this._solo = out;
+    return out;
+  }
+
+  soloTxCalc() {
+    const roster = this.roster();
+    const out = [];
+    const settled = {};
+    (this.state.settlements || []).forEach(r => {
+      if (r.soloId) settled[r.soloId] = true;
+      if (r.soloKey) settled[r.soloKey] = true;
+    });
+    (this.state.expenses || []).filter(e => (e.mode || "pool") === "solo").forEach(e => {
+      const forList = this.forOf(e);
+      const jpy = this.jpyOf(e);
+      if (!jpy || !forList.length) return;
+      // 端数は立替えた人が持つ（各人の額を足すと必ず総額に収まる）
+      const per = Math.floor(jpy / forList.length);
+      if (!per) return;
+      forList.forEach((n, i) => {
+        if (n === e.who) return;
+        // 名前ではなく並び順で識別するので、改名しても精算済みが外れない
+        const soloId = "solo#" + e.id + "#" + i;
+        if (settled[soloId] || settled["solo:" + e.id + ":" + n]) return;
+        out.push({ key:soloId, soloId:soloId, from:n, to:e.who, amt:per, x:e.x || "立替", solo:true, due:this.dueOfEx(e) });
+      });
+    });
+    return out;
+  }
+
+  fxRates() {
+    return Object.assign({ JPY:1, EUR:172, GBP:200, USD:148, SGD:115 }, this.state.fx || {});
+  }
+
+  loadFx() {
+    try {
+      fetch("https://open.er-api.com/v6/latest/JPY").then(r => r.json()).then(d => {
+        const r = d && d.rates;
+        if (!r || !r.EUR) return;
+        this.setState({ fx:{ JPY:1, EUR:1 / r.EUR, GBP:1 / r.GBP, USD:1 / r.USD, SGD:1 / r.SGD }, fxAt:Date.now() });
+      }).catch(() => {});
+    } catch (e) {}
+  }
+
+  // 記録時のレートで円換算（保存されていなければ現在のレート）
+  jpyOf(e) {
+    const rate = Number(e.rate) || this.fxRates()[e.cur || "JPY"] || 1;
+    return Math.round((Number(e.amt) || 0) * rate);
+  }
+
+  // 2者間で相殺した返金と、その内訳（どの立替が含まれるか）を出す
+  settlement() {
+    if (this._stlS === this.state && this._stl) return this._stl;
+    const out = this.settlementCalc();
+    this._stlS = this.state; this._stl = out;
+    return out;
+  }
+
+  settlementCalc() {
+    const roster = this.roster();
+    const bal = {};
+    roster.forEach(n => { bal[n] = 0; });
+    const pair = {};
+    (this.state.expenses || []).filter(e => (e.mode || "pool") !== "solo").forEach(e => {
+      const amt = this.jpyOf(e);
+      const forList = this.forOf(e);
+      if (!amt || !forList.length) return;
+      if (bal[e.who] === undefined) bal[e.who] = 0;
+      forList.forEach(n => { if (bal[n] === undefined) bal[n] = 0; });
+      // 1円単位で分ける。端数は立替えた人（対象外なら先頭の人）が持つ
+      const unit = Math.floor(amt / forList.length);
+      const rest = amt - unit * forList.length;
+      const holder = forList.indexOf(e.who) >= 0 ? e.who : forList[0];
+      const shareOf = n => unit + (n === holder ? rest : 0);
+      bal[e.who] += amt;
+      forList.forEach(n => {
+        const share = shareOf(n);
+        bal[n] -= share;
+        if (n === e.who) return;
+        const key = n < e.who ? (n + "\u0000" + e.who) : (e.who + "\u0000" + n);
+        if (!pair[key]) pair[key] = { a:key.split("\u0000")[0], b:key.split("\u0000")[1], v:0, items:[], dues:[] };
+        const p = pair[key];
+        p.dues.push(this.dueOfEx(e));
+        // v は a → b の向きを正とする
+        p.v += (n === p.a ? share : -share);
+        p.items.push({ x:e.x || "立替", who:e.who, amt:share, owedBy:n });
+      });
+    });
+    // 精算済みの金額を差し引く。ただし借りの向きを越えて引きすぎない
+    // （立替の記録を消した・減額したときに逆向きの借金が生まれるのを防ぐ）
+    Object.keys(pair).forEach(k => { pair[k].raw = pair[k].v; });
+    (this.state.settlements || []).filter(r => !(r.soloId || r.soloKey)).forEach(r => {
+      const key = r.from < r.to ? (r.from + "\u0000" + r.to) : (r.to + "\u0000" + r.from);
+      if (!pair[key]) pair[key] = { a:key.split("\u0000")[0], b:key.split("\u0000")[1], v:0, raw:0, items:[], dues:[] };
+      const p = pair[key];
+      p.v -= (r.from === p.a ? r.amt : -r.amt);
+      p.items.push({ x:"精算済み", amt:r.amt, owedBy:(r.from === p.a ? p.b : p.a), who:r.to, settled:true });
+    });
+    const over = [];
+    Object.keys(pair).forEach(k => {
+      const p = pair[k];
+      // 内訳の「精算済み」行は1行にまとめる
+      const done = p.items.filter(it => it.settled);
+      if (done.length > 1) {
+        const keep = p.items.filter(it => !it.settled);
+        const sum = done.reduce((a, it) => a + it.amt, 0);
+        p.items = keep.concat([{ x:"精算済み（" + done.length + "件）", amt:sum,
+          owedBy:done[0].owedBy, who:done[0].who, settled:true }]);
+      }
+      const raw = p.raw || 0, net = p.v;
+      const clamped = raw > 0 ? Math.max(0, Math.min(raw, net))
+                    : raw < 0 ? Math.min(0, Math.max(raw, net)) : 0;
+      if (Math.abs(clamped - net) >= 1) {
+        // 引きすぎた分＝払い過ぎ。請求はゼロで止めて、別に知らせる
+        over.push({ a:p.a, b:p.b, amt:Math.round(Math.abs(clamped - net)),
+          payer:(net < clamped ? p.b : p.a), payee:(net < clamped ? p.a : p.b) });
+      }
+      p.v = clamped;
+    });
+    const tx = Object.keys(pair).map(k => pair[k]).map(p => {
+      const v = Math.round(p.v);
+      if (!v) return null;
+      const from = v > 0 ? p.a : p.b;
+      const to = v > 0 ? p.b : p.a;
+      const items = p.items.map(it => ({
+        x: it.x,
+        amt: it.amt,
+        sign: it.owedBy === from ? 1 : -1,
+        label: (it.owedBy === from ? "＋" : "−") + "¥" + it.amt.toLocaleString("ja-JP") + "（" + it.who + " が立替）"
+      }));
+      return { from:from, to:to, amt:Math.abs(v), items:items,
+        dues: (() => {
+          const u = [];
+          (p.dues || []).forEach(d => { if (u.indexOf(d) < 0) u.push(d); });
+          return u.sort((x, y) => this.dueTs(x) - this.dueTs(y));
+        })(),
+        due: (p.dues || []).slice().sort((x, y) => this.dueTs(x) - this.dueTs(y))[0] || this.payDueBase() };
+    }).filter(Boolean).sort((a, b) => b.amt - a.amt);
+    return { bal:bal, tx:tx, over:over };
+  }
+
   confirmsOf(n) { return (this.state.confirms || {})[n] || {}; }
+
+  // 管理者権限は「名前が堀木」だけでは不十分。登録した端末で生体認証を通す必要がある
+  isAdminName() { return this.activeMe() === "堀木"; }
+
+  adminEnrolled() { return !!((this.state.adminCred || {}).id); }
+
+  adminOn() {
+    if (!this.isAdminName()) return false;
+    if (!this.adminEnrolled()) return false;
+    return this.state.adminOK === true;
+  }
+
+  b64u(buf) {
+    const b = String.fromCharCode.apply(null, Array.from(new Uint8Array(buf)));
+    return btoa(b).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+
+  unb64u(s) {
+    const t = String(s).replace(/-/g, "+").replace(/_/g, "/");
+    const raw = atob(t + "=".repeat((4 - t.length % 4) % 4));
+    const out = new Uint8Array(raw.length);
+    for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+    return out;
+  }
+
+  setAdminOK(v) {
+    try { sessionStorage.setItem("adminOK", v ? "1" : "0"); } catch (e) {}
+    this.setState({ adminOK:!!v });
+  }
+
+  bioSupported() {
+    return typeof window !== "undefined" && !!(window.PublicKeyCredential && navigator.credentials && navigator.credentials.create);
+  }
+
+  enrollAdmin() {
+    if (!this.bioSupported()) { this.setState({ adminMsg:"この端末では生体認証を使えません。合言葉で解錠してください。" }); return; }
+    const ch = new Uint8Array(32);
+    try { crypto.getRandomValues(ch); } catch (e) {}
+    navigator.credentials.create({ publicKey:{
+      challenge: ch,
+      rp: { name:"卒業旅行の栀" },
+      user: { id: new TextEncoder().encode("horiki-admin"), name:"horiki", displayName:"堀木" },
+      pubKeyCredParams: [{ type:"public-key", alg:-7 }, { type:"public-key", alg:-257 }],
+      authenticatorSelection: { authenticatorAttachment:"platform", userVerification:"required", residentKey:"preferred" },
+      timeout: 60000, attestation:"none"
+    } }).then(cred => {
+      if (!cred) { this.setState({ adminMsg:"登録できませんでした。" }); return; }
+      this.save({ adminCred:{ id:this.b64u(cred.rawId), at:Date.now() } });
+      this.setAdminOK(true);
+      this.setState({ adminMsg:"この端末を管理者端末として登録しました。" });
+    }).catch(err => {
+      this.setState({ adminMsg:"登録を中止しました（" + ((err && err.name) || "error") + "）" });
+    });
+  }
+
+  unlockAdmin() {
+    const id = (this.state.adminCred || {}).id;
+    if (!id) { this.setState({ adminMsg:"まだ端末が登録されていません。" }); return; }
+    if (!this.bioSupported()) { this.setState({ adminMsg:"この端末では生体認証を使えません。合言葉で解錠してください。" }); return; }
+    const ch = new Uint8Array(32);
+    try { crypto.getRandomValues(ch); } catch (e) {}
+    navigator.credentials.get({ publicKey:{
+      challenge: ch,
+      allowCredentials: [{ type:"public-key", id:this.unb64u(id), transports:["internal"] }],
+      userVerification: "required", timeout: 60000
+    } }).then(a => {
+      if (!a) { this.setState({ adminMsg:"認証できませんでした。" }); return; }
+      this.setAdminOK(true);
+      this.setState({ adminMsg:"" });
+    }).catch(err => {
+      this.setState({ adminMsg:"認証できませんでした（" + ((err && err.name) || "error") + "）。登録した端末かどうか確かめてください。" });
+    });
+  }
+
+  unlockAdminPass() {
+    const v = typeof window !== "undefined" && window.prompt ? window.prompt("合言葉を入力してください") : "";
+    if (String(v || "").trim() !== "卒業旅行の栀") { this.setState({ adminMsg:"合言葉が違います。" }); return; }
+    this.setAdminOK(true);
+    this.setState({ adminMsg:"合言葉で解錠しました。" });
+  }
+
+  lockAdmin() { this.setAdminOK(false); this.setState({ adminMsg:"" }); }
+
+  resetAdminCred() {
+    if (typeof window !== "undefined" && window.confirm
+        && !window.confirm("管理者端末の登録を解除します。新しい端末でやり直せます。よろしいですか？")) return;
+    this.save({ adminCred:null });
+    this.setAdminOK(false);
+    this.setState({ adminMsg:"登録を解除しました。" });
+  }
+
+  // 確認リストの✓は人ごとに持つ。誰が✓したかを全員が見られる
+  doneOf(id) { return (this.state.doneBy || {})[id] || {}; }
+
+  doneMine(id) { return !!this.doneOf(id)[this.activeMe()]; }
+
+  // その項目の対象メンバー
+  todoTargets(id) {
+    const w = (this.state.todoWho || {})[id] || [];
+    const roster = this.roster();
+    return w.length ? w.filter(n => roster.indexOf(n) >= 0) : roster;
+  }
+
+  doneNames(id) {
+    const d = this.doneOf(id);
+    return this.todoTargets(id).filter(n => d[n]);
+  }
+
+  toggleDone(id) {
+    const me = this.activeMe();
+    if (!me) return;
+    const one = Object.assign({}, this.doneOf(id));
+    if (one[me]) delete one[me]; else one[me] = true;
+    this.save({ doneBy:Object.assign({}, this.state.doneBy || {}, { [id]:one }) });
+  }
+
+  // 端末に残っている古い✓（全体で共有されていなかった分）を自分の✓として引き継ぐ
+  migrateDone() {
+    const me = this.activeMe();
+    const old = this.state.done || {};
+    const ids = Object.keys(old).filter(k => old[k]);
+    if (!me || !ids.length) return;
+    const cur = this.state.doneBy || {};
+    const next = Object.assign({}, cur);
+    let n = 0;
+    ids.forEach(id => {
+      if ((cur[id] || {})[me]) return;
+      next[id] = Object.assign({}, cur[id] || {}, { [me]:true });
+      n++;
+    });
+    if (n) this.save({ doneBy:next });
+  }
 
   // 投票済みだが未確定のテーマ（複数選択・単一選択の両方）— 検討・投票を開いたときに自動で開く対象
   pendingThemeId() {
@@ -2564,14 +3836,17 @@ class Component extends DCLogic {
     if (!t || t.multi || !t.options || !t.options.length) return null;
     const r = this.roster();
     if (!r.length) return null;
-    const need = Math.floor(r.length / 2) + 1;
+    // 2位に 6票差がついたら自動終了
+    const GAP = 6;
     const b = this.state.ballots || {};
-    for (let i = 0; i < t.options.length; i++) {
-      const o = t.options[i];
-      const n = r.filter(nm => (b[nm] || {})[t.id] === o.id).length;
-      if (n >= need) return { id:o.id, name:o.name, count:n, need:need };
-    }
-    return null;
+    const counts = t.options.map(o => ({
+      id:o.id, name:o.name,
+      n: r.filter(nm => (b[nm] || {})[t.id] === o.id).length
+    })).sort((a, c) => c.n - a.n);
+    if (!counts.length || !counts[0].n) return null;
+    const second = counts[1] ? counts[1].n : 0;
+    if (counts[0].n - second < GAP) return null;
+    return { id:counts[0].id, name:counts[0].name, count:counts[0].n, need:GAP, gap:counts[0].n - second };
   }
 
   whenRank(txt) {
@@ -2684,8 +3959,8 @@ class Component extends DCLogic {
         confirmNote: unanimous
           ? (roster.length + "人全員が確定したため、この投票は締め切られました。チェックを外すと再開できます。")
           : t.multi
-            ? ("確定 " + cCount + " / " + roster.length + "人。複数選択のテーマでは過半数による自動終了はありません。期限を過ぎるか、全員が確定すると締め切られます。迷っているうちはチェックを外したままにしてください。")
-            : ("確定 " + cCount + " / " + roster.length + "人。いずれかの案が過半数（" + (Math.floor(roster.length / 2) + 1) + "票）に達するか、全員が確定すると自動で締め切られます。迷っているうちはチェックを外したままにしてください。"),
+            ? ("確定 " + cCount + " / " + roster.length + "人。複数選択のテーマでは票差による自動終了はありません。期限を過ぎるか、全員が確定すると締め切られます。迷っているうちはチェックを外したままにしてください。")
+            : ("確定 " + cCount + " / " + roster.length + "人。首位の案が2位に6票差をつけるか、全員が確定すると自動で締め切られます。迷っているうちはチェックを外したままにしてください。"),
         confirmGo: () => { if (!dPassed) this.toggleConfirm(t.id); },
         deadlineLabel: decided ? ("案" + DECIDED_ROUTE + " に決定しました")
           : unanimous ? (roster.length + "人全員の確定により投票終了")
@@ -2780,9 +4055,9 @@ class Component extends DCLogic {
         sub: t.sub || "",
         hasSub: !!String(t.sub || "").trim(),
         result: winners.length ? winners.map(w => w.label).join(" / ") : "投票なし",
-        resultCount: winners.length ? (topN + "票" + (winners.length > 1 ? "（同票）" : maj ? "（過半数）" : "")) : "",
+        resultCount: winners.length ? (topN + "票" + (winners.length > 1 ? "（同票）" : maj ? "（6票差）" : "")) : "",
         open: rOpen,
-        canDel: me === "堀木" && t.id !== "route",
+        canDel: this.adminOn() && t.id !== "route",
         del: () => {
           if (typeof window !== "undefined" && window.confirm
               && !window.confirm("「" + t.label + "」を削除します。投票結果も表示されなくなります。よろしいですか？")) return;
@@ -2807,7 +4082,7 @@ class Component extends DCLogic {
       };
     });
 
-    const isAdmin = me === "堀木";
+    const isAdmin = this.adminOn();
     const NEXTID = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const isCustomTheme = id => (this.state.themeAdds || []).some(t => t.id === id);
     const patchTheme = (id, patch) => {
@@ -2818,6 +4093,19 @@ class Component extends DCLogic {
           { [id]:Object.assign({}, (this.state.themeEdits || {})[id] || {}, patch) }) });
       }
     };
+    const setThemeDraft = (key, patch) => this.setState({
+      themeDraft: Object.assign({}, this.state.themeDraft || {},
+        { [key]: Object.assign({}, (this.state.themeDraft || {})[key] || {}, patch) }) });
+    const commitThemeDraft = (id, field) => {
+      const d = (this.state.themeDraft || {})[id];
+      if (!d || d[field] === undefined) return;
+      patchTheme(id, { [field]: d[field] });
+      const next = Object.assign({}, this.state.themeDraft || {});
+      const one = Object.assign({}, next[id]);
+      delete one[field];
+      if (Object.keys(one).length) next[id] = one; else delete next[id];
+      this.setState({ themeDraft:next });
+    };
     const optsOf = t => (t.options || []).map(o => ({ id:o.id, name:o.name }));
     const adminThemes = this.themeList().map(t => ({
       label: t.label, sub: t.sub || "",
@@ -2825,8 +4113,13 @@ class Component extends DCLogic {
       statusStyle: "flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; border-radius:999px; padding:3px 9px; "
         + (this.isClosed(t.id) ? "background:var(--color-neutral-200); color:var(--color-neutral-700)"
                                : "background:var(--color-accent-2-300); color:var(--color-accent-2-900)"),
-      onLabel: e => patchTheme(t.id, { label:e.target.value }),
-      onSub: e => patchTheme(t.id, { sub:e.target.value }),
+      // 入力中は端末内の下書きを表示し、フォーカスを外したときに保存・共有する
+      label: (() => { const d = (s.themeDraft || {})[t.id]; return (d && d.label !== undefined) ? d.label : t.label; })(),
+      sub: (() => { const d = (s.themeDraft || {})[t.id]; return (d && d.sub !== undefined) ? d.sub : (t.sub || ""); })(),
+      onLabel: e => setThemeDraft(t.id, { label:e.target.value }),
+      onSub: e => setThemeDraft(t.id, { sub:e.target.value }),
+      commitLabel: () => commitThemeDraft(t.id, "label"),
+      commitSub: () => commitThemeDraft(t.id, "sub"),
       deadline: this.deadlineLocal(t.id),
       onDeadline: e => this.save({ deadlines:Object.assign({}, this.state.deadlines, { [t.id]:e.target.value }) }),
       del: () => this.save({ themeDel:Object.assign({}, this.state.themeDel || {}, { [t.id]:true }) }),
@@ -2866,8 +4159,18 @@ class Component extends DCLogic {
       })(),
       canEditOpts: !t.ukmap,
       opts: optsOf(t).map((o, i) => ({
-        name: o.name,
-        onName: e => { const arr = optsOf(t); arr[i] = { id:o.id, name:e.target.value }; patchTheme(t.id, { options:arr }); },
+        name: (() => { const d = (s.themeDraft || {})[t.id + ":" + o.id]; return (d && d.name !== undefined) ? d.name : o.name; })(),
+        onName: e => setThemeDraft(t.id + ":" + o.id, { name:e.target.value }),
+        commitName: () => {
+          const d = (this.state.themeDraft || {})[t.id + ":" + o.id];
+          if (!d || d.name === undefined) return;
+          const arr = optsOf(t);
+          arr[i] = { id:o.id, name:d.name };
+          patchTheme(t.id, { options:arr });
+          const next = Object.assign({}, this.state.themeDraft || {});
+          delete next[t.id + ":" + o.id];
+          this.setState({ themeDraft:next });
+        },
         del: () => { const arr = optsOf(t).filter((_, k) => k !== i); if (arr.length) patchTheme(t.id, { options:arr }); }
       })),
       addOpt: () => {
@@ -2884,6 +4187,10 @@ class Component extends DCLogic {
         patchTheme(t.id, { options:arr });
       }
     }));
+
+    const chipStyle = on => "cursor:pointer; outline:none; -webkit-tap-highlight-color:transparent; border-radius:999px; padding:6px 13px; "
+      + "font-family:var(--font-body); font-size:12px; font-weight:700; border:1px solid var(--color-divider); transition:all .16s; "
+      + (on ? "background:#8C86C4; color:#ffffff; border-color:#8C86C4" : "background:#ffffff; color:var(--color-text)");
 
     const notesList = ballots.filter(b => ((s.notes || {})[b.n] || "").trim()).map(b => ({ n:b.n, c:s.notes[b.n] }));
 
@@ -2912,7 +4219,7 @@ class Component extends DCLogic {
     const visBooking = BOOKING.filter(b => !hid["book:" + b.n]);
     const visMyTodos = (s.myTodos || []).filter(t => !hid["todo:" + t.id] && inTarget(t.id));
     const privList = s.privTodos || [];
-    const doneCount = visTodos.filter(t => s.done[t.id]).length + visMyTodos.filter(t => s.done[t.id]).length
+    const doneCount = visTodos.filter(t => this.doneMine(t.id)).length + visMyTodos.filter(t => this.doneMine(t.id)).length
       + privList.filter(t => s.done[t.id]).length;
     const packedCount = visPacking.reduce((a,g) => a + g.items.filter(i => s.packed[i]).length, 0);
     const packTotal = visPacking.reduce((a,g) => a + g.items.length, 0);
@@ -3082,8 +4389,12 @@ class Component extends DCLogic {
       metaStyle: "display:none",
       cdWrapStyle: "display:none",
       tabs: TABS.map(t => ({ label:t.label,style:pill(s.tab === t.id, t.btn || t.theme), go:() => this.save({ tab:t.id }),
-        hasBadge: (t.id === "talk" && this.myUnread() > 0) || (t.id === "route" && this.openUnvotedCount() > 0) || (t.id === "prep" && this.dueTodos().length > 0),
-        badge: t.id === "route" ? String(this.openUnvotedCount())
+        hasBadge: (t.id === "home" && (this.myUnread() + this.openUnvotedCount() + this.dueTodos().length + this.payAlertCount()) > 0)
+               || (t.id === "talk" && this.myUnread() > 0) || (t.id === "route" && this.openUnvotedCount() > 0) || (t.id === "prep" && this.dueTodos().length > 0)
+               || (t.id === "cost" && this.payAlertCount() > 0),
+        badge: t.id === "home" ? String(this.myUnread() + this.openUnvotedCount() + this.dueTodos().length + this.payAlertCount())
+             : t.id === "cost" ? String(this.payAlertCount())
+             : t.id === "route" ? String(this.openUnvotedCount())
              : t.id === "prep" ? String(this.dueTodos().length)
              : String(this.myUnread()) })),
       notifyAsk: typeof Notification !== "undefined" && Notification.permission === "default",
@@ -3211,12 +4522,13 @@ class Component extends DCLogic {
         TODOS.filter(t => !hid["todo:" + t.id]).map(t => ({ id:t.id, title:(te2[t.id] || {}).title !== undefined ? te2[t.id].title : t.title }))
           .concat((s.myTodos || []).filter(t => !hid["todo:" + t.id]).map(t => ({ id:t.id, title:t.title || "" })))
           .forEach(t => {
-            if (s.done[t.id]) return;
-            const w = tw[t.id] || [];
+            const tg = this.todoTargets(t.id);
+            const dn = this.doneNames(t.id);
+            if (dn.length >= tg.length) return;
             out.push({
               kind:"確認リスト", label:t.title,
-              count:"未完了",
-              pending: "対象：" + (w.length ? w.join("・") : "全員"),
+              count: dn.length + " / " + tg.length,
+              pending: "未完了：" + tg.filter(n => dn.indexOf(n) < 0).join("・"),
               style: "font-family:var(--font-body); font-size:11.5px; font-weight:700; border-radius:999px; padding:3px 10px; white-space:nowrap; background:var(--color-accent-200); color:var(--color-accent-800)"
             });
           });
@@ -3225,6 +4537,7 @@ class Component extends DCLogic {
       changeId: () => this.save({ identified:false }),
 
       isBefore: phase === "before",
+      showTodo: phase !== "after",
       isDuring: phase === "during",
       isAfter: phase === "after",
       todayLabel: tzDate.m + "月" + tzDate.d + "日（" + tzDate.w + "）",
@@ -3232,7 +4545,7 @@ class Component extends DCLogic {
       todayDow: tzDate.w + "曜日",
       todo: (() => {
         const out = [];
-        const cardStyle = extra => "cursor:pointer; background:var(--color-surface); border-radius:var(--radius-lg); padding:14px 16px; box-shadow:var(--shadow-sm); transition:transform .13s ease, box-shadow .13s ease; " + extra;
+        const cardStyle = extra => "cursor:pointer; background:#FFFCD8; border-radius:var(--radius-lg); padding:14px 16px; box-shadow:var(--shadow-sm); transition:transform .13s ease, box-shadow .13s ease; " + extra;
         const destPill = tint => "flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; letter-spacing:.06em; border-radius:999px; padding:3px 10px; color:var(--color-neutral-900); background-color:"
           + (tint === "route" ? "#ECF4D9" : "#FFF0F9");
         this.themeList().forEach(t => {
@@ -3242,31 +4555,46 @@ class Component extends DCLogic {
           const urg = !voted && rem.urgent;
           if (!voted) out.push({ x:(urg ? "まもなく締切：「" : "「") + t.label + "」に投票する", sub:"期限 " + this.deadlineText(t.id) + " · " + rem.label,
             dest:"検討・投票", destStyle:destPill("route"),
-            style: cardStyle(urg ? "border:2px solid var(--color-accent); animation:nudgeWarm 1.7s ease-in-out infinite" : "border:2px solid transparent"),
+            style: cardStyle(urg
+              ? "border:2px solid #C7A62A; animation:nudgeHome 1.6s ease-in-out infinite"
+              : "border:2px solid #E6D48A; animation:nudgeHome 2.6s ease-in-out infinite"),
             go:() => { this.jumpKey = "theme:" + t.id; this.save({ tab:"route", theme:t.id }); } });
         });
         const plain = cardStyle("border:2px solid transparent");
+        const mentions = this.unreadMentions();
+        if (mentions.length) out.push({
+          x: "メンションされたメッセージが " + mentions.length + "件",
+          sub: mentions[0].who + " さん：" + this.parseMention(mentions[0].body).body.slice(0, 40),
+          dest:"チャット",
+          destStyle:"flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; letter-spacing:.06em; border-radius:999px; padding:3px 10px; color:var(--color-neutral-900); background-color:#FBDAC8",
+          style: cardStyle("border:2px solid var(--color-accent); animation:nudgeWarm 1.7s ease-in-out infinite"),
+          go:() => { this.needScroll = true; this.save({ tab:"talk" }); } });
         const due = this.dueTodos();
         const dueIds = {};
         due.forEach(r => { dueIds[r.id] = 1; });
-        if (due.length) out.push({
-          x:"確認リストの期限が近づいています",
-          sub: due[0].title + (due.length > 1 ? " ほか" + (due.length - 1) + "件" : "") + " · 期限 " + this.whenText(due[0].when),
-          dest:"準備", destStyle:destPill("prep"),
-          style: cardStyle("border:2px solid var(--color-accent); animation:nudgeWarm 1.7s ease-in-out infinite"),
-          go:() => { this.jumpKey = "sec:prep"; this.save({ tab:"prep", prepOpen:{ prep:true } }); } });
-        const undone = this.todoRows().filter(t => !s.done[t.id] && !dueIds[t.id]);
-        if (undone.length) out.push({ x:"準備が " + undone.length + "件 残っています", sub:"最初は「" + undone[0].title + "」", style:plain,
-          dest:"準備", destStyle:destPill("prep"),
-          go:() => { this.jumpKey = "sec:prep"; this.save({ tab:"prep", prepOpen:{ prep:true } }); } });
+        // 期限まで7日以内の項目を1件ずつ出す。1日以内になったら脈動と枠線で強調
+        due.slice().sort((a, b) => this.whenRank(a.when) - this.whenRank(b.when)).forEach(r => {
+          const rk = this.whenRank(r.when);
+          const soon = isFinite(rk) && (rk - Date.now()) <= 86400000;
+          out.push({
+            x: r.title,
+            sub: "期限 " + this.whenText(r.when),
+            dest:"準備", destStyle:destPill("prep"),
+            style: cardStyle(soon
+              ? "border:2px solid var(--color-accent); animation:nudgeWarm 1.7s ease-in-out infinite"
+              : "border:2px solid transparent"),
+            go:() => { this.jumpKey = "todo:" + r.id; this.save({ tab:"prep", prepOpen:{ prep:true } }); } });
+        });
         const packTotal = PACKING.reduce((a,g) => a + g.items.length, 0);
         const packedN = PACKING.reduce((a,g) => a + g.items.filter(i => s.packed[i]).length, 0);
         const packWinOn = Date.now() >= new Date(2027, 1, 7, 18, 0).getTime() && Date.now() <= new Date(2027, 1, 13, 5, 0).getTime();
         if (packWinOn && packedN < packTotal) out.push({ x:"持ち物 " + packedN + "/" + packTotal, sub:"チェックしながら詰める", style:plain,
           dest:"準備", destStyle:destPill("prep"),
           go:() => { this.jumpKey = "sec:pack"; this.save({ tab:"prep", prepOpen:{ pack:true } }); } });
+        this._todoN = out.length;
         return out;
       })(),
+      noTodo: !this._todoN,
       todayCard: (() => {
         if (phase !== "during") return null;
         const i = todayIdx;
@@ -3294,7 +4622,9 @@ class Component extends DCLogic {
           hasPlan: eff.length > 0,
           meet: (s.meets || {})[d.date] || "",
           onMeet: e => this.save({ meets:Object.assign({}, this.state.meets, { [d.date]:e.target.value }) }),
-          lodgeName: lg.name || "", lodgeAddr: lg.addr || "", lodgeIn: lg.checkin || "", lodgeMap: lg.map || "",
+          lodgeName: lg.name || "", lodgeIn: lg.addr || "", lodgeOut: lg.checkin || "", lodgeMap: lg.map || "",
+          hasLodgeIn: !!String(lg.addr || "").trim(),
+          hasLodgeOut: !!String(lg.checkin || "").trim(),
           hasLodge: !!(lg.name || lg.addr || lg.checkin || lg.map),
           hasLodgeMap: !!lg.map,
           transit: tr ? tr.x : "",
@@ -3310,8 +4640,9 @@ class Component extends DCLogic {
         const lg = (s.lodging || {})[c] || {};
         const set = (f) => e => this.save({ lodging:Object.assign({}, this.state.lodging, {
           [c]: Object.assign({}, ((this.state.lodging || {})[c] || {}), { [f]:e.target.value }) }) });
-        return { city:c, name:lg.name || "", addr:lg.addr || "", checkin:lg.checkin || "", map:lg.map || "",
-                 onName:set("name"), onAddr:set("addr"), onCheckin:set("checkin"), onMap:set("map") };
+        return { city:c, name:lg.name || "", checkIn:lg.addr || "", checkOut:lg.checkin || "", map:lg.map || "",
+                 noMap: !String(lg.map || "").trim(),
+                 onName:set("name"), onCheckIn:set("addr"), onCheckOut:set("checkin"), onMap:set("map") };
       }),
       cfgLodgeOpen: s.cfg === "lodge",
       cfgLodgeCard: "background:var(--color-surface); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); transition:background .2s"
@@ -3334,6 +4665,24 @@ class Component extends DCLogic {
       onChatKey: e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); this.sendChat(); } },
       sendChat: () => this.sendChat(),
       chatRef: el => { this.chatEl = el; },
+      chatToOpen: s.chatToOpen === true,
+      chatToGo: () => this.setState({ chatToOpen: !s.chatToOpen }),
+      chatToBtn: "flex:none; cursor:pointer; outline:none; width:44px; height:44px; border-radius:50%; display:grid; place-items:center; "
+        + "font-family:'Zen Maru Gothic', var(--font-body); font-size:16px; font-weight:700; border:1px solid rgba(58,42,32,.18); transition:all .16s; "
+        + ((s.chatToAll || (s.chatTo || []).length) ? "background:#C4643A; color:#FFFFFF; border-color:#C4643A" : "background:#FFFFFF; color:#8A4A28"),
+      chatToLabel: s.chatToAll ? "全" : ((s.chatTo || []).length ? String((s.chatTo || []).length) : "@"),
+      chatToAllStyle: chipStyle(s.chatToAll === true),
+      chatToAllGo: () => this.setState({ chatToAll: !s.chatToAll, chatTo:[] }),
+      chatToChips: roster.filter(n => n !== me).map(n => ({
+        name: n,
+        style: chipStyle(!s.chatToAll && (s.chatTo || []).indexOf(n) >= 0),
+        go: () => {
+          const cur = (this.state.chatTo || []).slice();
+          const at = cur.indexOf(n);
+          if (at >= 0) cur.splice(at, 1); else cur.push(n);
+          this.setState({ chatTo:cur, chatToAll:false });
+        }
+      })),
       unreadRef: el => { if (el) this.unreadEl = el; },
       hasChat: (s.chat || []).length > 0,
       unreadLabel: (() => {
@@ -3344,30 +4693,53 @@ class Component extends DCLogic {
         if (!behind.length) return "最新のメッセージは全員が読みました。";
         return "未読 " + behind.length + "人 / " + roster.length + "人 · " + behind.join("・");
       })(),
-      chat: (s.chat || []).map(m => {
+      chat: (() => {
+        const dm = s.delMsgs || {};
+        const live = (s.chat || []).filter(m => !dm[String(m.id)]).map(m => ({ m:m, dl:null }));
+        const tomb = Object.keys(dm).map(id => ({
+          m: { id:id, who:dm[id].who, body:"", created_at:dm[id].created_at || new Date(dm[id].at).toISOString() },
+          dl: dm[id]
+        }));
+        return live.concat(tomb)
+          .sort((a, b) => new Date(a.m.created_at).getTime() - new Date(b.m.created_at).getTime())
+          .map(e => {
+        const m = e.m, dl = e.dl;
         const d = new Date(m.created_at);
         const own = m.who === me;
         const id = Number(m.id);
         const reads = s.reads || {};
         const seen = isNaN(id) ? [] : roster.filter(n => n !== m.who && (reads[n] || 0) >= id);
+        const mp = this.parseMention(m.body);
+        const toLabel = mp.to === "ALL" ? "@全員" : (Array.isArray(mp.to) && mp.to.length ? mp.to.map(n => "@" + n).join(" ") : "");
+        const hitsMe = !own && (mp.to === "ALL" || (Array.isArray(mp.to) && mp.to.indexOf(me) >= 0));
         return {
-          who:m.who, body:m.body,
+          who:m.who, body: dl ? "送信を取り消しました" : mp.body,
+          hasTo: !!toLabel && !dl,
+          toLabel: toLabel,
+          toStyle: "align-self:" + (own ? "flex-end" : "flex-start") + "; font-family:var(--font-body); font-size:10px; font-weight:700; "
+            + "border-radius:999px; padding:2px 9px; margin-bottom:3px; white-space:nowrap; "
+            + (hitsMe ? "background:#C4643A; color:#FFFFFF" : "background:#F1E3D8; color:#8A4A28"),
           firstUnread: m.id === this.firstUnreadId(),
           wrap: "display:flex; flex-direction:column; " + (own ? "align-items:flex-end" : "align-items:flex-start"),
           when: (d.getMonth()+1) + "/" + d.getDate() + " " + String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0"),
           row: "display:flex; flex-direction:column; max-width:82%; " + (own ? "align-self:flex-end; align-items:flex-end" : "align-self:flex-start"),
-          bubble: "display:inline-block; border-radius:20px; padding:12px 17px; font-family:'Zen Maru Gothic', var(--font-body); font-weight:700; font-size:13.5px; line-height:1.6; white-space:pre-wrap; text-wrap:pretty; "
+          bubble: dl
+            ? "display:inline-block; border-radius:20px; padding:10px 15px; font-family:var(--font-body); font-size:12px; font-weight:700; color:var(--color-neutral-600); background:#F2EBE4; border:1px dashed #D8C8B8"
+            : "display:inline-block; border-radius:20px; padding:12px 17px; font-family:'Zen Maru Gothic', var(--font-body); font-weight:700; font-size:13.5px; line-height:1.6; white-space:pre-wrap; text-wrap:pretty; "
             + (own ? "background:" + ((TABS.find(t => t.id === "talk") || {}).theme || "#F5B090") + "; color:#3A2A20; border:1px solid rgba(58,42,32,.14)" : "background:#FFFFFF; color:var(--color-text); border:1px solid #EADFD3"),
-          readLabel: own
+          canUnsend: own && !dl,
+          unsendGo: () => this.unsendChat(m),
+          readLabel: (own && !dl)
             ? ((() => {
                 const behind = isNaN(id) ? [] : roster.filter(n => n !== m.who && (reads[n] || 0) < id);
                 return behind.length ? ("未読 " + behind.join("・") + " · ") : "";
               })() + "既読 " + seen.length + "/" + Math.max(0, roster.length - 1))
             : "",
           readStyle: "font-family:var(--font-body); font-size:10px; color:var(--color-neutral-600); margin-top:3px; "
-            + (own ? "" : "display:none")
+            + ((own && !dl) ? "" : "display:none")
         };
-      }),
+      });
+      })(),
       lineUrl: s.lineUrl || "",
       onLineUrl: e => this.save({ lineUrl:e.target.value.trim() }),
       hasLine: !!(s.lineUrl || "").trim(),
@@ -3389,6 +4761,475 @@ class Component extends DCLogic {
       }),
       hasMemos: (s.memos || []).length > 0,
       isPrep: this.visTab("prep"), isLocal: this.visTab("local"),
+
+      isCost: this.visTab("cost"),
+      // 選択チップ（フォーカスの黒枠を出さない）
+
+      fxRows: (() => {
+        const fx = this.fxRates();
+        const NAMES = { EUR:["ユーロ", "€"], GBP:["英ポンド", "£"], USD:["米ドル", "$"], SGD:["シンガポールドル", "S$"] };
+        return ["EUR", "GBP", "USD", "SGD"].map(c => ({
+          name: NAMES[c][0],
+          mark: NAMES[c][1],
+          pre: "1 " + c + " =",
+          rate: "¥ " + fx[c].toFixed(1)
+        }));
+      })(),
+      fxNote: s.fxAt ? ("実勢レート · " + new Date(s.fxAt).toLocaleTimeString("ja-JP", { hour:"2-digit", minute:"2-digit" }) + " 更新") : "参考レート（取得できませんでした）",
+      exWhoChips: roster.map(n => ({
+        name: n,
+        style: chipStyle((s.exWho || me) === n),
+        go: () => this.setState({ exWho:n })
+      })),
+      exCurChips: [["JPY", "円"], ["EUR", "EUR"], ["GBP", "GBP"], ["USD", "USD"], ["SGD", "SGD"]].map(c => ({
+        label: c[1],
+        style: chipStyle((s.exCur || "JPY") === c[0]),
+        go: () => this.setState({ exCur:c[0] })
+      })),
+
+      exModeChips: [["pool", "あとでまとめて"], ["solo", "個別に"]].map(m => ({
+        label: m[1],
+        style: chipStyle((s.exMode || "pool") === m[0]),
+        go: () => this.setState({ exMode:m[0] })
+      })),
+      exAmt: s.exAmt || "",
+      onExAmt: e => this.setState({ exAmt:e.target.value }),
+      exDue: s.exDue || String(this.payDueBase()).slice(0,16),
+      onExDue: e => this.setState({ exDue:e.target.value }),
+      exDueNote: (s.exDue && s.exDue !== String(this.payDueBase()).slice(0,16))
+        ? "この記録だけ別の期限にします"
+        : ("共通の期限（" + this.dueText(this.payDueBase()) + "）を使います"),
+      exDueReset: () => this.setState({ exDue:"" }),
+      exX: s.exX || "",
+      onExX: e => this.setState({ exX:e.target.value }),
+      exAllOn: !((s.exFor || []).length),
+      exAllStyle: chipStyle(!((s.exFor || []).length)),
+      myTxGroups: this.settlement().tx.concat(this.soloTx()).filter(t => t.from === me || t.to === me).map(t => {
+        const key = this.txKeyOf(t);
+        const fd = this.txSide(key, "from", t.amt, t.from), td = this.txSide(key, "to", t.amt, t.from);
+        const done = fd && td;
+        const pay = t.from === me;
+        const mineOn = pay ? fd : td;
+        const mismatch = (fd || td) && !done;
+        const other = pay ? t.to : t.from;
+        const open = (s.myGrpOpen || {})[key] === true;
+        const byX = {};
+        const order = [];
+        (t.solo ? [{ x:t.x, amt:t.amt, sign:(pay ? 1 : -1) }] : t.items).forEach(it => {
+          if (!byX[it.x]) { byX[it.x] = 0; order.push(it.x); }
+          byX[it.x] += it.amt * (pay ? it.sign : -it.sign);
+        });
+        return {
+          x: (pay ? (other + " に支払う") : (other + " から受け取る")) + (t.solo ? "（個別・" + t.x + "）" : ""),
+          summary: "¥" + t.amt.toLocaleString("ja-JP")
+            + (done ? " · 精算済み" : mismatch ? ("・" + (fd ? "受取確認" : "支払い") + " が未チェック") : ""),
+          warn: mismatch,
+          open: open,
+          caret: "flex:none; width:20px; height:20px; border-radius:50%; display:grid; place-items:center; color:#4A4470; "
+            + "background:" + (open ? "#E6E6FA" : "transparent")
+            + "; transition:transform .22s ease, background .2s; transform:rotate(" + (open ? "90deg" : "0deg") + ")",
+          head: "cursor:pointer; display:flex; align-items:center; gap:9px; padding:10px 12px; border-radius:var(--radius-md); "
+            + (done ? "background:#EDF3E2" : mineOn ? "background:#E6E6FA" : "background:#F3F3FB"),
+          go: () => this.setState({ myGrpOpen:Object.assign({}, this.state.myGrpOpen || {}, { [key]: !open }) }),
+          rows: order.map(x => {
+            const v = Math.round(byX[x]);
+            return {
+              label: x,
+              amt: done ? "精算済み" : ((v >= 0 ? "" : "−") + "¥" + Math.abs(v).toLocaleString("ja-JP")),
+              row: "display:flex; align-items:center; gap:10px; border-radius:var(--radius-md); padding:8px 12px; background:#FFFFFF",
+              amtStyle: "flex:none; font-family:" + (done ? "var(--font-body)" : "var(--font-heading)") + "; font-size:" + (done ? "12px" : "14px") + "; font-weight:700; "
+                + (done ? "color:#8A4A28" : v >= 0 ? (pay ? "color:#8A4A28" : "color:#37623F") : "color:var(--color-neutral-600)")
+            };
+          })
+        };
+      }),
+      myTxOpen: s.myTxOpen === true,
+      myTxGo: () => this.setState({ myTxOpen: !s.myTxOpen }),
+      myTxCaret: "flex:none; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; color:#4A4470; "
+        + "background:" + (s.myTxOpen ? "#E6E6FA" : "transparent")
+        + "; transition:transform .22s ease, background .2s; transform:rotate(" + (s.myTxOpen ? "90deg" : "0deg") + ")",
+      hasMyTx: this.settlement().tx.concat(this.soloTx()).some(t => t.from === me || t.to === me),
+      exFormOpen: s.exFormOpen === true,
+      exFormGo: () => this.setState({ exFormOpen: !s.exFormOpen }),
+      exFormCaret: "flex:none; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; color:#4A4470; "
+        + "background:" + (s.exFormOpen ? "rgba(255,255,255,.6)" : "transparent")
+        + "; transition:transform .22s ease, background .2s; transform:rotate(" + (s.exFormOpen ? "90deg" : "0deg") + ")",
+      exAllGo: () => this.setState({ exFor:[] }),
+      exForChips: roster.map(n => {
+        const on = (s.exFor || []).indexOf(n) >= 0;
+        return {
+          name: n,
+          style: chipStyle(on),
+          go: () => {
+            const cur = (this.state.exFor || []).slice();
+            const at = cur.indexOf(n);
+            if (at >= 0) cur.splice(at, 1); else cur.push(n);
+            this.setState({ exFor:cur });
+          }
+        };
+      }),
+      exAdd: () => {
+        const raw = String(this.state.exAmt || "").trim();
+        const cur = this.state.exCur || "JPY";
+        const who = this.state.exWho || me;
+        const err = m => this.setState({ exErr:m });
+        if (!raw) return err("金額を入れてください。");
+        if (/^-/.test(raw)) return err("マイナスは記録できません。返金は、返した人を「支払った人」にして別の記録を作ってください。");
+        if (!/^[0-9]+(\.[0-9]+)?$/.test(raw)) return err("金額の形式が正しくありません。数字と小数点だけで入れてください。");
+        if (cur === "JPY" && raw.indexOf(".") >= 0) return err("円に小数は使えません。");
+        const amt = Number(raw);
+        if (!amt) return err("金額が 0 になっています。");
+        if (!who) return err("支払った人を選んでください。");
+        this.save({ expenses:(this.state.expenses || []).concat({
+          id:"e" + Date.now(), who:who, amt:amt, cur:cur,
+          rate: this.fxRates()[cur] || 1,
+          rateSrc: (cur === "JPY" || this.state.fxAt) ? "live" : "ref",
+          mode: this.state.exMode || "pool",
+          x:String(this.state.exX || "").trim(),
+          for:(this.state.exFor || []).slice(),
+          roster: this.roster().slice(),
+          due: (this.state.exDue && this.state.exDue !== String(this.payDueBase()).slice(0,16)) ? this.state.exDue : null,
+          ts: Date.now(), edits:0, log:[]
+        }) });
+        this.setState({ exAmt:"", exX:"", exFor:[], exErr:"" });
+      },
+      exErr: s.exErr || "",
+      hasExErr: !!s.exErr,
+      fxStale: !s.fxAt,
+      exRows: (s.expenses || []).slice().reverse().map(e => {
+        const forList = this.forOf(e);
+        const jpy = this.jpyOf(e);
+        const cur = e.cur || "JPY";
+        const ed = (s.exEdit || {})[e.id];
+        const editing = !!ed;
+        const draft = ed || {};
+        const setD = patch => this.setState({ exEdit:Object.assign({}, this.state.exEdit || {}, { [e.id]:Object.assign({}, draft, patch) }) });
+        return {
+          x: e.x || "立替",
+          who: e.who,
+          amt: (cur === "JPY" ? "" : (cur + " " + Number(e.amt).toLocaleString("ja-JP") + " · ")) + "¥" + jpy.toLocaleString("ja-JP"),
+          rateNote: cur === "JPY" ? "" : ("記録時レート ¥" + (Number(e.rate) || 0).toFixed(1) + " / " + cur
+            + (e.rateSrc === "ref" ? "（参考レート。実勢レートを取得できませんでした）" : "")),
+          hasRate: cur !== "JPY",
+          modeLabel: (e.mode || "pool") === "solo" ? "個別に" : "あとでまとめて",
+          modeStyle: "flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; border-radius:999px; padding:2px 9px; white-space:nowrap; background:#E6E6FA; color:#4A4470",
+          dModeChips: [["pool", "あとでまとめて"], ["solo", "個別に"]].map(mm => ({
+            label: mm[1],
+            style: chipStyle((draft.mode || e.mode || "pool") === mm[0]),
+            go: () => setD({ mode:mm[0] })
+          })),
+
+          forLabel: (e.for && e.for.length) ? ("対象 " + e.for.join("・"))
+            : ((e.roster && e.roster.length) ? ("対象 記録時の全員（" + e.roster.length + "人）") : "対象 全員"),
+          share: "1人 ¥" + Math.round(jpy / Math.max(1, forList.length)).toLocaleString("ja-JP"),
+          at: e.ts ? new Date(e.ts).toLocaleString("ja-JP", { month:"numeric", day:"numeric", hour:"2-digit", minute:"2-digit" }) + " 記録" : "",
+          hasAt: !!e.ts,
+          dueLabel: (e.due ? "期限 " : "共通期限 ") + this.dueText(this.dueOfEx(e)),
+          dDue: draft.due !== undefined ? draft.due : String(this.dueOfEx(e)).slice(0,16),
+          onDDue: ev => setD({ due:ev.target.value }),
+          dDueReset: () => setD({ due:String(this.payDueBase()).slice(0,16) }),
+          editCount: (e.edits || 0) ? ("編集 " + e.edits + " 回") : "",
+          hasEdits: !!(e.edits || 0),
+          editing: editing,
+          editGo: () => {
+            if (!(me === e.who || isAdmin)) return;
+            this.setState({ exEdit:Object.assign({}, this.state.exEdit || {}, {
+              [e.id]: editing ? null : { amt:String(e.amt), x:e.x || "", cur:cur } }) });
+          },
+          dAmt: draft.amt !== undefined ? draft.amt : String(e.amt),
+          onDAmt: ev => setD({ amt:ev.target.value }),
+          dX: draft.x !== undefined ? draft.x : (e.x || ""),
+          onDX: ev => setD({ x:ev.target.value }),
+          dCurChips: [["JPY", "円"], ["EUR", "EUR"], ["GBP", "GBP"], ["USD", "USD"], ["SGD", "SGD"]].map(c => ({
+            label: c[1], style: chipStyle((draft.cur || cur) === c[0]), go: () => setD({ cur:c[0] })
+          })),
+
+          saveEdit: () => {
+            if (!(me === e.who || isAdmin)) return;
+            const nAmt = Number(String(draft.amt !== undefined ? draft.amt : e.amt).replace(/[^\d.]/g, ""));
+            const nCur = draft.cur || cur;
+            const nX = draft.x !== undefined ? draft.x : (e.x || "");
+            const nMode = draft.mode || e.mode || "pool";
+            const nDueRaw = draft.due !== undefined ? draft.due : String(this.dueOfEx(e)).slice(0,16);
+            const nDue = (nDueRaw && nDueRaw !== String(this.payDueBase()).slice(0,16)) ? nDueRaw : null;
+            if (!nAmt) return;
+            const changed = nAmt !== Number(e.amt) || nCur !== cur || nX !== (e.x || "") || nMode !== (e.mode || "pool") || nDue !== (e.due || null);
+            const next = (this.state.expenses || []).map(x => {
+              if (x.id !== e.id) return x;
+              const rate = nCur === cur ? (Number(x.rate) || this.fxRates()[nCur] || 1) : (this.fxRates()[nCur] || 1);
+              const entry = { at:Date.now(), by:me,
+                before:{ amt:Number(x.amt), cur:cur, x:x.x || "", mode:x.mode || "pool", due:x.due || null },
+                after:{ amt:nAmt, cur:nCur, x:nX, mode:nMode, due:nDue } };
+              return Object.assign({}, x, { amt:nAmt, cur:nCur, rate:rate, x:nX, mode:nMode, due:nDue },
+                changed ? { edits:(x.edits || 0) + 1, log:(x.log || []).concat(entry) } : {});
+            });
+            this.save({ expenses:next });
+            this.setState({ exEdit:Object.assign({}, this.state.exEdit || {}, { [e.id]:null }) });
+          },
+          canDel: me === e.who || isAdmin,
+          noDel: !(me === e.who || isAdmin),
+          canEdit: me === e.who || isAdmin,
+          lockNote: (me === e.who || isAdmin) ? "" : (e.who + " 本人と管理者だけが編集できます"),
+          delNote: (me === e.who || isAdmin) ? "" : ("削除できるのは " + e.who + " 本人と管理者だけです"),
+          del: () => {
+            if (!(me === e.who || isAdmin)) return;
+            if (typeof window !== "undefined" && window.confirm && !window.confirm("この記録を削除します。よろしいですか？")) return;
+            this.save({
+              expenses:(this.state.expenses || []).filter(x => x.id !== e.id),
+              exDel:(this.state.exDel || []).concat({
+                id:e.id, at:Date.now(), by:me, who:e.who,
+                amt:Number(e.amt), cur:cur, x:e.x || "", jpy:jpy })
+            });
+          }
+        };
+      }),
+      hasEx: (s.expenses || []).length > 0,
+      exTotal: "¥" + (s.expenses || []).reduce((a, e) => a + this.jpyOf(e), 0).toLocaleString("ja-JP"),
+      hasSettled: (s.settlements || []).length > 0,
+      settledOpen: s.settledOpen === true,
+      settledGo: () => this.setState({ settledOpen: !s.settledOpen }),
+      settledCaret: "flex:none; width:20px; height:20px; border-radius:50%; display:grid; place-items:center; color:#4A4470; "
+        + "background:" + (s.settledOpen ? "#E6E6FA" : "transparent")
+        + "; transition:transform .22s ease, background .2s; transform:rotate(" + (s.settledOpen ? "90deg" : "0deg") + ")",
+      settledRows: (s.settlements || []).slice().sort((a, b) => b.at - a.at).map(r => {
+        const side = me === r.from ? "from" : me === r.to ? "to" : null;
+        const u = r.undo || {};
+        const other = side === "from" ? "to" : "from";
+        const admin = this.adminOn();
+        const remove = () => this.save({ settlements:(this.state.settlements || []).filter(x => x.id !== r.id) });
+        return {
+        pair: r.from + " → " + r.to,
+        amt: "¥" + Number(r.amt || 0).toLocaleString("ja-JP"),
+        when: new Date(r.at).toLocaleString("ja-JP", { month:"numeric", day:"numeric", hour:"2-digit", minute:"2-digit" }) + " 精算",
+        canUndo: !!side || admin,
+        undoLabel: admin && !side ? "管理者として取り消す"
+          : (side && u[side]) ? "✓ 取り消しを申請中"
+          : (side && u[other]) ? "相手の申請に同意する"
+          : "取り消しを申請",
+        undoNote: (side && u[side] && !u[other]) ? "相手の同意を待っています"
+          : (side && u[other] && !u[side]) ? ((side === "from" ? r.to : r.from) + " が取り消しを希望しています")
+          : "",
+        hasUndoNote: !!(side && (u.from || u.to)),
+        undo: () => {
+          if (admin && !side) {
+            if (typeof window !== "undefined" && window.confirm
+                && !window.confirm("この精算を取り消して、残高に戻します。よろしいですか？")) return;
+            remove();
+            return;
+          }
+          if (!side) return;
+          if (u[other]) {
+            if (typeof window !== "undefined" && window.confirm
+                && !window.confirm("両方の同意でこの精算を取り消し、残高に戻します。よろしいですか？")) return;
+            remove();
+            return;
+          }
+          const nu = Object.assign({}, u);
+          if (nu[side]) delete nu[side]; else nu[side] = true;
+          this.save({ settlements:(this.state.settlements || []).map(x =>
+            x.id === r.id ? Object.assign({}, x, { undo:nu }) : x) });
+        }
+        };
+      }),
+
+      exLogRows: (() => {
+        const out = [];
+        (s.exDel || []).forEach(r => {
+          out.push({
+            when: new Date(r.at).toLocaleString("ja-JP", { month:"numeric", day:"numeric", hour:"2-digit", minute:"2-digit" }),
+            by: r.by,
+            ts: r.at,
+            text: "【削除】" + (r.x || "立替") + "：" + (r.cur === "JPY" ? "¥" : (r.cur + " ")) + Number(r.amt).toLocaleString("ja-JP")
+              + "（" + r.who + " が立替・円換算 ¥" + Number(r.jpy || 0).toLocaleString("ja-JP") + "）"
+          });
+        });
+        (s.expenses || []).forEach(e => {
+          (e.log || []).forEach(l => {
+            const f = c => (c.cur === "JPY" ? "¥" : (c.cur + " ")) + Number(c.amt).toLocaleString("ja-JP");
+            out.push({
+              when: new Date(l.at).toLocaleString("ja-JP", { month:"numeric", day:"numeric", hour:"2-digit", minute:"2-digit" }),
+              by: l.by,
+              ts: l.at,
+              text: (l.before.x || "立替") + "：" + f(l.before) + " → " + f(l.after)
+                + ((l.before.mode !== l.after.mode) ? "（" + (l.after.mode === "solo" ? "個別に精算" : "まとめて精算") + "へ変更）" : "")
+                + (((l.before.due || null) !== (l.after.due || null)) ? "（期限を " + this.dueText(l.after.due || this.payDueBase()) + " に変更）" : "")
+                + ((l.before.x !== l.after.x) ? "（用途を「" + (l.after.x || "立替") + "」に変更）" : "")
+            });
+          });
+        });
+        return out.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+      })(),
+      hasExLog: (s.expenses || []).some(e => (e.log || []).length) || (s.exDel || []).length > 0,
+      exLogOpen: s.exLogOpen === true,
+      exLogGo: () => this.setState({ exLogOpen: !s.exLogOpen }),
+      exBalRows: (() => {
+        const st = this.settlement();
+        return roster.map(n => {
+          const v = Math.round(st.bal[n] || 0);
+          return {
+            name: n,
+            label: v > 0 ? ("受取 ¥" + v.toLocaleString("ja-JP")) : v < 0 ? ("支払 ¥" + (-v).toLocaleString("ja-JP")) : "精算済み",
+            style: "flex:none; font-family:var(--font-body); font-size:11.5px; font-weight:700; border-radius:999px; padding:3px 10px; white-space:nowrap; "
+              + (v > 0 ? "background:#DCEFE0; color:#37623F" : v < 0 ? "background:#F3DDD2; color:#8A4A28" : "background:var(--color-neutral-200); color:var(--color-neutral-700)")
+          };
+        });
+      })(),
+      exTxRows: this.settlement().tx.concat(this.soloTx()).slice().sort((a, b) => {
+        const am = (a.from === me || a.to === me) ? 0 : 1;
+        const bm = (b.from === me || b.to === me) ? 0 : 1;
+        return am - bm;
+      }).map(t => {
+        const ck = this.txChecks(this.txKeyOf(t), t.from, t.to, t);
+        const byX = {};
+        const order = [];
+        (t.items || []).forEach(it => {
+          if (!byX[it.x]) { byX[it.x] = 0; order.push(it.x); }
+          byX[it.x] += it.amt * it.sign;
+        });
+        return Object.assign({
+          from: t.from, to: t.to,
+          amt: "¥" + t.amt.toLocaleString("ja-JP"),
+          tag: t.solo ? (t.x + "（個別）") : "あとでまとめて",
+          tagStyle: "flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; border-radius:999px; padding:2px 9px; white-space:nowrap; background:#E6E6FA; color:#4A4470",
+          hasItems: !t.solo && order.length > 0,
+          items: order.map(x => {
+            const v = Math.round(byX[x]);
+            return { x:x, label: (v >= 0 ? "" : "−") + "¥" + Math.abs(v).toLocaleString("ja-JP") };
+          }),
+          card: "display:grid; gap:8px; border-radius:var(--radius-md); padding:12px 14px; "
+            + (ck.done ? "background:#EDF3E2; border:1.5px solid #A8BE7A; opacity:.8"
+               : (t.from === me || t.to === me)
+                 ? "background:#E6E6FA; border:1.5px solid #8C86C4"
+                 : "background:var(--color-surface); border:1.5px solid transparent; box-shadow:var(--shadow-sm)")
+        }, ck);
+      }),
+      hasTx: (this.settlement().tx.concat(this.soloTx())
+        .filter(t => isAdmin || t.from === me || t.to === me).length) > 0,
+      overRows: this.settlement().over
+        .filter(o => isAdmin || o.a === me || o.b === me)
+        .map(o => ({
+        text: o.payer + " は " + o.payee + " に ¥" + o.amt.toLocaleString("ja-JP") + " 多く渡しています",
+        sub: "精算したあとで立替の記録が削除・減額されました。返してもらうか、記録を直してください。"
+      })),
+      hasOver: this.settlement().over.filter(o => isAdmin || o.a === me || o.b === me).length > 0,
+      payDueValue: String(this.payDueBase()).slice(0,16),
+      onPayDue: e => this.save({ payDue:e.target.value }),
+      payDueText: this.dueText(this.payDueBase()),
+      payCard: "border-radius:var(--radius-lg); background:var(--color-surface); box-shadow:var(--shadow-sm)",
+      payOpen: s.payOpen === true,
+      payGo: () => this.setState({ payOpen: !s.payOpen }),
+      payCaret: "flex:none; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; color:var(--color-accent-700); "
+        + "background:" + (s.payOpen ? "var(--color-accent-200)" : "transparent")
+        + "; transition:transform .22s ease, background .2s; transform:rotate(" + (s.payOpen ? "90deg" : "0deg") + ")",
+      homeDues: this.myDues().slice(0, 5).map(x => {
+        const gk = x.t.from + " → " + x.t.to;
+        return {
+        title: (x.pay ? (x.t.to + " に ¥" + x.t.amt.toLocaleString("ja-JP") + " 支払う")
+                      : (x.t.from + " から ¥" + x.t.amt.toLocaleString("ja-JP") + " 受け取る")),
+        sub: (x.defer && x.defer.state === "ok") ? ("延納 " + this.dueText(x.due) + " まで")
+           : (x.defer && x.defer.state === "req") ? (x.defer.by + " から延納の申請が来ています")
+           : (x.defer && x.defer.state === "chg") ? "許可された期限の確認が必要です"
+           : (this.dueText(x.due) + " まで"),
+        go: () => this.gotoTx(gk),
+        remain: x.rm.label,
+        remainStyle: "flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; border-radius:999px; padding:3px 10px; white-space:nowrap; background:#E6E6FA; "
+          + (x.rm.over ? "color:#8A2F14" : x.rm.urgent ? "color:#7A4A0E" : "color:#4A4470"),
+        tag: "費用・割り勘 ↪︎",
+        tagStyle: "flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; border-radius:999px; padding:3px 10px; white-space:nowrap; background:#E6E6FA; color:#4A4470",
+        rowStyle: "cursor:pointer; display:flex; align-items:center; gap:8px; flex-wrap:wrap; background:var(--color-surface); border-radius:var(--radius-md); padding:11px 13px; box-shadow:var(--shadow-sm)"
+        };
+      }),
+      hasHomeDues: this.myDues().length > 0,
+      homeDuesGo: () => this.save({ tab:"cost" }),
+      homeDuesMore: this.myDues().length > 5 ? ("ほか " + (this.myDues().length - 5) + " 件") : "",
+      hasHomeDuesMore: this.myDues().length > 5,
+      exTxGroups: (() => {
+        // 他人同士の貸し借りは表示しない（管理者は代理完了のため全件見られる）
+        const all = this.settlement().tx.concat(this.soloTx())
+          .filter(t => isAdmin || t.from === me || t.to === me);
+        const order = [], by = {};
+        all.forEach(t => {
+          const k = t.from + " → " + t.to;
+          if (!by[k]) { by[k] = []; order.push(k); }
+          by[k].push(t);
+        });
+        order.sort((a, b) => {
+          const ad = Math.min.apply(null, by[a].map(t => this.dueTs(this.dueOfTx(t, this.txKeyOf(t)))));
+          const bd = Math.min.apply(null, by[b].map(t => this.dueTs(this.dueOfTx(t, this.txKeyOf(t)))));
+          if (ad !== bd) return ad - bd;
+          const am = by[a].some(t => t.from === me || t.to === me) ? 0 : 1;
+          const bm = by[b].some(t => t.from === me || t.to === me) ? 0 : 1;
+          return am - bm;
+        });
+        return order.map(k => {
+          const list = by[k];
+          const total = list.reduce((a, t) => a + t.amt, 0);
+          const open = (s.exGrpOpen || {})[k] === true;
+          const mine = list.some(t => t.from === me || t.to === me);
+          const allDone = list.every(t => {
+            const key = this.txKeyOf(t);
+            return this.txSide(key, "from", t.amt, t.from) && this.txSide(key, "to", t.amt, t.from);
+          });
+          const warn = list.some(t => {
+            const key = this.txKeyOf(t);
+            const fd = this.txSide(key, "from", t.amt, t.from), td = this.txSide(key, "to", t.amt, t.from);
+            return this.txStale(key, t.amt, t.from) || ((fd || td) && !(fd && td));
+          });
+          return {
+            anchor: this.txAnchor(k),
+            pair: k,
+            total: "¥" + total.toLocaleString("ja-JP"),
+            count: list.length > 1 ? (list.length + "件") : "",
+            hasCount: list.length > 1,
+            warn: warn,
+            mixNote: (list.some(t => t.solo) && list.some(t => !t.solo))
+              ? "まとめて精算と個別精算が混じっています。渡す額の合計は " + ("¥" + total.toLocaleString("ja-JP")) + " ですが、確認は1行ごとに必要です。"
+              : "",
+            hasMixNote: list.some(t => t.solo) && list.some(t => !t.solo),
+            dueRemainLabel: (() => {
+              if (allDone) return "完了";
+              const t0 = list.slice().sort((x, y) => this.dueTs(this.dueOfTx(x, this.txKeyOf(x))) - this.dueTs(this.dueOfTx(y, this.txKeyOf(y))))[0];
+              return this.dueRemain(this.dueOfTx(t0, this.txKeyOf(t0))).label;
+            })(),
+            dueRemainStyle: (() => {
+              const pl = (bg, fg) => "flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; border-radius:999px; padding:2px 9px; white-space:nowrap; background:" + bg + "; color:" + fg;
+              if (allDone) return pl("var(--color-neutral-200)", "var(--color-neutral-700)");
+              const t0 = list.slice().sort((x, y) => this.dueTs(this.dueOfTx(x, this.txKeyOf(x))) - this.dueTs(this.dueOfTx(y, this.txKeyOf(y))))[0];
+              const rm = this.dueRemain(this.dueOfTx(t0, this.txKeyOf(t0)));
+              return rm.over ? pl("#F6DAD2", "#8A2F14") : rm.urgent ? pl("#F6E0B8", "#7A4A0E") : pl("#EDF3E2", "#3F5A18");
+            })(),
+            open: open,
+            head: "cursor:pointer; display:flex; align-items:center; gap:9px; padding:12px 14px; border-radius:var(--radius-md); "
+              + (allDone ? "background:#EDF3E2" : mine ? "background:#E6E6FA" : "background:#F3F3FB"),
+            caret: "flex:none; width:20px; height:20px; border-radius:50%; display:grid; place-items:center; color:#4A4470; "
+              + "background:" + (open ? "rgba(255,255,255,.65)" : "transparent")
+              + "; transition:transform .22s ease, background .2s; transform:rotate(" + (open ? "90deg" : "0deg") + ")",
+            go: () => this.setState({ exGrpOpen:Object.assign({}, this.state.exGrpOpen || {}, { [k]: !open }) }),
+            rows: list.map(t => {
+              const key = this.txKeyOf(t);
+              const ck = this.txChecks(key, t.from, t.to, t);
+              const byX = {}, ord = [];
+              (t.items || []).forEach(it => {
+                if (!byX[it.x]) { byX[it.x] = 0; ord.push(it.x); }
+                byX[it.x] += it.amt * it.sign;
+              });
+              return Object.assign({
+                amt: "¥" + t.amt.toLocaleString("ja-JP"),
+                tag: t.solo ? (t.x + "（個別）") : "あとでまとめて",
+                tagStyle: "flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; border-radius:999px; padding:2px 9px; white-space:nowrap; background:#E6E6FA; color:#4A4470",
+                hasItems: !t.solo && ord.length > 0,
+                items: ord.map(x => {
+                  const v = Math.round(byX[x]);
+                  return { x:x, label: (v >= 0 ? "" : "−") + "¥" + Math.abs(v).toLocaleString("ja-JP") };
+                }),
+                card: "display:grid; gap:8px; border-radius:var(--radius-md); padding:11px 13px; background:#FFFFFF; "
+                  + (ck.done ? "border:1.5px solid #A8BE7A" : "border:1.5px solid transparent")
+              }, ck);
+            })
+          };
+        });
+      })(),
+
 
       route: route,
       days: route.days.map(d => {
@@ -3412,7 +5253,23 @@ class Component extends DCLogic {
           })),
           addRow: () => write(eff.concat({ t:"12:00", x:"" })),
           sortRows: () => write(eff.map(q => Object.assign({}, q)).sort((a, b) => a.t < b.t ? -1 : 1)),
-          resetRows: () => this.resetPlan(route.id, d),
+          canUndo: !!this.planUndoInfo(route.id, d),
+          undoLabel: (() => {
+            const u = this.planUndoInfo(route.id, d);
+            return u ? ("元に戻す（" + u.by + " " + u.month + " " + u.when + " の変更）") : "元に戻す";
+          })(),
+          undoGo: () => {
+            const u = this.planUndoInfo(route.id, d);
+            if (!u) return;
+            if (typeof window !== "undefined" && window.confirm
+                && !window.confirm(u.by + " の " + u.month + " " + u.when + " の変更を取り消します。よろしいですか？")) return;
+            this.undoPlan(route.id, d);
+          },
+          resetRows: () => {
+            if (typeof window !== "undefined" && window.confirm
+                && !window.confirm("この日の予定を、最初の状態に戻します。よろしいですか？")) return;
+            this.resetPlan(route.id, d);
+          },
           card: "background:var(--color-surface); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); transition:background .2s"
             + (on ? "; background:var(--color-accent-100)" : ""),
           caret: "flex:none; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; color:var(--color-accent-700); "
@@ -3439,7 +5296,16 @@ class Component extends DCLogic {
       meChips: roster.map(n => ({ label:n, style:pill(n === me) + "; font-size:12.5px; padding:6px 14px",
         go: () => this.save({ me:n }) })),
       meLabel: me,
-      memberInputs: (s.members || []).map((m, i) => ({
+      memberInputs: this.roster().map((m, i) => ({ value:m, placeholder:"メンバー" + (i + 1), locked:true })),
+      memberRows: this.roster().map(n => ({
+        name: n,
+        style: "display:flex; align-items:center; gap:9px; background:var(--color-bg); border-radius:999px; padding:9px 14px",
+        tag: n === me ? "この端末" : "",
+        hasTag: n === me,
+        tagStyle: "flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; background:var(--color-accent-2-200); color:var(--color-accent-2-800); border-radius:999px; padding:2px 9px; white-space:nowrap"
+      })),
+      memberNote: "名前は固定です。変更すると管理者権限、チャットのメンション、立替の記録の参照先が壊れるためです。",
+      memberInputsOld: (s.members || []).map((m, i) => ({
         value:m, placeholder:"メンバー" + (i + 1),
         onChange: e => {
           const next = (this.state.members || []).slice();
@@ -3450,6 +5316,65 @@ class Component extends DCLogic {
           if (old && this.state.ballots[old]) {
             const b = Object.assign({}, this.state.ballots);
             b[e.target.value] = b[old]; delete b[old]; patch.ballots = b;
+          }
+          // 改名時は立替・精算の記録も引き継ぐ
+          const nw = e.target.value;
+          if (old && nw && old !== nw) {
+            if ((this.state.expenses || []).length) {
+              patch.expenses = (this.state.expenses || []).map(x => Object.assign({}, x, {
+                who: x.who === old ? nw : x.who,
+                for: (x.for || []).map(n => (n === old ? nw : n)),
+                roster: (x.roster || []).map(n => (n === old ? nw : n))
+              }));
+            }
+            if ((this.state.settlements || []).length) {
+              patch.settlements = (this.state.settlements || []).map(r => Object.assign({}, r, {
+                from: r.from === old ? nw : r.from,
+                to: r.to === old ? nw : r.to,
+                soloKey: (r.soloKey && r.soloKey.slice(-(old.length + 1)) === (":" + old))
+                  ? (r.soloKey.slice(0, -old.length) + nw) : r.soloKey
+              }));
+            }
+            if (this.state.confirms && this.state.confirms[old]) {
+              const c = Object.assign({}, this.state.confirms);
+              c[nw] = c[old]; delete c[old]; patch.confirms = c;
+            }
+            if (this.state.reads && this.state.reads[old] !== undefined) {
+              const rd = Object.assign({}, this.state.reads);
+              rd[nw] = rd[old]; delete rd[old]; patch.reads = rd;
+            }
+            // 進行中のチェックも引き継ぐ（以前はここで全部消えていた）
+            const stx = this.state.settledTx || {};
+            const nstx = {};
+            Object.keys(stx).forEach(k => {
+              let nk = k;
+              if (k.indexOf("pool:") === 0) {
+                const pp = k.slice(5).split(">");
+                nk = "pool:" + (pp[0] === old ? nw : pp[0]) + ">" + (pp[1] === old ? nw : pp[1]);
+              } else if (k.indexOf("solo:") === 0 && k.slice(-(old.length + 1)) === (":" + old)) {
+                nk = k.slice(0, -old.length) + nw;
+              }
+              nstx[nk] = stx[k];
+            });
+            patch.settledTx = nstx;
+            // 延納の記録も引き継ぐ（キーにも申請者名が入っている）
+            const dfr = this.state.defer || {};
+            const ndfr = {};
+            Object.keys(dfr).forEach(k => {
+              let nk = k;
+              if (k.indexOf("pool:") === 0) {
+                const pp = k.slice(5).split(">");
+                nk = "pool:" + (pp[0] === old ? nw : pp[0]) + ">" + (pp[1] === old ? nw : pp[1]);
+              } else if (k.indexOf("solo:") === 0 && k.slice(-(old.length + 1)) === (":" + old)) {
+                nk = k.slice(0, -old.length) + nw;
+              }
+              const v = dfr[k] || {};
+              ndfr[nk] = Object.assign({}, v, {
+                by: v.by === old ? nw : v.by,
+                okBy: v.okBy === old ? nw : v.okBy
+              });
+            });
+            patch.defer = ndfr;
           }
           this.save(patch);
         }
@@ -3478,6 +5403,22 @@ class Component extends DCLogic {
       outbound: OUTBOUND, inbound: INBOUND, transit: TRANSIT, lodging: LODGING,
       weather: WEATHER, currencies: CURRENCIES, money: MONEY,
       isAdmin: isAdmin,
+      isAdminName: this.isAdminName(),
+      adminNeedEnroll: this.isAdminName() && !this.adminEnrolled(),
+      adminLocked: this.isAdminName() && this.adminEnrolled() && !isAdmin,
+      adminUnlocked: isAdmin,
+      adminMsg: s.adminMsg || "",
+      hasAdminMsg: !!s.adminMsg,
+      adminCredAt: (s.adminCred && s.adminCred.at)
+        ? ("登録 " + new Date(s.adminCred.at).toLocaleString("ja-JP", { year:"numeric", month:"numeric", day:"numeric", hour:"2-digit", minute:"2-digit" }))
+        : "",
+      adminEnrollGo: () => this.enrollAdmin(),
+      adminUnlockGo: () => this.unlockAdmin(),
+      adminPassGo: () => this.unlockAdminPass(),
+      adminLockGo: () => this.lockAdmin(),
+      adminResetGo: () => this.resetAdminCred(),
+      adminBtn: "cursor:pointer; outline:none; border:0; border-radius:999px; padding:9px 18px; background:var(--color-accent-2-600); color:#FFFFFF; font-family:var(--font-body); font-size:12.5px; font-weight:700",
+      adminBtn2: "cursor:pointer; outline:none; border:1px solid var(--color-neutral-300); border-radius:999px; padding:9px 18px; background:#FFFFFF; color:var(--color-neutral-700); font-family:var(--font-body); font-size:12.5px; font-weight:700",
       adminThemes: adminThemes,
       adminOpen: s.adminOpen === true,
       adminGo: () => this.setState({ adminOpen: !s.adminOpen }),
@@ -3745,7 +5686,7 @@ class Component extends DCLogic {
                     packHidden:Object.assign({}, this.state.packHidden || {}, { ["packg:" + t]:false }) });
       },
       myTodos: (s.myTodos || []).map((t, i) => {
-        const on = !!s.done[t.id];
+        const on = this.doneMine(t.id);
         return {
           title:t.title, tick: on ? "✓" : "",
           card: "border-radius:var(--radius-lg); padding:12px 14px; transition:background .2s; background:"
@@ -3753,7 +5694,7 @@ class Component extends DCLogic {
           box: "cursor:pointer; flex:none; width:24px; height:24px; border-radius:50%; display:grid; place-items:center; font-size:13px; font-weight:700; "
             + (on ? "background:var(--color-accent-2-600); color:var(--color-bg); border:1px solid transparent"
                   : "background:transparent; color:transparent; border:1.5px solid var(--color-neutral-400)"),
-          go: () => this.save({ done:Object.assign({}, this.state.done, { [t.id]:!on }) }),
+          go: () => this.toggleDone(t.id),
           onEdit: e => {
             const next = (this.state.myTodos || []).map(x => Object.assign({}, x));
             next[i].title = e.target.value;
@@ -3783,7 +5724,9 @@ class Component extends DCLogic {
           this.lastTodoOrder = rows.map(r => r.id);
         }
         return rows.map(r => {
-          const on = !!s.done[r.id];
+          const on = this.doneMine(r.id);
+          const dNames = this.doneNames(r.id);
+          const dTargets = this.todoTargets(r.id);
           const setField = f => ev => {
             const v = ev.target.value;
             if (r.custom) {
@@ -3807,6 +5750,9 @@ class Component extends DCLogic {
           const offTarget = !allWho && who.indexOf(me) < 0;
           return {
             offTarget: offTarget,
+            jumpId: "todo:" + r.id,
+            canDel: isAdmin,
+            doneHint: "display:none",
             whoLabel: allWho ? "全員" : who.join("・"),
             whoStyle: "font-family:var(--font-body); font-size:10.5px; font-weight:700; border-radius:999px; padding:2px 9px; white-space:nowrap; "
               + (allWho ? "background-color:var(--color-neutral-200); color:var(--color-neutral-800)"
@@ -3836,7 +5782,19 @@ class Component extends DCLogic {
                     : on ? "background:var(--color-accent-600); color:#ffffff; border:1px solid transparent; box-shadow:0 0 0 3px var(--color-accent-300)"
                     : "background:#ffffff; color:transparent; border:1.5px solid var(--color-neutral-400)"),
             rowStyle: "display:flex; gap:12px; align-items:flex-start; " + (offTarget ? "cursor:default" : "cursor:pointer"),
-            go: () => { if (offTarget) return; this.save({ done:Object.assign({}, this.state.done, { [r.id]:!on }) }); },
+            go: () => { if (offTarget) return; this.toggleDone(r.id); },
+            doneLabel: dNames.length + " / " + dTargets.length + " 完了",
+            doneStyle: "font-family:var(--font-body); font-size:10.5px; font-weight:700; border-radius:999px; padding:2px 9px; white-space:nowrap; "
+              + (dNames.length >= dTargets.length && dTargets.length
+                 ? "background-color:var(--color-accent-600); color:#ffffff"
+                 : "background-color:var(--color-neutral-200); color:var(--color-neutral-800)"),
+            doneWho: dTargets.map(n => ({
+              name: n,
+              style: "font-family:var(--font-body); font-size:10.5px; font-weight:700; border-radius:999px; padding:3px 10px; white-space:nowrap; "
+                + (this.doneOf(r.id)[n]
+                   ? "background:var(--color-accent-300); color:var(--color-accent-900)"
+                   : "background:#ffffff; color:var(--color-neutral-500); border:1px dashed var(--color-neutral-400)")
+            })),
             editing: !!(s.prepEdit || {})[eKey],
             editLabel: (s.prepEdit || {})[eKey] ? "閉じる" : "編集",
             editGo: ev => {
