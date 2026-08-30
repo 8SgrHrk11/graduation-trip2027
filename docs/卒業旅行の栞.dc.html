@@ -2232,7 +2232,7 @@ const MARKS = [
   { v:0, label:"△ うーん" }
 ];
 
-const SHARED_KEYS = ["ballots","notes","deadlines","members","lineUrl","reads","meets","lodging","plans","hidden","booked","addBook","foodNotes","spotNotes","confirms","userLinks","themeAdds","themeEdits","themeDel","myTodos","todoEdits","bookEdits","resetV","todoWho","notifyOff","expenses","settledTx","settlements","payDue","defer","nudges","txKeyV","exDel","doneBy","adminCred","exResetV","idResetV","planLog","delMsgs"];
+const SHARED_KEYS = ["ballots","notes","deadlines","members","lineUrl","reads","meets","lodging","plans","hidden","booked","addBook","foodNotes","spotNotes","confirms","userLinks","themeAdds","themeEdits","themeDel","myTodos","todoEdits","bookEdits","resetV","todoWho","notifyOff","expenses","settledTx","settlements","payDue","defer","nudges","txKeyV","exDel","doneBy","adminCred","exResetV","planLog","delMsgs"];
 const PAY_DUE_DEFAULT = "2027-03-11T23:59";
 const TRIP_YEAR = 2027;
 const TRIP_START = "2027-02-13";
@@ -2696,7 +2696,7 @@ class Component extends DCLogic {
           expenses:s.expenses, settledTx:s.settledTx, settlements:s.settlements, prepOpen:s.prepOpen, myTodos:s.myTodos, packAdd:s.packAdd, packAddG:s.packAddG, packHidden:s.packHidden, notifiedDue:s.notifiedDue,
           todoEdits:s.todoEdits, bookEdits:s.bookEdits, privTodos:s.privTodos, resetV:s.resetV,
           payDue:s.payDue, defer:s.defer, nudges:s.nudges, txKeyV:s.txKeyV, exDel:s.exDel, doneBy:s.doneBy,
-          adminCred:s.adminCred, exResetV:s.exResetV, idResetV:s.idResetV, planLog:s.planLog, delMsgs:s.delMsgs
+          adminCred:s.adminCred, exResetV:s.exResetV, planLog:s.planLog, delMsgs:s.delMsgs
         }));
       } catch (e) {}
       }, 350);
@@ -2709,13 +2709,20 @@ class Component extends DCLogic {
   }
 
   // 端末の本人設定と管理者登録を一度だけ初期化する
+  // 本人設定のリセットは端末ごとに1回。印を共有すると、1台走った時点で他の端末が飛ばしてしまう
   maybeResetIdentity() {
-    if (this.state.idResetV === IDENTITY_RESET) return;
-    // 共有データが届いてから消す。先に消すと、あとから届いた登録で上書きされてしまう
-    if (this.state.sync !== "on" && this.state.sync !== "off") return;
+    let done = null;
+    try { done = localStorage.getItem("idResetV"); } catch (e) {}
+    if (done === IDENTITY_RESET) return;
+    try { localStorage.setItem("idResetV", IDENTITY_RESET); } catch (e) {}
     try { sessionStorage.setItem("adminOK", "0"); } catch (e) {}
     this.setState({ me:"", identified:false, adminOK:false, adminMsg:"" });
-    this.save({ adminCred:null, idResetV:IDENTITY_RESET, me:"", identified:false });
+    // 共有データが届いたあとで管理者端末の登録を消す（先に消すと届いた値で戻ってしまう）
+    const clearCred = n => {
+      if (this.state.sync === "connecting" && n < 20) { setTimeout(() => clearCred(n + 1), 300); return; }
+      this.save({ adminCred:null, me:"", identified:false });
+    };
+    clearCred(0);
   }
 
   // 立替の記録を一度だけまるごと初期化する（何も立替が発生していない状態に戻す）
