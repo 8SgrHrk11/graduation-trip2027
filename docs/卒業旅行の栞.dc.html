@@ -279,6 +279,7 @@
   <sc-if value="{{ isConfig }}" hint-placeholder-val="{{ true }}">
   <section style="animation:floatUp .45s ease both">
     <h2 style="font-size:22px; margin:18px 0 4px">設定</h2>
+    <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-600)">{{ buildStamp }}</div>
 
     <div style="margin-top:16px; {{ cfgCard }}">
       <div onClick="{{ cfgGo }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
@@ -5900,6 +5901,7 @@ class Component extends DCLogic {
       })(),
       outbound: OUTBOUND, inbound: INBOUND, transit: TRANSIT, lodging: LODGING,
       weather: WEATHER, currencies: CURRENCIES, money: MONEY,
+      buildStamp: "版 2026-08-31 c（管理者解錠の修正）",
       isAdmin: isAdmin,
       isAdminName: this.isAdminName(),
       adminNeedEnroll: this.isAdminName() && !this.adminEnrolled(),
