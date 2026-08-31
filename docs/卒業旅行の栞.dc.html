@@ -3208,7 +3208,7 @@ class Component extends DCLogic {
     this.maybeResetVotes();
     this.maybeResetExpenses();
     this.maybeResetIdentity();
-    if (this.visTab("local")) { this.loadMaps(); if (window.google && window.google.maps) this.drawMap(); }
+    if (this.visTab("local")) { this.loadMaps(); if (window.google && window.google.maps) { this.drawMap(); this.geocodePending(); } }
     this.postPicks();
     const n = this.myUnread();
     if (this.lastTitleN !== n) {
@@ -4055,7 +4055,7 @@ class Component extends DCLogic {
     const sc = document.createElement("script");
     sc.id = "gmapsjs";
     sc.async = true;
-    sc.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(key) + "&language=ja";
+    sc.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(key) + "&libraries=places&language=ja";
     sc.onerror = () => { this.mapLoading = null; this.setState({ geoMsg:"地図を読み込めませんでした。キーを確認してください。" }); };
     sc.onload = () => { this.mapLoading = null; this.drawMap(); this.geocodePending(); };
     document.head.appendChild(sc);
@@ -4118,39 +4118,83 @@ class Component extends DCLogic {
       return;
     }
     const need = [];
+    const seen = {};
     GUIDE_GROUPS.forEach(c => {
       this.guidesOf(c.id).forEach(sec => {
         if ((sec.kind || "place") !== "place") return;
         (sec.items || []).forEach(it => {
           const a = String(it.addr || "").trim();
-          if (!a) return;
+          if (!a || seen[a]) return;
           if (this.coordFromUrl(a) || this.geoOf(a)) return;
-          if (need.indexOf(a) < 0) need.push(a);
+          seen[a] = 1;
+          need.push({ key:a, q:this.searchQuery(a, it.t, c) });
         });
       });
     });
     if (!need.length) {
-      if (loud) this.setState({ geoMsg:"変換が必要な住所はありません。現地のことページで場所を登録すると、ここで座標に変換できます。" });
+      if (loud) this.setState({ geoMsg:"変換が必要な場所はありません。現地のことページで場所を登録すると、ここで座標に変換できます。" });
       return;
     }
-    if (loud) this.setState({ geoMsg:need.length + " 件を変換しています…" });
-    const gc = new google.maps.Geocoder();
+    if (this.geoBusy) return;
+    this.geoBusy = true;
+    if (loud) this.setState({ geoMsg:need.length + " 件を調べています…" });
+    const list = need.slice(0, 8);
     const found = {};
-    let left = Math.min(need.length, 8);
-    need.slice(0, 8).forEach(a => {
-      const q = /^https?:/i.test(a) ? a.replace(/^https?:\/\/[^\/]+\/?/i, "").replace(/[+_]/g, " ") : a;
-      gc.geocode({ address:q }, (r, st) => {
-        if (st === "OK" && r[0]) {
-          const p = r[0].geometry.location;
-          found[a] = { lat:p.lat(), lng:p.lng() };
-        }
-        if (--left <= 0) {
-          const n = Object.keys(found).length;
-          if (n) this.save({ geo:Object.assign({}, this.state.geo || {}, found) });
-          this.setState({ geoMsg: n ? (n + " 件の座標を取得しました。")
-                                    : "住所から座標を取得できませんでした。Geocoding API が有効か、住所の書き方を確かめてください。" });
-        }
-      });
+    let left = list.length;
+    const done = () => {
+      if (--left > 0) return;
+      this.geoBusy = false;
+      const n = Object.keys(found).length;
+      if (n) this.save({ geo:Object.assign({}, this.state.geo || {}, found) });
+      this.setState({ geoMsg: n ? (n + " 件の場所を地図に載せました。")
+        : "場所を特定できませんでした。名前を英語表記にするか、住所を入れてみてください。" });
+    };
+    list.forEach(item => this.findPlace(item.q, p => { if (p) found[item.key] = p; done(); }));
+  }
+
+  // 短縮URL（share.google / maps.app.goo.gl など）は座標も地名も持たないので、
+  // 登録した名前＋都市名で検索する
+  searchQuery(addr, name, city) {
+    const a = String(addr || "").trim();
+    const nm = String(name || "").trim();
+    const cityQ = (city && city.q) || "";
+    if (!/^https?:/i.test(a)) return a;
+    if (/(share\.google|goo\.gl|maps\.app\.goo\.gl|bit\.ly|tinyurl)/i.test(a)) {
+      return (nm ? nm + " " : "") + cityQ;
+    }
+    const m = a.match(/\/place\/([^\/@?]+)/);
+    if (m) return decodeURIComponent(m[1]).replace(/[+_]/g, " ");
+    return (nm ? nm + " " : "") + cityQ;
+  }
+
+  // Places のテキスト検索を優先し、無ければジオコーダに落とす
+  findPlace(q, cb) {
+    if (!q) { cb(null); return; }
+    const fin = r => cb(r);
+    try {
+      if (google.maps.places && google.maps.places.PlacesService) {
+        const host = this.gmap || document.createElement("div");
+        const svc = new google.maps.places.PlacesService(host);
+        svc.findPlaceFromQuery({ query:q, fields:["geometry"] }, (res, st) => {
+          if (st === google.maps.places.PlacesServiceStatus.OK && res && res[0] && res[0].geometry) {
+            const p = res[0].geometry.location;
+            fin({ lat:p.lat(), lng:p.lng() });
+            return;
+          }
+          this.geocodeOne(q, fin);
+        });
+        return;
+      }
+    } catch (e) {}
+    this.geocodeOne(q, fin);
+  }
+
+  geocodeOne(q, cb) {
+    new google.maps.Geocoder().geocode({ address:q }, (r, st) => {
+      if (st === "OK" && r[0]) {
+        const p = r[0].geometry.location;
+        cb({ lat:p.lat(), lng:p.lng() });
+      } else cb(null);
     });
   }
 
@@ -5930,7 +5974,7 @@ class Component extends DCLogic {
       })(),
       outbound: OUTBOUND, inbound: INBOUND, transit: TRANSIT, lodging: LODGING,
       weather: WEATHER, currencies: CURRENCIES, money: MONEY,
-      buildStamp: "版 2026-08-31 e（地図エラーの表示）",
+      buildStamp: "版 2026-08-31 f（短縮URLの場所検索）",
       isAdmin: isAdmin,
       isAdminName: this.isAdminName(),
       adminNeedEnroll: this.isAdminName() && !this.adminEnrolled(),
