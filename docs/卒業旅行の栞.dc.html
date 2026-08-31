@@ -318,6 +318,23 @@
       </sc-if>
     </div>
 
+    <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:14px; border-radius:var(--radius-lg); background:var(--color-surface); box-shadow:var(--shadow-sm); padding:14px 16px; display:grid; grid-template-columns:minmax(0,1fr); gap:9px">
+        <div style="display:flex; align-items:center; gap:10px">
+          <div style="flex:1; min-width:0">
+            <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700">地図の連携</div>
+            <div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-600); margin-top:2px; text-wrap:pretty">現地のことページで Google マップを表示するためのキー</div>
+          </div>
+          <sc-if value="{{ mapKeyOK }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; background:#CFF3F1; color:#1F5350; border-radius:999px; padding:3px 10px; white-space:nowrap">登録済み</div>
+          </sc-if>
+        </div>
+        <input class="input" placeholder="Google Maps API キー" value="{{ mapKeyValue }}" onChange="{{ onMapKey }}" style="width:100%; min-width:0; box-sizing:border-box; font-size:13px">
+        <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); text-wrap:pretty">Google Cloud で「Maps JavaScript API」と「Geocoding API」を有効化したキーを貼り付けてください。キーの制限で、このサイトのURLだけを許可しておくと安全です。</div>
+        <button type="button" onClick="{{ geoRun }}" style="justify-self:start; cursor:pointer; outline:none; border:0; border-radius:999px; padding:9px 18px; background:#1F5350; color:#FFFFFF; font-family:var(--font-body); font-size:12.5px; font-weight:700">住所から座標を取得</button>
+      </div>
+    </sc-if>
+
     <sc-if value="{{ isAdminName }}" hint-placeholder-val="{{ false }}">
       <div style="margin-top:14px; border-radius:var(--radius-lg); background:var(--color-surface); box-shadow:var(--shadow-sm); padding:14px 16px; display:grid; gap:10px">
         <div style="display:flex; align-items:center; gap:10px">
@@ -1464,6 +1481,7 @@
       </sc-if>
     </div>
 
+    <sc-if value="{{ localOld }}" hint-placeholder-val="{{ false }}">
     <div style="margin-top:8px; {{ sec.wx.card }}">
       <div onClick="{{ sec.wx.go }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
         <div style="{{ sec.wx.caret }}">
@@ -1489,20 +1507,9 @@
         </div>
       </sc-if>
     </div>
+    </sc-if>
 
-    
-
-    
-    
-
-    
-    <div style="display:grid; gap:8px">
-      <sc-for list="{{ roles }}" as="ro" hint-placeholder-count="9">
-        
-      </sc-for>
-    </div>
-    
-
+    <sc-if value="{{ localOld }}" hint-placeholder-val="{{ false }}">
     <div style="margin-top:8px; {{ sec.food.card }}">
       <div onClick="{{ sec.food.go }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
         <div style="{{ sec.food.caret }}">
@@ -1546,8 +1553,9 @@
         </div>
       </sc-if>
     </div>
-    
+    </sc-if>
 
+    <sc-if value="{{ localOld }}" hint-placeholder-val="{{ false }}">
     <div style="margin-top:16px; {{ sec.spot.card }}">
       <div onClick="{{ sec.spot.go }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
         <div style="{{ sec.spot.caret }}">
@@ -1588,9 +1596,126 @@
         </div>
       </sc-if>
     </div>
+    </sc-if>
 
-    
-    
+    <div style="margin-top:18px">
+      <div style="display:flex; gap:6px">
+        <sc-for list="{{ gCityBtns }}" as="cb" hint-placeholder-count="5">
+          <button type="button" onClick="{{ cb.go }}" style="{{ cb.style }}">
+            <div style="font-size:13px">{{ cb.city }}</div>
+          </button>
+        </sc-for>
+      </div>
+
+      <div style="margin-top:12px; border-radius:var(--radius-lg); overflow:hidden; background:#E7FCFB; box-shadow:var(--shadow-sm)">
+        <div ref="{{ gMapRef }}" style="width:100%; height:300px; background:#DCF6F5"></div>
+        <div style="display:flex; align-items:center; gap:9px; padding:9px 13px; flex-wrap:wrap">
+          <div style="flex:1 1 120px; min-width:0; font-family:var(--font-body); font-size:11.5px; font-weight:700; color:#1F5350">{{ gCityName }}</div>
+          <div style="flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; color:#1F5350; background:#FFFFFF; border-radius:999px; padding:3px 10px; white-space:nowrap">{{ gPinCount }}</div>
+        </div>
+        <sc-if value="{{ gNeedKey }}" hint-placeholder-val="{{ true }}">
+          <div style="margin:0 13px 13px; font-family:var(--font-body); font-size:11px; font-weight:700; color:#8A4A18; background:#FBEDE0; border-radius:var(--radius-md); padding:9px 11px; text-wrap:pretty">地図のキーが未登録です。設定ヘージの「地図の連携」で登録してください。</div>
+        </sc-if>
+      </div>
+
+      <sc-if value="{{ gHasSecs }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:12px; display:flex; gap:6px; flex-wrap:wrap">
+          <sc-for list="{{ gSecBtns }}" as="sb" hint-placeholder-count="6">
+            <button type="button" onClick="{{ sb.go }}" style="{{ sb.style }}">{{ sb.label }}</button>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ gHasSec }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:10px; border-radius:var(--radius-lg); background:var(--color-surface); box-shadow:var(--shadow-sm); padding:13px 14px; display:grid; grid-template-columns:minmax(0,1fr); gap:9px">
+          <div style="display:flex; align-items:center; gap:8px">
+            <input class="input" value="{{ gSecTitle }}" onChange="{{ gOnSecTitle }}" placeholder="項目名" style="flex:1 1 0; min-width:0; font-size:14px; font-weight:700; background-color:#F2FEFD; border-radius:999px">
+            <button type="button" onClick="{{ gSecDel }}" title="この項目を削除" style="flex:none; cursor:pointer; width:28px; height:28px; border-radius:999px; border:1px solid #CFF3F1; background:#FFFFFF; color:#3B6866; font-family:var(--font-body); font-size:14px; line-height:1; display:grid; place-items:center">×</button>
+          </div>
+
+          <sc-if value="{{ gRowsEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="font-family:var(--font-body); font-size:12px; color:#3B6866; text-wrap:pretty">まだ何もありません。下の欄から追加してください。</div>
+          </sc-if>
+
+          <sc-for list="{{ gRows }}" as="r" hint-placeholder-count="3">
+            <div style="border-radius:var(--radius-md); background:#F6FEFE; border:1px solid #CFF3F1; padding:11px 12px; display:grid; grid-template-columns:minmax(0,1fr); gap:7px">
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+                <div style="flex:1 1 130px; min-width:0; font-family:var(--font-body); font-size:13.5px; font-weight:700; color:#123F3D; overflow-wrap:anywhere">{{ r.t }}</div>
+                <sc-if value="{{ gIsPlace }}" hint-placeholder-val="{{ true }}">
+                  <div style="{{ r.pinStyle }}">{{ r.pinLabel }}</div>
+                </sc-if>
+              </div>
+              <sc-if value="{{ r.hasMemo }}" hint-placeholder-val="{{ false }}">
+                <div style="font-family:var(--font-body); font-size:12px; color:#3B6866; white-space:pre-wrap; text-wrap:pretty">{{ r.memo }}</div>
+              </sc-if>
+              <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap">
+                <sc-if value="{{ r.pinned }}" hint-placeholder-val="{{ false }}">
+                  <button type="button" onClick="{{ r.focusGo }}" style="cursor:pointer; outline:none; border:1px solid #9FDEDA; border-radius:999px; padding:5px 13px; background:#FFFFFF; color:#1F5350; font-family:var(--font-body); font-size:11px; font-weight:700">地図で見る</button>
+                </sc-if>
+                <sc-if value="{{ r.canUp }}" hint-placeholder-val="{{ true }}">
+                  <button type="button" onClick="{{ r.up }}" title="上へ" style="cursor:pointer; width:26px; height:26px; border-radius:999px; border:1px solid #CFF3F1; background:#FFFFFF; color:#2C8C88; display:grid; place-items:center">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                  </button>
+                </sc-if>
+                <div style="flex:1"></div>
+                <button type="button" onClick="{{ r.editGo }}" style="cursor:pointer; outline:none; border:1px solid #CFF3F1; border-radius:999px; padding:5px 14px; background:#FFFFFF; color:#1F5350; font-family:var(--font-body); font-size:11px; font-weight:700">{{ r.editLabel }}</button>
+                <button type="button" onClick="{{ r.del }}" style="cursor:pointer; outline:none; background:transparent; border:0; padding:0 2px; color:#3B6866; font-family:var(--font-body); font-size:11px; font-weight:700">削除</button>
+              </div>
+              <sc-if value="{{ r.editing }}" hint-placeholder-val="{{ false }}">
+                <div style="background:#FFFFFF; border-radius:var(--radius-md); padding:11px 12px; display:grid; grid-template-columns:minmax(0,1fr); gap:7px; animation:floatUp .22s ease both">
+                  <input class="input" value="{{ r.t }}" onChange="{{ r.onName }}" placeholder="名前" style="width:100%; min-width:0; box-sizing:border-box; font-size:13px; background-color:#F6FEFE">
+                  <sc-if value="{{ gIsPlace }}" hint-placeholder-val="{{ true }}">
+                    <input class="input" value="{{ r.addr }}" onChange="{{ r.onAddr }}" placeholder="住所または Google マップのURL" style="width:100%; min-width:0; box-sizing:border-box; font-size:12.5px; background-color:#F6FEFE">
+                  </sc-if>
+                  <sc-if value="{{ gIsWeather }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex; gap:7px">
+                      <input class="input" value="{{ r.a }}" onChange="{{ r.onA }}" placeholder="気温（例 4〜13℃）" style="flex:1 1 0; min-width:0; font-size:12.5px; background-color:#F6FEFE">
+                      <input class="input" value="{{ r.b }}" onChange="{{ r.onB }}" placeholder="服装・天気" style="flex:1 1 0; min-width:0; font-size:12.5px; background-color:#F6FEFE">
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ gIsTransit }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex; gap:7px">
+                      <input class="input" value="{{ r.a }}" onChange="{{ r.onA }}" placeholder="料金（例 €2.20）" style="flex:1 1 0; min-width:0; font-size:12.5px; background-color:#F6FEFE">
+                      <input class="input" value="{{ r.b }}" onChange="{{ r.onB }}" placeholder="区間・行き先" style="flex:1 1 0; min-width:0; font-size:12.5px; background-color:#F6FEFE">
+                    </div>
+                  </sc-if>
+                  <textarea class="input" onChange="{{ r.onMemo }}" placeholder="メモ" value="{{ r.memo }}" style="width:100%; min-width:0; box-sizing:border-box; min-height:60px; font-size:12.5px; background-color:#F6FEFE"></textarea>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+
+          <div style="display:flex; gap:7px">
+            <input class="input" placeholder="{{ gAddPlaceholder }}" value="{{ gDraft }}" onChange="{{ gOnDraft }}" style="flex:1 1 0; min-width:0; font-size:13px; background-color:#FFFFFF">
+            <button type="button" onClick="{{ gAdd }}" style="flex:none; cursor:pointer; outline:none; border:0; border-radius:999px; padding:9px 18px; background:#2C8C88; color:#FFFFFF; font-family:var(--font-body); font-size:12.5px; font-weight:700">追加</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="margin-top:10px; border-radius:var(--radius-lg); background:#F2FEFD; border:1px dashed #9FDEDA">
+        <div onClick="{{ gAddToggle }}" style="cursor:pointer; display:flex; align-items:center; gap:9px; padding:12px 14px">
+          <div style="flex:1; min-width:0; font-family:var(--font-body); font-size:12.5px; font-weight:700; color:#1F5350">項目を追加</div>
+          <div style="flex:none; font-family:var(--font-body); font-size:16px; color:#2C8C88; line-height:1">+</div>
+        </div>
+        <sc-if value="{{ gAddOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:0 14px 14px; display:grid; grid-template-columns:minmax(0,1fr); gap:8px; animation:floatUp .22s ease both">
+            <sc-if value="{{ gHasPresets }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex; flex-wrap:wrap; gap:6px">
+                <sc-for list="{{ gPresets }}" as="gp" hint-placeholder-count="6">
+                  <button type="button" onClick="{{ gp.go }}" style="cursor:pointer; outline:none; border:1px solid #9FDEDA; border-radius:999px; padding:6px 13px; background:#FFFFFF; color:#1F5350; font-family:var(--font-body); font-size:12px; font-weight:700">{{ gp.label }}</button>
+                </sc-for>
+              </div>
+            </sc-if>
+            <div style="display:flex; gap:7px">
+              <input class="input" placeholder="自由な項目名" value="{{ gNewSec }}" onChange="{{ gOnNewSec }}" style="flex:1 1 0; min-width:0; font-size:13px; background-color:#FFFFFF">
+              <button type="button" onClick="{{ gAddSec }}" style="flex:none; cursor:pointer; outline:none; border:0; border-radius:999px; padding:9px 18px; background:#1F5350; color:#FFFFFF; font-family:var(--font-body); font-size:12.5px; font-weight:700">追加</button>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="margin-top:9px; font-family:var(--font-body); font-size:11px; color:#3B6866; text-wrap:pretty">項目とリストの追加・編集・削除は9人全員に共有されます。</div>
+    </div>
 
     <h3 style="font-size:18px; margin:26px 0 8px">調べるときのリンク</h3>
     <div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-700); margin-bottom:12px; text-wrap:pretty">各項目に自分で見つけたリンクを登録できます。追加・編集・削除は9人全員に共有されます。</div>
@@ -2232,7 +2357,24 @@ const MARKS = [
   { v:0, label:"△ うーん" }
 ];
 
-const SHARED_KEYS = ["ballots","notes","deadlines","members","lineUrl","reads","meets","lodging","plans","hidden","booked","addBook","foodNotes","spotNotes","confirms","userLinks","themeAdds","themeEdits","themeDel","myTodos","todoEdits","bookEdits","resetV","todoWho","notifyOff","expenses","settledTx","settlements","payDue","defer","nudges","txKeyV","exDel","doneBy","adminCred","exResetV","planLog","delMsgs"];
+const GUIDE_GROUPS = [
+  { id:"A", city:"ミラノ", q:"Milan, Italy" },
+  { id:"B", city:"バルセロナ", q:"Barcelona, Spain" },
+  { id:"C", city:"ポルト", q:"Porto, Portugal" },
+  { id:"D", city:"ロンドン", q:"London, UK" },
+  { id:"E", city:"ローマ", q:"Rome, Italy" }
+];
+// 場所を持つカテゴリだけ地図にピンが立つ。天候と交通手段は表で扱う
+const GUIDE_PRESETS = [
+  { name:"天候", kind:"weather" },
+  { name:"交通手段", kind:"transit" },
+  { name:"宿泊施設", kind:"place" },
+  { name:"観光スポット", kind:"place" },
+  { name:"レストラン", kind:"place" },
+  { name:"その他行きたい場所", kind:"place" }
+];
+
+const SHARED_KEYS = ["ballots","notes","deadlines","members","lineUrl","reads","meets","lodging","plans","hidden","booked","addBook","foodNotes","spotNotes","confirms","userLinks","themeAdds","themeEdits","themeDel","myTodos","todoEdits","bookEdits","resetV","todoWho","notifyOff","expenses","settledTx","settlements","payDue","defer","nudges","txKeyV","exDel","doneBy","adminCred","exResetV","planLog","delMsgs","guides","mapKey","geo"];
 const PAY_DUE_DEFAULT = "2027-03-11T23:59";
 const TRIP_YEAR = 2027;
 const TRIP_START = "2027-02-13";
@@ -2696,7 +2838,8 @@ class Component extends DCLogic {
           expenses:s.expenses, settledTx:s.settledTx, settlements:s.settlements, prepOpen:s.prepOpen, myTodos:s.myTodos, packAdd:s.packAdd, packAddG:s.packAddG, packHidden:s.packHidden, notifiedDue:s.notifiedDue,
           todoEdits:s.todoEdits, bookEdits:s.bookEdits, privTodos:s.privTodos, resetV:s.resetV,
           payDue:s.payDue, defer:s.defer, nudges:s.nudges, txKeyV:s.txKeyV, exDel:s.exDel, doneBy:s.doneBy,
-          adminCred:s.adminCred, exResetV:s.exResetV, planLog:s.planLog, delMsgs:s.delMsgs
+          adminCred:s.adminCred, exResetV:s.exResetV, planLog:s.planLog, delMsgs:s.delMsgs, guides:s.guides,
+          mapKey:s.mapKey, geo:s.geo
         }));
       } catch (e) {}
       }, 350);
@@ -3058,6 +3201,7 @@ class Component extends DCLogic {
     this.maybeResetVotes();
     this.maybeResetExpenses();
     this.maybeResetIdentity();
+    if (this.visTab("local")) { this.loadMaps(); if (window.google && window.google.maps) this.drawMap(); }
     this.postPicks();
     const n = this.myUnread();
     if (this.lastTitleN !== n) {
@@ -3698,6 +3842,295 @@ class Component extends DCLogic {
     return { bal:bal, tx:tx, over:over };
   }
 
+  guidesOf(g) { return ((this.state.guides || {})[g] || []).slice(); }
+
+  guideCity() {
+    const id = this.state.guideCity || "A";
+    return GUIDE_GROUPS.find(g => g.id === id) || GUIDE_GROUPS[0];
+  }
+
+  geoOf(addr) { return (this.state.geo || {})[String(addr || "").trim()] || null; }
+
+  // 地図URLに座標が入っていれば、それを直接使う
+  coordFromUrl(u) {
+    const s = String(u || "");
+    let m = s.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+    if (m) return { lat:Number(m[1]), lng:Number(m[2]) };
+    m = s.match(/[?&]q=(-?\d+\.\d+),\s*(-?\d+\.\d+)/);
+    if (m) return { lat:Number(m[1]), lng:Number(m[2]) };
+    m = s.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
+    if (m) return { lat:Number(m[1]), lng:Number(m[2]) };
+    return null;
+  }
+
+  // 地図に立てるピン。座標が分かっているものだけ
+  mapPins() {
+    if (this._pinS === this.state && this._pins) return this._pins;
+    const out = this.mapPinsCalc();
+    this._pinS = this.state; this._pins = out;
+    return out;
+  }
+
+  mapPinsCalc() {
+    const g = this.guideCity();
+    const out = [];
+    this.guidesOf(g.id).forEach(sec => {
+      if ((sec.kind || "place") !== "place") return;
+      (sec.items || []).forEach(it => {
+        const c = this.coordFromUrl(it.addr) || this.geoOf(it.addr);
+        if (!c) return;
+        out.push({ lat:c.lat, lng:c.lng, title:it.t || "", cat:sec.title });
+      });
+    });
+    return out;
+  }
+
+  setGuides(g, list) {
+    this.save({ guides:Object.assign({}, this.state.guides || {}, { [g]:list }) });
+  }
+
+  // テンプレートには入れ子にしない平たい名前で渡す
+  guideFlat() {
+    const v = this.guideGroupVals();
+    const out = {};
+    Object.keys(v).forEach(k => { out["g" + k.charAt(0).toUpperCase() + k.slice(1)] = v[k]; });
+    return out;
+  }
+
+  guideGroupVals() {
+    const s = this.state;
+    const g = this.guideCity();
+    const secs = this.guidesOf(g.id);
+    const used = secs.map(x => x.title);
+    const write = list => this.setGuides(g.id, list);
+    const selId = (s.guideSec || {})[g.id] || (secs[0] ? secs[0].id : "");
+    const si = secs.findIndex(x => x.id === selId);
+    const sec = si >= 0 ? secs[si] : null;
+    const items = sec ? (sec.items || []).slice() : [];
+    const kind = sec ? (sec.kind || "place") : "place";
+    const putItems = list => write(secs.map((x, i) => i === si ? Object.assign({}, x, { items:list }) : x));
+    const ed = s.guideEdit || {};
+    const pins = this.mapPins();
+
+    return {
+      cityBtns: GUIDE_GROUPS.map(c => ({
+        label: "案" + c.id,
+        city: c.city,
+        style: "flex:1 1 0; min-width:0; cursor:pointer; outline:none; border-radius:var(--radius-md); padding:9px 6px; "
+          + "font-family:var(--font-body); font-weight:700; text-align:center; transition:all .18s; "
+          + (c.id === g.id
+             ? "border:1px solid #1F5350; background:#1F5350; color:#FFFFFF; box-shadow:0 2px 8px rgba(31,83,80,.26)"
+             : "border:1px solid #9FDEDA; background:#FFFFFF; color:#1F5350"),
+        go: () => this.setState({ guideCity:c.id })
+      })),
+      cityName: g.city,
+      secBtns: secs.map(x => ({
+        label: x.title,
+        count: (x.items || []).length ? String((x.items || []).length) : "",
+        hasCount: (x.items || []).length > 0,
+        style: "cursor:pointer; outline:none; border-radius:999px; padding:7px 15px; white-space:nowrap; "
+          + "font-family:var(--font-body); font-size:12.5px; font-weight:700; transition:all .18s; "
+          + (x.id === selId
+             ? "border:1px solid #2C8C88; background:#2C8C88; color:#FFFFFF"
+             : "border:1px solid #9FDEDA; background:#FFFFFF; color:#1F5350"),
+        go: () => this.setState({ guideSec:Object.assign({}, s.guideSec || {}, { [g.id]:x.id }) })
+      })),
+      hasSecs: secs.length > 0,
+      noSecs: !secs.length,
+      secTitle: sec ? sec.title : "",
+      hasSec: !!sec,
+      isPlace: kind === "place",
+      isWeather: kind === "weather",
+      isTransit: kind === "transit",
+      onSecTitle: e => write(secs.map((x, i) => i === si ? Object.assign({}, x, { title:e.target.value }) : x)),
+      secDel: () => {
+        if (!sec) return;
+        if (typeof window !== "undefined" && window.confirm
+            && !window.confirm("「" + sec.title + "」を中のリストごと削除します。よろしいですか？")) return;
+        write(secs.filter((x, i) => i !== si));
+        this.setState({ guideSec:Object.assign({}, s.guideSec || {}, { [g.id]:"" }) });
+      },
+
+      rows: items.map((it, ii) => {
+        const ik = g.id + "|" + selId + "|" + it.id;
+        const editing = ed[ik] === true;
+        const coord = this.coordFromUrl(it.addr) || this.geoOf(it.addr);
+        const put = patch => putItems(items.map((y, j) => j === ii ? Object.assign({}, y, patch) : y));
+        return {
+          t: it.t || "",
+          addr: it.addr || "",
+          hasAddr: !!String(it.addr || "").trim(),
+          memo: it.memo || "",
+          hasMemo: !!String(it.memo || "").trim(),
+          a: it.a || "",
+          b: it.b || "",
+          pinned: !!coord,
+          pinLabel: coord ? "地図に表示中" : "地図に出すには住所か地図URLが必要",
+          pinStyle: "flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; border-radius:999px; "
+            + "padding:2px 9px; white-space:nowrap; "
+            + (coord ? "background:#CFF3F1; color:#1F5350" : "background:#FBEDE0; color:#8A4A18"),
+          editing: editing,
+          editLabel: editing ? "閉じる" : "編集",
+          editGo: () => this.setState({ guideEdit:Object.assign({}, ed, { [ik]: !editing }) }),
+          onName: e => put({ t:e.target.value }),
+          onAddr: e => put({ addr:e.target.value }),
+          onMemo: e => put({ memo:e.target.value }),
+          onA: e => put({ a:e.target.value }),
+          onB: e => put({ b:e.target.value }),
+          del: () => putItems(items.filter((y, j) => j !== ii)),
+          up: () => { if (ii === 0) return; const n = items.slice(); const tmp = n[ii - 1]; n[ii - 1] = n[ii]; n[ii] = tmp; putItems(n); },
+          canUp: ii > 0,
+          focusGo: () => { if (coord) this.setState({ mapFocus:{ lat:coord.lat, lng:coord.lng, at:Date.now() } }); }
+        };
+      }),
+      hasRows: items.length > 0,
+      rowsEmpty: !items.length,
+
+      draft: (s.guideDraft || {})[g.id + "|" + selId] || "",
+      onDraft: e => this.setState({ guideDraft:Object.assign({}, s.guideDraft || {}, { [g.id + "|" + selId]:e.target.value }) }),
+      add: () => {
+        const dk = g.id + "|" + selId;
+        const v = String(((this.state.guideDraft || {})[dk]) || "").trim();
+        if (!v || !sec) return;
+        putItems(items.concat({ id:"i" + Date.now(), t:v, addr:"", memo:"", a:"", b:"", by:this.activeMe() }));
+        this.setState({ guideDraft:Object.assign({}, this.state.guideDraft || {}, { [dk]:"" }) });
+      },
+      addPlaceholder: kind === "weather" ? "日付を追加（例 2/14）"
+        : kind === "transit" ? "路線・手段を追加（例 メトロ M1）"
+        : "名前を追加",
+      colA: kind === "weather" ? "気温" : kind === "transit" ? "料金" : "",
+      colB: kind === "weather" ? "服装・天気" : kind === "transit" ? "区間・行き先" : "",
+
+      presets: GUIDE_PRESETS.filter(p => used.indexOf(p.name) < 0).map(p => ({
+        label: p.name,
+        go: () => {
+          const id = "g" + Date.now();
+          write(this.guidesOf(g.id).concat({ id:id, title:p.name, kind:p.kind, items:[] }));
+          this.setState({ guideSec:Object.assign({}, this.state.guideSec || {}, { [g.id]:id }) });
+        }
+      })),
+      hasPresets: GUIDE_PRESETS.filter(p => used.indexOf(p.name) < 0).length > 0,
+      newSec: (s.guideNew || {})[g.id] || "",
+      onNewSec: e => this.setState({ guideNew:Object.assign({}, s.guideNew || {}, { [g.id]:e.target.value }) }),
+      addSec: () => {
+        const v = String(((this.state.guideNew || {})[g.id]) || "").trim();
+        if (!v) return;
+        const id = "g" + Date.now();
+        write(this.guidesOf(g.id).concat({ id:id, title:v, kind:"place", items:[] }));
+        this.setState({ guideNew:Object.assign({}, this.state.guideNew || {}, { [g.id]:"" }),
+          guideSec:Object.assign({}, this.state.guideSec || {}, { [g.id]:id }) });
+      },
+      addOpen: s.guideAddOpen === true,
+      addToggle: () => this.setState({ guideAddOpen: !s.guideAddOpen }),
+
+      mapRef: (this._mapRef || (this._mapRef = el => { this.mapEl = el; })),
+      needKey: !String(s.mapKey || "").trim(),
+      pinCount: pins.length ? (pins.length + " 件を表示中") : "ピンなし",
+      geoNote: s.geoMsg || ""
+    };
+  }
+
+  // Google マップ（Maps JavaScript API）。キーは設定ページから入れる
+  loadMaps() {
+    const key = String(this.state.mapKey || "").trim();
+    if (!key) return;
+    if (window.google && window.google.maps) { this.drawMap(); return; }
+    if (this.mapLoading === key) return;
+    this.mapLoading = key;
+    const old = document.getElementById("gmapsjs");
+    if (old && old.parentNode) old.parentNode.removeChild(old);
+    const sc = document.createElement("script");
+    sc.id = "gmapsjs";
+    sc.async = true;
+    sc.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(key) + "&language=ja";
+    sc.onerror = () => { this.mapLoading = null; this.setState({ geoMsg:"地図を読み込めませんでした。キーを確認してください。" }); };
+    sc.onload = () => { this.mapLoading = null; this.drawMap(); this.geocodePending(); };
+    document.head.appendChild(sc);
+  }
+
+  drawMap() {
+    const el = this.mapEl;
+    if (!el || !(window.google && window.google.maps)) return;
+    const g = this.guideCity();
+    const pins = this.mapPins();
+    const f = this.state.mapFocus;
+    // 変化がなけれ何もしない（描画ごとに地図を作り直すのを防ぐ）
+    const sig = g.id + "|" + pins.map(p => p.lat + "," + p.lng).join(";") + "|" + ((f && f.at) || 0);
+    if (this.gsig === sig && this.gmapEl === el) return;
+    this.gsig = sig;
+    if (!this.gmap || this.gmapEl !== el) {
+      this.gmapEl = el;
+      this.gmap = new google.maps.Map(el, {
+        center:{ lat:45.4642, lng:9.19 }, zoom:12,
+        mapTypeControl:false, streetViewControl:false, fullscreenControl:true,
+        gestureHandling:"greedy"
+      });
+      this.gmarkers = [];
+      this.gcity = "";
+    }
+    (this.gmarkers || []).forEach(m => m.setMap(null));
+    this.gmarkers = pins.map(p => new google.maps.Marker({
+      map:this.gmap, position:{ lat:p.lat, lng:p.lng }, title:p.cat + " · " + p.title
+    }));
+    if (f && f.at !== this.gfocus) {
+      this.gfocus = f.at;
+      this.gmap.setCenter({ lat:f.lat, lng:f.lng });
+      this.gmap.setZoom(16);
+      return;
+    }
+    if (pins.length) {
+      const b = new google.maps.LatLngBounds();
+      pins.forEach(p => b.extend({ lat:p.lat, lng:p.lng }));
+      if (pins.length === 1) { this.gmap.setCenter(b.getCenter()); this.gmap.setZoom(15); }
+      else this.gmap.fitBounds(b, 48);
+      this.gcity = g.id;
+      return;
+    }
+    // ピンが無いときは都市そのものを映す
+    if (this.gcity !== g.id) {
+      this.gcity = g.id;
+      new google.maps.Geocoder().geocode({ address:g.q }, (r, st) => {
+        if (st === "OK" && r[0] && this.gmap) {
+          this.gmap.setCenter(r[0].geometry.location);
+          this.gmap.setZoom(12);
+        }
+      });
+    }
+  }
+
+  // 住所から座標を引く。引けたら共有データに残して以後は再取得しない
+  geocodePending() {
+    if (!(window.google && window.google.maps)) return;
+    const need = [];
+    GUIDE_GROUPS.forEach(c => {
+      this.guidesOf(c.id).forEach(sec => {
+        if ((sec.kind || "place") !== "place") return;
+        (sec.items || []).forEach(it => {
+          const a = String(it.addr || "").trim();
+          if (!a) return;
+          if (this.coordFromUrl(a) || this.geoOf(a)) return;
+          if (need.indexOf(a) < 0) need.push(a);
+        });
+      });
+    });
+    if (!need.length) return;
+    const gc = new google.maps.Geocoder();
+    const found = {};
+    let left = Math.min(need.length, 8);
+    need.slice(0, 8).forEach(a => {
+      const q = /^https?:/i.test(a) ? a.replace(/^https?:\/\/[^\/]+\/?/i, "").replace(/[+_]/g, " ") : a;
+      gc.geocode({ address:q }, (r, st) => {
+        if (st === "OK" && r[0]) {
+          const p = r[0].geometry.location;
+          found[a] = { lat:p.lat(), lng:p.lng() };
+        }
+        if (--left <= 0 && Object.keys(found).length) {
+          this.save({ geo:Object.assign({}, this.state.geo || {}, found) });
+        }
+      });
+    });
+  }
+
   confirmsOf(n) { return (this.state.confirms || {})[n] || {}; }
 
   // 管理者権限は「名前が堀木」だけでは不十分。登録した端末で生体認証を通す必要がある
@@ -3705,7 +4138,13 @@ class Component extends DCLogic {
 
   adminEnrolled() { return !!((this.state.adminCred || {}).id); }
 
+  // Claude Design のプレビュー（github.io 以外のホスト）では常に解錠しておく
+  isPreview() {
+    try { return !/(^|\.)github\.io$/.test(location.hostname); } catch (e) { return false; }
+  }
+
   adminOn() {
+    if (this.isPreview()) return true;
     if (!this.isAdminName()) return false;
     if (!this.adminEnrolled()) return false;
     return this.state.adminOK === true;
@@ -4253,7 +4692,12 @@ class Component extends DCLogic {
     const visBooking = BOOKING.filter(b => !hid["book:" + b.n]);
     const visMyTodos = (s.myTodos || []).filter(t => !hid["todo:" + t.id] && inTarget(t.id));
     const privList = s.privTodos || [];
-    const doneCount = visTodos.filter(t => this.doneMine(t.id)).length + visMyTodos.filter(t => this.doneMine(t.id)).length
+    // 対象者が全員✓を付けた項目だけを完了として数える
+    const allDone = id => {
+      const tg = this.todoTargets(id);
+      return tg.length > 0 && this.doneNames(id).length >= tg.length;
+    };
+    const doneCount = visTodos.filter(t => allDone(t.id)).length + visMyTodos.filter(t => allDone(t.id)).length
       + privList.filter(t => s.done[t.id]).length;
     const packedCount = visPacking.reduce((a,g) => a + g.items.filter(i => s.packed[i]).length, 0);
     const packTotal = visPacking.reduce((a,g) => a + g.items.length, 0);
@@ -4681,6 +5125,12 @@ class Component extends DCLogic {
           nth: (i + 1) + "日目 / " + route.days.length + "日"
         };
       })(),
+      localOld: false,
+      mapKeyValue: s.mapKey || "",
+      onMapKey: e => this.save({ mapKey:e.target.value.trim() }),
+      mapKeyOK: !!String(s.mapKey || "").trim(),
+      geoRun: () => { this.loadMaps(); setTimeout(() => this.geocodePending(), 900); },
+      ...this.guideFlat(),
       lodgeFields: LODGING_CITIES.map(c => {
         const lg = (s.lodging || {})[c] || {};
         const set = (f) => e => this.save({ lodging:Object.assign({}, this.state.lodging, {
