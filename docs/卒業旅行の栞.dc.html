@@ -863,6 +863,40 @@
                     <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); text-wrap:pretty">変更は9人全員に共有されます。</div>
                   </div>
                 </sc-if>
+                <div style="margin-top:12px; padding-top:11px; border-top:1px solid var(--color-divider); display:grid; grid-template-columns:minmax(0,1fr); gap:9px">
+                  <div style="display:flex; gap:9px; align-items:center; flex-wrap:wrap">
+                    <button type="button" onClick="{{ d.aiGo }}" style="{{ d.aiBtnStyle }}">{{ d.aiBtnLabel }}</button>
+                    <div style="flex:1 1 120px; min-width:0; font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-600); text-wrap:pretty">現地のことページに登録した場所から、順番と時間配分を組みます。</div>
+                  </div>
+                  <sc-if value="{{ d.aiHasErr }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-family:var(--font-body); font-size:11.5px; font-weight:700; color:var(--color-accent-800); background:var(--color-accent-100); border-radius:var(--radius-md); padding:9px 11px; text-wrap:pretty">{{ d.aiErr }}</div>
+                  </sc-if>
+                  <sc-if value="{{ d.aiHasRows }}" hint-placeholder-val="{{ false }}">
+                    <div style="border-radius:var(--radius-lg); background:var(--color-accent-2-100); padding:13px 14px; display:grid; grid-template-columns:minmax(0,1fr); gap:10px; animation:floatUp .24s ease both">
+                      <sc-if value="{{ d.aiHasSummary }}" hint-placeholder-val="{{ false }}">
+                        <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-accent-2-900); text-wrap:pretty">{{ d.aiSummary }}</div>
+                      </sc-if>
+                      <div style="display:grid; gap:8px">
+                        <sc-for list="{{ d.aiRows }}" as="ar" hint-placeholder-count="6">
+                          <div style="display:flex; gap:10px; align-items:baseline">
+                            <div style="flex:none; width:44px; font-family:var(--font-heading); font-size:13px; color:var(--color-accent-700)">{{ ar.t }}</div>
+                            <div style="flex:1; min-width:0">
+                              <div style="font-family:var(--font-body); font-size:12.5px; line-height:1.45; text-wrap:pretty">{{ ar.x }}</div>
+                              <sc-if value="{{ ar.hasNote }}" hint-placeholder-val="{{ false }}">
+                                <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-700); margin-top:2px; text-wrap:pretty">{{ ar.n }}</div>
+                              </sc-if>
+                            </div>
+                          </div>
+                        </sc-for>
+                      </div>
+                      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+                        <button type="button" onClick="{{ d.aiApply }}" style="cursor:pointer; outline:none; border:0; border-radius:999px; padding:8px 18px; background:var(--color-accent-2-700); color:#FFFFFF; font-family:var(--font-body); font-size:12px; font-weight:700">日程表に反映</button>
+                        <button type="button" onClick="{{ d.aiClose }}" style="cursor:pointer; outline:none; background:transparent; border:0; padding:0; color:var(--color-neutral-700); font-family:var(--font-body); font-size:11.5px; font-weight:700">やめる</button>
+                        <div style="flex:1 1 100%; font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-600); text-wrap:pretty">反映すると今の予定を置き換えます。編集画面の「元に戻す」で戻せます。</div>
+                      </div>
+                    </div>
+                  </sc-if>
+                </div>
                 <button type="button" onClick="{{ d.editGo }}" style="margin-top:10px; cursor:pointer; background:transparent; border:0; padding:0; color:var(--color-accent-700); font-family:var(--font-body); font-size:11.5px; font-weight:700">{{ d.editLabel }}</button>
               </div>
             </div>
@@ -4284,6 +4318,66 @@ class Component extends DCLogic {
     });
   }
 
+  // その日の回り方を AI に組んでもらう
+  placesForCity(cityName) {
+    const g = GUIDE_GROUPS.find(x => x.city === cityName);
+    if (!g) return { g:null, list:[] };
+    const list = [];
+    this.guidesOf(g.id).forEach(sec => {
+      if ((sec.kind || "place") !== "place") return;
+      (sec.items || []).forEach(it => {
+        const nm = String(it.t || "").trim();
+        if (!nm) return;
+        const c = this.coordFromUrl(it.addr) || this.geoOf(it.addr);
+        list.push({ name:nm, category:sec.title, addr:String(it.addr || "").trim(),
+          memo:String(it.memo || "").trim(), lat:c ? c.lat : null, lng:c ? c.lng : null });
+      });
+    });
+    return { g:g, list:list };
+  }
+
+  aiPlanGo(rid, d) {
+    const pk = this.planKey(rid, d);
+    if (this.state.aiPlanBusy) return;
+    const found = this.placesForCity(d.stay);
+    if (!found.list.length) {
+      this.setState({ aiPlanPk:pk, aiPlanRows:[], aiPlanSummary:"",
+        aiPlanErr:d.stay + "に登録された場所がまだありません。現地のことページで追加してから試してください。" });
+      return;
+    }
+    const eff = this.planOf(rid, d);
+    this.setState({ aiPlanPk:pk, aiPlanBusy:true, aiPlanErr:"", aiPlanRows:[], aiPlanSummary:"" });
+    fetch(PARSE_PLACE_URL, {
+      method:"POST", headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({
+        mode:"plan", city:found.g.q, date:d.date + "（" + d.dow + "）",
+        party:this.roster().length || 9, places:found.list,
+        fixed:eff.filter(p => p.k).map(p => ({ t:p.t, x:p.x })),
+        note:[d.title].concat(d.notes || []).join(" / ").slice(0, 600)
+      })
+    }).then(r => r.json()).then(res => {
+      if (!res || res.error || !(res.rows || []).length) {
+        this.setState({ aiPlanBusy:false,
+          aiPlanErr:"提案を作れませんでした：" + ((res && res.error) || "結果が空でした") });
+        return;
+      }
+      this.setState({ aiPlanBusy:false, aiPlanRows:res.rows, aiPlanSummary:res.summary || "" });
+    }).catch(err => {
+      this.setState({ aiPlanBusy:false, aiPlanErr:"通信に失敗しました：" + ((err && err.message) || "不明") });
+    });
+  }
+
+  aiPlanApply(rid, d) {
+    const rows = (this.state.aiPlanRows || []).map(p => {
+      const o = { t:p.t, x:p.x };
+      if (p.n) o.n = p.n;
+      return o;
+    });
+    if (!rows.length) return;
+    this.setPlan(rid, d, rows);
+    this.setState({ aiPlanPk:"", aiPlanRows:[], aiPlanSummary:"", aiPlanErr:"" });
+  }
+
   // 地図の該当場所へ寄せ、地図が画面に入るところまでスクロールする
   focusPlace(coord) {
     if (!coord) return;
@@ -5978,6 +6072,25 @@ class Component extends DCLogic {
             del: () => write(eff.filter((q, j) => j !== idx))
           })),
           addRow: () => write(eff.concat({ t:"12:00", x:"" })),
+          aiOn: s.aiPlanPk === pk,
+          aiBusy: s.aiPlanPk === pk && s.aiPlanBusy === true,
+          aiBtnLabel: (s.aiPlanPk === pk && s.aiPlanBusy) ? "組み立てています…" : "AIで回り方を提案",
+          aiBtnStyle: "cursor:pointer; outline:none; border:0; border-radius:999px; padding:7px 16px; "
+            + "font-family:var(--font-body); font-size:12px; font-weight:700; "
+            + ((s.aiPlanPk === pk && s.aiPlanBusy)
+               ? "background:var(--color-accent-200); color:var(--color-accent-800)"
+               : "background:var(--color-accent-2-600); color:#FFFFFF"),
+          aiGo: () => this.aiPlanGo(route.id, d),
+          aiHasErr: s.aiPlanPk === pk && !!s.aiPlanErr,
+          aiErr: s.aiPlanErr || "",
+          aiHasRows: s.aiPlanPk === pk && !!(s.aiPlanRows || []).length,
+          aiSummary: s.aiPlanSummary || "",
+          aiHasSummary: s.aiPlanPk === pk && !!s.aiPlanSummary,
+          aiRows: (s.aiPlanPk === pk ? (s.aiPlanRows || []) : []).map(p => ({
+            t:p.t, x:p.x, n:p.n || "", hasNote: !!p.n
+          })),
+          aiApply: () => this.aiPlanApply(route.id, d),
+          aiClose: () => this.setState({ aiPlanPk:"", aiPlanRows:[], aiPlanSummary:"", aiPlanErr:"" }),
           sortRows: () => write(eff.map(q => Object.assign({}, q)).sort((a, b) => a.t < b.t ? -1 : 1)),
           canUndo: !!this.planUndoInfo(route.id, d),
           undoLabel: (() => {
@@ -6130,7 +6243,7 @@ class Component extends DCLogic {
       })(),
       outbound: OUTBOUND, inbound: INBOUND, transit: TRANSIT, lodging: LODGING,
       weather: WEATHER, currencies: CURRENCIES, money: MONEY,
-      buildStamp: "版 2026-08-31 i（地図の操作を改善）",
+      buildStamp: "版 2026-08-31 j（その日の回り方を提案）",
       isAdmin: isAdmin,
       isAdminName: this.isAdminName(),
       adminNeedEnroll: this.isAdminName() && !this.adminEnrolled(),
