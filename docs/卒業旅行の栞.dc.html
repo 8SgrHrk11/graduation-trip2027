@@ -171,7 +171,7 @@
         </sc-if>
       </div>
 
-      <sc-if value="{{ todayCard.hasLodge }}" hint-placeholder-val="{{ true }}">
+      <sc-if value="{{ todayCard.never }}" hint-placeholder-val="{{ false }}">
         <div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:16px; box-shadow:var(--shadow-sm); margin-top:10px">
           <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--color-accent-700); margin-bottom:6px">今夜の宿</div>
           <div style="font-family:var(--font-body); font-size:14px; font-weight:700">{{ todayCard.lodgeName }}</div>
@@ -871,6 +871,25 @@
                   <sc-if value="{{ d.aiHasErr }}" hint-placeholder-val="{{ false }}">
                     <div style="font-family:var(--font-body); font-size:11.5px; font-weight:700; color:var(--color-accent-800); background:var(--color-accent-100); border-radius:var(--radius-md); padding:9px 11px; text-wrap:pretty">{{ d.aiErr }}</div>
                   </sc-if>
+                  <sc-if value="{{ d.aiShowPick }}" hint-placeholder-val="{{ false }}">
+                    <div style="border-radius:var(--radius-lg); background:var(--color-accent-2-100); padding:13px 14px; display:grid; grid-template-columns:minmax(0,1fr); gap:9px; animation:floatUp .24s ease both">
+                      <div style="display:flex; gap:9px; align-items:baseline; flex-wrap:wrap">
+                        <div style="flex:1 1 130px; min-width:0; font-family:var(--font-body); font-size:12px; font-weight:700; color:var(--color-accent-2-900)">この日に回る場所を選ぶ</div>
+                        <div style="flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; color:var(--color-neutral-700)">{{ d.aiPickCount }}</div>
+                      </div>
+                      <div style="display:flex; gap:6px; flex-wrap:wrap">
+                        <sc-for list="{{ d.aiPicks }}" as="ap" hint-placeholder-count="6">
+                          <button type="button" onClick="{{ ap.go }}" style="{{ ap.style }}">{{ ap.label }}</button>
+                        </sc-for>
+                      </div>
+                      <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap">
+                        <button type="button" onClick="{{ d.aiRun }}" style="{{ d.aiRunStyle }}">{{ d.aiRunLabel }}</button>
+                        <button type="button" onClick="{{ d.aiAll }}" style="cursor:pointer; outline:none; background:transparent; border:0; padding:0; color:var(--color-neutral-700); font-family:var(--font-body); font-size:11px; font-weight:700">全部選ぶ</button>
+                        <button type="button" onClick="{{ d.aiNone }}" style="cursor:pointer; outline:none; background:transparent; border:0; padding:0; color:var(--color-neutral-700); font-family:var(--font-body); font-size:11px; font-weight:700">全部外す</button>
+                      </div>
+                      <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-600); text-wrap:pretty">選んだ場所は必ず組み込みます。時間が足りない場合は詰め込まず、入りきらない分を summary で伝えます。</div>
+                    </div>
+                  </sc-if>
                   <sc-if value="{{ d.aiHasRows }}" hint-placeholder-val="{{ false }}">
                     <div style="border-radius:var(--radius-lg); background:var(--color-accent-2-100); padding:13px 14px; display:grid; grid-template-columns:minmax(0,1fr); gap:10px; animation:floatUp .24s ease both">
                       <sc-if value="{{ d.aiHasSummary }}" hint-placeholder-val="{{ false }}">
@@ -1488,37 +1507,6 @@
   <section style="animation:floatUp .45s ease both">
     <h2 style="font-size:22px; margin:18px 0 4px">現地のこと</h2>
 
-    <div style="margin-top:16px; {{ cfgLodgeCard }}">
-      <div onClick="{{ cfgLodgeGo }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
-        <div style="{{ cfgLodgeCaret }}">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-        </div>
-        <div style="flex:1; min-width:0">
-          <div style="font-family:var(--font-body); font-size:14.5px; font-weight:700">宿情報</div>
-          
-        </div>
-      </div>
-      <sc-if value="{{ cfgLodgeOpen }}" hint-placeholder-val="{{ true }}">
-        <div style="padding:0 16px 16px; display:grid; gap:14px; animation:floatUp .28s ease both">
-          <sc-for list="{{ lodgeFields }}" as="lf" hint-placeholder-count="9">
-            <div style="border-radius: var(--radius-md); padding: 14px; background-color: #EFFEFD">
-              <div style="font-family:var(--font-body); font-size:13px; font-weight:700; margin-bottom:9px">{{ lf.city }}</div>
-              <div style="display:grid; gap:7px">
-                <input class="input" placeholder="宿の名前" value="{{ lf.name }}" onChange="{{ lf.onName }}" style="background-color: #FFFFFF">
-                <input class="input" placeholder="チェックイン日時" value="{{ lf.checkIn }}" onChange="{{ lf.onCheckIn }}" style="background-color: #FFFFFF">
-                <input class="input" placeholder="チェックアウト日時" value="{{ lf.checkOut }}" onChange="{{ lf.onCheckOut }}" style="background-color: #FFFFFF">
-                <input class="input" placeholder="GoogleマップのURL (AirBnb など)" value="{{ lf.map }}" onChange="{{ lf.onMap }}" style="background-color: #FFFFFF">
-                <sc-if value="{{ lf.noMap }}" hint-placeholder-val="{{ false }}">
-                  <div style="font-family:var(--font-body); font-size:10.5px; font-weight:700; color:#8A4A18; background:#FBEDE0; border-radius:var(--radius-md); padding:7px 9px; text-wrap:pretty">⚠️ 地图URL未入力。住所の代わりなので、入れておかないと現地で宿にたどり着けません。</div>
-                </sc-if>
-              </div>
-            </div>
-          </sc-for>
-          <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-600); text-wrap:pretty">入力は9人全員に共有されます。</div>
-        </div>
-      </sc-if>
-    </div>
-
     <sc-if value="{{ localOld }}" hint-placeholder-val="{{ false }}">
     <div style="margin-top:8px; {{ sec.wx.card }}">
       <div onClick="{{ sec.wx.go }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
@@ -1661,7 +1649,7 @@
 
       <div style="margin-top:12px; border-radius:var(--radius-lg); background:#FFFFFF; border:1.5px dashed #9FDEDA; padding:13px 14px; display:grid; grid-template-columns:minmax(0,1fr); gap:9px">
         <div style="display:flex; align-items:center; gap:8px">
-          <div style="flex:1; min-width:0; font-family:var(--font-body); font-size:13.5px; font-weight:700; color:#123F3D">AI自動生成</div>
+          <div style="flex:1; min-width:0; font-family:var(--font-body); font-size:13.5px; font-weight:700; color:#123F3D">AI検索</div>
           <div style="flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; background:#E7FCFB; color:#1F5350; border-radius:999px; padding:3px 9px; white-space:nowrap">{{ gAiCityLabel }}</div>
         </div>
         <div style="font-family:var(--font-body); font-size:11.5px; color:#3B6866; text-wrap:pretty">Geminiがリストを自動で作成します。キーワードやURLなんでもOK。</div>
@@ -4339,19 +4327,33 @@ class Component extends DCLogic {
   aiPlanGo(rid, d) {
     const pk = this.planKey(rid, d);
     if (this.state.aiPlanBusy) return;
+    if (this.state.aiPlanPk === pk) { this.setState({ aiPlanPk:"", aiPlanRows:[], aiPlanSummary:"", aiPlanErr:"" }); return; }
     const found = this.placesForCity(d.stay);
     if (!found.list.length) {
       this.setState({ aiPlanPk:pk, aiPlanRows:[], aiPlanSummary:"",
         aiPlanErr:d.stay + "に登録された場所がまだありません。現地のことページで追加してから試してください。" });
       return;
     }
+    const sel = {};
+    found.list.forEach(p => { sel[p.name] = true; });
+    this.setState({ aiPlanPk:pk, aiPlanErr:"", aiPlanRows:[], aiPlanSummary:"", aiPlanSel:sel });
+  }
+
+  aiPlanRun(rid, d) {
+    const pk = this.planKey(rid, d);
+    if (this.state.aiPlanBusy) return;
+    const found = this.placesForCity(d.stay);
+    const sel = this.state.aiPlanSel || {};
+    const picked = found.list.filter(p => sel[p.name] !== false);
+    if (!picked.length) { this.setState({ aiPlanErr:"回る場所を 1 つ以上選んでください。" }); return; }
     const eff = this.planOf(rid, d);
     this.setState({ aiPlanPk:pk, aiPlanBusy:true, aiPlanErr:"", aiPlanRows:[], aiPlanSummary:"" });
     fetch(PARSE_PLACE_URL, {
       method:"POST", headers:{ "Content-Type":"application/json" },
       body:JSON.stringify({
         mode:"plan", city:found.g.q, date:d.date + "（" + d.dow + "）",
-        party:this.roster().length || 9, places:found.list,
+        party:this.roster().length || 9, places:picked,
+        mustAll:true,
         fixed:eff.filter(p => p.k).map(p => ({ t:p.t, x:p.x })),
         note:[d.title].concat(d.notes || []).join(" / ").slice(0, 600)
       })
@@ -6074,13 +6076,38 @@ class Component extends DCLogic {
           addRow: () => write(eff.concat({ t:"12:00", x:"" })),
           aiOn: s.aiPlanPk === pk,
           aiBusy: s.aiPlanPk === pk && s.aiPlanBusy === true,
-          aiBtnLabel: (s.aiPlanPk === pk && s.aiPlanBusy) ? "組み立てています…" : "AIで回り方を提案",
+          aiBtnLabel: s.aiPlanPk === pk ? "閉じる" : "AIで回り方を提案",
           aiBtnStyle: "cursor:pointer; outline:none; border:0; border-radius:999px; padding:7px 16px; "
             + "font-family:var(--font-body); font-size:12px; font-weight:700; "
-            + ((s.aiPlanPk === pk && s.aiPlanBusy)
-               ? "background:var(--color-accent-200); color:var(--color-accent-800)"
+            + (s.aiPlanPk === pk
+               ? "background:var(--color-accent-2-200); color:var(--color-accent-2-900)"
                : "background:var(--color-accent-2-600); color:#FFFFFF"),
           aiGo: () => this.aiPlanGo(route.id, d),
+          aiRunLabel: (s.aiPlanPk === pk && s.aiPlanBusy) ? "組み立てています…" : "この場所で組む",
+          aiRunStyle: "cursor:pointer; outline:none; border:0; border-radius:999px; padding:8px 18px; "
+            + "font-family:var(--font-body); font-size:12px; font-weight:700; "
+            + ((s.aiPlanPk === pk && s.aiPlanBusy)
+               ? "background:var(--color-accent-2-200); color:var(--color-accent-2-900)"
+               : "background:var(--color-accent-2-700); color:#FFFFFF"),
+          aiRun: () => this.aiPlanRun(route.id, d),
+          aiShowPick: s.aiPlanPk === pk && !(s.aiPlanRows || []).length && !s.aiPlanErr,
+          aiPickCount: (() => {
+            const l = this.placesForCity(d.stay).list, sel = s.aiPlanSel || {};
+            return l.filter(p => sel[p.name] !== false).length + " / " + l.length + " 件を選択中";
+          })(),
+          aiPicks: (s.aiPlanPk === pk ? this.placesForCity(d.stay).list : []).map(p => {
+            const on = (s.aiPlanSel || {})[p.name] !== false;
+            return {
+              label: p.name, sub: p.category,
+              style: "cursor:pointer; outline:none; text-align:left; border-radius:var(--radius-md); padding:7px 11px; "
+                + "font-family:var(--font-body); font-size:11.5px; font-weight:700; "
+                + (on ? "border:1px solid var(--color-accent-2-600); background:var(--color-accent-2-600); color:#FFFFFF"
+                      : "border:1px solid var(--color-divider); background:#FFFFFF; color:var(--color-neutral-700)"),
+              go: () => this.setState({ aiPlanSel:Object.assign({}, s.aiPlanSel || {}, { [p.name]:!on }) })
+            };
+          }),
+          aiAll: () => { const sel = {}; this.placesForCity(d.stay).list.forEach(p => { sel[p.name] = true; }); this.setState({ aiPlanSel:sel }); },
+          aiNone: () => { const sel = {}; this.placesForCity(d.stay).list.forEach(p => { sel[p.name] = false; }); this.setState({ aiPlanSel:sel }); },
           aiHasErr: s.aiPlanPk === pk && !!s.aiPlanErr,
           aiErr: s.aiPlanErr || "",
           aiHasRows: s.aiPlanPk === pk && !!(s.aiPlanRows || []).length,
@@ -6243,7 +6270,7 @@ class Component extends DCLogic {
       })(),
       outbound: OUTBOUND, inbound: INBOUND, transit: TRANSIT, lodging: LODGING,
       weather: WEATHER, currencies: CURRENCIES, money: MONEY,
-      buildStamp: "版 2026-08-31 j（その日の回り方を提案）",
+      buildStamp: "版 2026-08-31 l（宿情報カードを削除）",
       isAdmin: isAdmin,
       isAdminName: this.isAdminName(),
       adminNeedEnroll: this.isAdminName() && !this.adminEnrolled(),
