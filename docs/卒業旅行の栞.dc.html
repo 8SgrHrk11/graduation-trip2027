@@ -513,6 +513,35 @@
       </div>
     </div>
 
+    <h3 style="font-size: 22px; margin: 26px 0 8px">AIに聞く</h3>
+    <div style="border-radius:var(--radius-lg); padding:14px; box-shadow:var(--shadow-sm); background-color:#FBF7F2; display:grid; grid-template-columns:minmax(0,1fr); gap:10px">
+      <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:#8A4A28; text-wrap:pretty">{{ askScope }}</div>
+      <div style="display:flex; gap:6px; flex-wrap:wrap">
+        <sc-for list="{{ askChips }}" as="ac" hint-placeholder-count="5">
+          <button type="button" onClick="{{ ac.go }}" style="cursor:pointer; outline:none; border:1px solid #E7CDBB; border-radius:999px; padding:6px 13px; background:#FFFFFF; color:#8A4A28; font-family:var(--font-body); font-size:11.5px; font-weight:700">{{ ac.label }}</button>
+        </sc-for>
+      </div>
+      <div style="display:flex; gap:8px; align-items:flex-end">
+        <textarea class="input" style="flex:1; min-width:0; min-height:44px; background-color:var(--color-neutral-100)" placeholder="現地で困ったことを聞く" value="{{ askQ }}" onChange="{{ onAskQ }}" onKeyDown="{{ onAskKey }}"></textarea>
+        <button type="button" onClick="{{ askGo }}" style="{{ askBtnStyle }}">{{ askBtnLabel }}</button>
+      </div>
+      <sc-if value="{{ askHasErr }}" hint-placeholder-val="{{ false }}">
+        <div style="font-family:var(--font-body); font-size:11.5px; font-weight:700; color:#8A2F14; background:#F6DAD2; border-radius:var(--radius-md); padding:9px 11px; text-wrap:pretty">{{ askErr }}</div>
+      </sc-if>
+      <sc-if value="{{ askHasLog }}" hint-placeholder-val="{{ false }}">
+        <div style="display:grid; gap:12px">
+          <sc-for list="{{ askLog }}" as="al" hint-placeholder-count="2">
+            <div style="display:grid; gap:6px; animation:floatUp .22s ease both">
+              <div style="justify-self:end; max-width:88%; background:#FBDAC8; border-radius:var(--radius-md); padding:8px 12px; font-family:var(--font-body); font-size:12.5px; color:#5A3320; text-wrap:pretty">{{ al.q }}</div>
+              <div style="background:#FFFFFF; border:1px solid #EADED2; border-radius:var(--radius-md); padding:11px 13px; font-family:var(--font-body); font-size:13px; line-height:1.6; white-space:pre-wrap; text-wrap:pretty">{{ al.a }}</div>
+              <button type="button" onClick="{{ al.share }}" style="justify-self:start; cursor:pointer; outline:none; background:transparent; border:0; padding:0; color:#8A4A28; font-family:var(--font-body); font-size:11px; font-weight:700">この答えをチャットに貼る</button>
+            </div>
+          </sc-for>
+        </div>
+        <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-600); text-wrap:pretty">やり取りは自分の端末だけに残ります。共有したいときは上のボタンでチャット欄に貼れます。</div>
+      </sc-if>
+    </div>
+
     <h3 style="font-size:18px; margin:26px 0 8px">プライベート</h3>
     <div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:16px; box-shadow:var(--shadow-sm)">
       <textarea class="input" style="min-height: 74px; background-color: var(--color-neutral-100)" placeholder="例）このチャットは、他人に共有されない。" value="{{ draft }}" onChange="{{ onDraft }}"></textarea>
@@ -4306,6 +4335,55 @@ class Component extends DCLogic {
     });
   }
 
+  // 現地での質問に、登録済みの場所と日程を踏まえて答える
+  askContext() {
+    const route = ROUTES.find(r => r.id === this.state.route) || ROUTES[0];
+    const iso = tz => { try { return new Intl.DateTimeFormat("sv-SE", { timeZone:tz }).format(new Date()); } catch (e) { return ""; } };
+    const dayIso = d => TRIP_YEAR + "-" + String(Number(d.date.split("/")[0])).padStart(2,"0") + "-" + String(Number(d.date.split("/")[1])).padStart(2,"0");
+    const i = route.days.findIndex(d => iso(d.tz) === dayIso(d));
+    const d = i >= 0 ? route.days[i] : null;
+    let clock = "";
+    if (d) { try { clock = new Intl.DateTimeFormat("ja-JP", { timeZone:d.tz, hour:"2-digit", minute:"2-digit", hour12:false }).format(new Date()); } catch (e) {} }
+    const city = d ? d.stay : "";
+    const found = this.placesForCity(city);
+    return {
+      onTrip: !!d,
+      city: found.g ? found.g.q : city,
+      cityJa: city,
+      date: d ? (d.date + "（" + d.dow + "）") : "",
+      clock: clock,
+      title: d ? d.title : "",
+      plan: d ? this.planOf(route.id, d).map(p => ({ t:p.t, x:p.x })) : [],
+      places: found.list,
+      allCities: GUIDE_GROUPS.map(g => ({ city:g.city, n:this.placesForCity(g.city).list.length }))
+    };
+  }
+
+  askAi(q) {
+    const body = String(q || this.state.askQ || "").trim();
+    if (!body || this.state.askBusy) return;
+    const ctx = this.askContext();
+    this.setState({ askBusy:true, askErr:"", askQ:"" });
+    fetch(PARSE_PLACE_URL, {
+      method:"POST", headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify(Object.assign({ mode:"ask", q:body, party:this.roster().length || 9 }, ctx))
+    }).then(r => r.json()).then(res => {
+      if (!res || res.error || !res.answer) {
+        this.setState({ askBusy:false, askQ:body,
+          askErr:"答えを作れませんでした：" + ((res && res.error) || "結果が空でした") });
+        return;
+      }
+      this.setState(st => ({ askBusy:false,
+        askLog:(st.askLog || []).concat({ q:body, a:res.answer, at:Date.now() }).slice(-12) }));
+    }).catch(err => {
+      this.setState({ askBusy:false, askQ:body, askErr:"通信に失敗しました：" + ((err && err.message) || "不明") });
+    });
+  }
+
+  shareAnswer(item) {
+    this.setState({ chatDraft:"【AIに聞いた】" + item.q + "\n" + item.a });
+  }
+
   // その日の回り方を AI に組んでもらう
   placesForCity(cityName) {
     const g = GUIDE_GROUPS.find(x => x.city === cityName);
@@ -5480,10 +5558,37 @@ class Component extends DCLogic {
         + (s.sync === "on" ? "background:var(--color-accent-2-200); color:var(--color-accent-2-800)"
            : s.sync === "error" ? "background:var(--color-accent-200); color:var(--color-accent-800)"
            : "background:var(--color-neutral-200); color:var(--color-neutral-800)"),
-      chatDraft: s.chatDraft || "",
-      onChatDraft: e => this.setState({ chatDraft:e.target.value }),
+      chatDraft: s.chatDraft || "",      onChatDraft: e => this.setState({ chatDraft:e.target.value }),
       onChatKey: e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); this.sendChat(); } },
       sendChat: () => this.sendChat(),
+      askQ: s.askQ || "",
+      onAskQ: e => this.setState({ askQ:e.target.value }),
+      onAskKey: e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); this.askAi(); } },
+      askGo: () => this.askAi(),
+      askBusy: s.askBusy === true,
+      askBtnLabel: s.askBusy ? "考えています…" : "聞く",
+      askBtnStyle: "flex:none; cursor:pointer; outline:none; border:0; border-radius:999px; padding:11px 20px; "
+        + "font-family:'Zen Maru Gothic', var(--font-body); font-size:13px; font-weight:700; "
+        + (s.askBusy ? "background:#E7CDBB; color:#8A4A28" : "background:#C4643A; color:#FFFFFF"),
+      askHasErr: !!s.askErr,
+      askErr: s.askErr || "",
+      askHasLog: !!(s.askLog || []).length,
+      askLog: (s.askLog || []).slice().reverse().map(it => ({
+        q:it.q, a:it.a,
+        share: () => this.shareAnswer(it)
+      })),
+      askChips: [
+        "今から行ける？",
+        "近くで安い店は？",
+        "ここからの行き方は？",
+        "今日の残りはどう回る？",
+        "雨でも行ける所は？"
+      ].map(t => ({ label:t, go: () => this.askAi(t) })),
+      askScope: (() => {
+        const c = this.askContext();
+        if (!c.onTrip) return "旅行期間外です。都市を含めて聞いてください（例：ミラノで雨の日に行ける所は？）";
+        return c.cityJa + "・" + c.date + " " + c.clock + " 現在／登録された場所 " + c.places.length + " 件を見ています";
+      })(),
       chatRef: el => { this.chatEl = el; },
       chatToOpen: s.chatToOpen === true,
       chatToGo: () => this.setState({ chatToOpen: !s.chatToOpen }),
@@ -6270,7 +6375,7 @@ class Component extends DCLogic {
       })(),
       outbound: OUTBOUND, inbound: INBOUND, transit: TRANSIT, lodging: LODGING,
       weather: WEATHER, currencies: CURRENCIES, money: MONEY,
-      buildStamp: "版 2026-08-31 l（宿情報カードを削除）",
+      buildStamp: "版 2026-08-31 m（AIに聞く）",
       isAdmin: isAdmin,
       isAdminName: this.isAdminName(),
       adminNeedEnroll: this.isAdminName() && !this.adminEnrolled(),
