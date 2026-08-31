@@ -333,6 +333,9 @@
         <input class="input" placeholder="Google Maps API キー" value="{{ mapKeyValue }}" onChange="{{ onMapKey }}" style="width:100%; min-width:0; box-sizing:border-box; font-size:13px">
         <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); text-wrap:pretty">Google Cloud で「Maps JavaScript API」と「Geocoding API」を有効化したキーを貼り付けてください。キーの制限で、このサイトのURLだけを許可しておくと安全です。</div>
         <button type="button" onClick="{{ geoRun }}" style="justify-self:start; cursor:pointer; outline:none; border:0; border-radius:999px; padding:9px 18px; background:#1F5350; color:#FFFFFF; font-family:var(--font-body); font-size:12.5px; font-weight:700">住所から座標を取得</button>
+        <sc-if value="{{ hasGeoMsg }}" hint-placeholder-val="{{ false }}">
+          <div style="font-family:var(--font-body); font-size:11.5px; font-weight:700; color:#1F5350; text-wrap:pretty">{{ geoMsgText }}</div>
+        </sc-if>
       </div>
     </sc-if>
 
@@ -4100,8 +4103,11 @@ class Component extends DCLogic {
   }
 
   // 住所から座標を引く。引けたら共有データに残して以後は再取得しない
-  geocodePending() {
-    if (!(window.google && window.google.maps)) return;
+  geocodePending(loud) {
+    if (!(window.google && window.google.maps)) {
+      if (loud) this.setState({ geoMsg:"地図を読み込めていません。数秒おいてもう一度押してください。" });
+      return;
+    }
     const need = [];
     GUIDE_GROUPS.forEach(c => {
       this.guidesOf(c.id).forEach(sec => {
@@ -4114,7 +4120,11 @@ class Component extends DCLogic {
         });
       });
     });
-    if (!need.length) return;
+    if (!need.length) {
+      if (loud) this.setState({ geoMsg:"変換が必要な住所はありません。現地のことページで場所を登録すると、ここで座標に変換できます。" });
+      return;
+    }
+    if (loud) this.setState({ geoMsg:need.length + " 件を変換しています…" });
     const gc = new google.maps.Geocoder();
     const found = {};
     let left = Math.min(need.length, 8);
@@ -4125,8 +4135,11 @@ class Component extends DCLogic {
           const p = r[0].geometry.location;
           found[a] = { lat:p.lat(), lng:p.lng() };
         }
-        if (--left <= 0 && Object.keys(found).length) {
-          this.save({ geo:Object.assign({}, this.state.geo || {}, found) });
+        if (--left <= 0) {
+          const n = Object.keys(found).length;
+          if (n) this.save({ geo:Object.assign({}, this.state.geo || {}, found) });
+          this.setState({ geoMsg: n ? (n + " 件の座標を取得しました。")
+                                    : "住所から座標を取得できませんでした。Geocoding API が有効か、住所の書き方を確かめてください。" });
         }
       });
     });
@@ -5129,7 +5142,14 @@ class Component extends DCLogic {
       mapKeyValue: s.mapKey || "",
       onMapKey: e => this.save({ mapKey:e.target.value.trim() }),
       mapKeyOK: !!String(s.mapKey || "").trim(),
-      geoRun: () => { this.loadMaps(); setTimeout(() => this.geocodePending(), 900); },
+      geoRun: () => {
+        if (!String(this.state.mapKey || "").trim()) { this.setState({ geoMsg:"先に API キーを入れてください。" }); return; }
+        this.setState({ geoMsg:"地図を読み込んでいます…" });
+        this.loadMaps();
+        setTimeout(() => this.geocodePending(true), 1200);
+      },
+      geoMsgText: s.geoMsg || "",
+      hasGeoMsg: !!s.geoMsg,
       ...this.guideFlat(),
       lodgeFields: LODGING_CITIES.map(c => {
         const lg = (s.lodging || {})[c] || {};
@@ -5901,7 +5921,7 @@ class Component extends DCLogic {
       })(),
       outbound: OUTBOUND, inbound: INBOUND, transit: TRANSIT, lodging: LODGING,
       weather: WEATHER, currencies: CURRENCIES, money: MONEY,
-      buildStamp: "版 2026-08-31 c（管理者解錠の修正）",
+      buildStamp: "版 2026-08-31 d（座標取得の結果表示）",
       isAdmin: isAdmin,
       isAdminName: this.isAdminName(),
       adminNeedEnroll: this.isAdminName() && !this.adminEnrolled(),
