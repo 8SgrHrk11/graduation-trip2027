@@ -1625,6 +1625,39 @@
         </sc-if>
       </div>
 
+      <div style="margin-top:12px; border-radius:var(--radius-lg); background:#FFFFFF; border:1.5px dashed #9FDEDA; padding:13px 14px; display:grid; grid-template-columns:minmax(0,1fr); gap:9px">
+        <div style="display:flex; align-items:center; gap:8px">
+          <div style="flex:1; min-width:0; font-family:var(--font-body); font-size:13.5px; font-weight:700; color:#123F3D">AI自動生成</div>
+          <div style="flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; background:#E7FCFB; color:#1F5350; border-radius:999px; padding:3px 9px; white-space:nowrap">{{ gAiCityLabel }}</div>
+        </div>
+        <div style="font-family:var(--font-body); font-size:11.5px; color:#3B6866; text-wrap:pretty">Geminiがリストを自動で作成します。キーワードやURLなんでもOK。</div>
+        <textarea class="input" value="{{ gAiText }}" onChange="{{ gOnAiText }}" placeholder="例：ミラノ、リゾット、一番おすすめのレストラン" style="width:100%; min-width:0; box-sizing:border-box; font-size:12.5px; border-radius:var(--radius-md); min-height:64px; resize:vertical; background-color:#F6FEFE"></textarea>
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap">
+          <button type="button" onClick="{{ gAiGo }}" style="{{ gAiBtnStyle }}">{{ gAiBtnLabel }}</button>
+          <sc-if value="{{ gAiHasErr }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:1 1 160px; min-width:0; font-family:var(--font-body); font-size:11px; font-weight:700; color:#8A2222; text-wrap:pretty">{{ gAiErr }}</div>
+          </sc-if>
+        </div>
+
+        <sc-if value="{{ gAiHasDraft }}" hint-placeholder-val="{{ false }}">
+          <div style="border-radius:var(--radius-md); background:#F6FEFE; border:1px solid #CFF3F1; padding:11px 12px; display:grid; grid-template-columns:minmax(0,1fr); gap:8px; animation:floatUp .22s ease both">
+            <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:#3B6866">この内容で追加します。直してから登録できます。</div>
+            <input class="input" value="{{ gAiName }}" onChange="{{ gOnAiName }}" placeholder="名前" style="width:100%; min-width:0; box-sizing:border-box; font-size:13px; background-color:#FFFFFF">
+            <input class="input" value="{{ gAiAddr }}" onChange="{{ gOnAiAddr }}" placeholder="住所" style="width:100%; min-width:0; box-sizing:border-box; font-size:12.5px; background-color:#FFFFFF">
+            <input class="input" value="{{ gAiMemo }}" onChange="{{ gOnAiMemo }}" placeholder="メモ" style="width:100%; min-width:0; box-sizing:border-box; font-size:12.5px; background-color:#FFFFFF">
+            <div style="display:flex; gap:6px; flex-wrap:wrap">
+              <sc-for list="{{ gAiCatBtns }}" as="ab" hint-placeholder-count="4">
+                <button type="button" onClick="{{ ab.go }}" style="{{ ab.style }}">{{ ab.label }}</button>
+              </sc-for>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap">
+              <button type="button" onClick="{{ gAiAdd }}" style="cursor:pointer; outline:none; border:0; border-radius:999px; padding:8px 18px; background:#1F5350; color:#FFFFFF; font-family:var(--font-body); font-size:12px; font-weight:700">この内容で追加</button>
+              <button type="button" onClick="{{ gAiCancel }}" style="cursor:pointer; outline:none; background:transparent; border:0; color:#3B6866; font-family:var(--font-body); font-size:11.5px; font-weight:700">やめる</button>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+
       <sc-if value="{{ gHasSecs }}" hint-placeholder-val="{{ true }}">
         <div style="margin-top:12px; display:flex; gap:6px; flex-wrap:wrap">
           <sc-for list="{{ gSecBtns }}" as="sb" hint-placeholder-count="6">
@@ -1647,9 +1680,9 @@
           <sc-for list="{{ gRows }}" as="r" hint-placeholder-count="3">
             <div style="border-radius:var(--radius-md); background:#F6FEFE; border:1px solid #CFF3F1; padding:11px 12px; display:grid; grid-template-columns:minmax(0,1fr); gap:7px">
               <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
-                <div style="flex:1 1 130px; min-width:0; font-family:var(--font-body); font-size:13.5px; font-weight:700; color:#123F3D; overflow-wrap:anywhere">{{ r.t }}</div>
+                <div onClick="{{ r.focusGo }}" style="{{ r.nameStyle }}">{{ r.t }}</div>
                 <sc-if value="{{ gIsPlace }}" hint-placeholder-val="{{ true }}">
-                  <div style="{{ r.pinStyle }}">{{ r.pinLabel }}</div>
+                  <div onClick="{{ r.focusGo }}" style="{{ r.pinStyle }}">{{ r.pinLabel }}</div>
                 </sc-if>
               </div>
               <sc-if value="{{ r.hasMemo }}" hint-placeholder-val="{{ false }}">
@@ -1659,11 +1692,14 @@
                 <sc-if value="{{ r.canNav }}" hint-placeholder-val="{{ true }}">
                   <a href="{{ r.navUrl }}" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:5px; text-decoration:none; border-radius:999px; padding:5px 13px; background:#1F5350; color:#FFFFFF; font-family:var(--font-body); font-size:11px; font-weight:700" style-hover="background:#2C8C88">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>
-                    そこに行く
+                    経路
                   </a>
                 </sc-if>
                 <sc-if value="{{ r.pinned }}" hint-placeholder-val="{{ false }}">
-                  <button type="button" onClick="{{ r.focusGo }}" style="cursor:pointer; outline:none; border:1px solid #9FDEDA; border-radius:999px; padding:5px 13px; background:#FFFFFF; color:#1F5350; font-family:var(--font-body); font-size:11px; font-weight:700">地図で見る</button>
+                  <button type="button" onClick="{{ r.focusGo }}" style="display:inline-flex; align-items:center; gap:5px; cursor:pointer; outline:none; border:1px solid #9FDEDA; border-radius:999px; padding:5px 13px; background:#FFFFFF; color:#1F5350; font-family:var(--font-body); font-size:11px; font-weight:700">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    検索
+                  </button>
                 </sc-if>
                 <sc-if value="{{ r.canUp }}" hint-placeholder-val="{{ true }}">
                   <button type="button" onClick="{{ r.up }}" title="上へ" style="cursor:pointer; width:26px; height:26px; border-radius:999px; border:1px solid #CFF3F1; background:#FFFFFF; color:#2C8C88; display:grid; place-items:center">
@@ -2402,6 +2438,7 @@ const clockIn = tz => {
   catch (e) { return ""; }
 };
 const LODGING_CITIES = ["ミラノ","バルセロナ","ポルト","ロンドン","ローマ"];
+const PARSE_PLACE_URL = "https://bpelxjtdchjnqpwyrphf.supabase.co/functions/v1/parse-place";
 
 class Component extends DCLogic {
   state = { tab:"home", route:DECIDED_ROUTE, theme:"route", sel:{}, me:DEFAULT_MEMBERS[0], members:DEFAULT_MEMBERS.slice(),
@@ -3979,7 +4016,7 @@ class Component extends DCLogic {
           b: it.b || "",
           pinned: !!coord,
           pinLabel: coord ? "地図に表示中" : "地図に出すには住所か地図URLが必要",
-          pinStyle: "flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; border-radius:999px; "
+          pinStyle: "flex:none; cursor:pointer; font-family:var(--font-body); font-size:10px; font-weight:700; border-radius:999px; "
             + "padding:2px 9px; white-space:nowrap; "
             + (coord ? "background:#CFF3F1; color:#1F5350" : "background:#FBEDE0; color:#8A4A18"),
           editing: editing,
@@ -3992,19 +4029,50 @@ class Component extends DCLogic {
           onB: e => put({ b:e.target.value }),
           del: () => putItems(items.filter((y, j) => j !== ii)),
           up: () => { if (ii === 0) return; const n = items.slice(); const tmp = n[ii - 1]; n[ii - 1] = n[ii]; n[ii] = tmp; putItems(n); },
+          nameStyle: "flex:1 1 130px; min-width:0; font-family:var(--font-body); font-size:13.5px; font-weight:700; "
+            + "color:#123F3D; overflow-wrap:anywhere" + (coord ? "; cursor:pointer" : ""),
           canUp: ii > 0,
           canNav: kind === "place" && !!(coord || String(it.addr || "").trim() || String(it.t || "").trim()),
           navUrl: "https://www.google.com/maps/dir/?api=1&travelmode=transit&destination="
             + encodeURIComponent(coord ? (coord.lat + "," + coord.lng)
                 : this.searchQuery(it.addr, it.t, g)),
-          focusGo: () => { if (coord) this.setState({ mapFocus:{ lat:coord.lat, lng:coord.lng, at:Date.now() } }); }
+          focusGo: () => this.focusPlace(coord)
         };
       }),
       hasRows: items.length > 0,
       rowsEmpty: !items.length,
 
-      draft: (s.guideDraft || {})[g.id + "|" + selId] || "",
-      onDraft: e => this.setState({ guideDraft:Object.assign({}, s.guideDraft || {}, { [g.id + "|" + selId]:e.target.value }) }),
+      aiCityLabel: g.city,
+      aiText: s.aiText || "",
+      onAiText: e => this.setState({ aiText:e.target.value }),
+      aiBusy: s.aiBusy === true,
+      aiBtnLabel: s.aiBusy ? "読み取っています…" : "読み取る",
+      aiBtnStyle: "cursor:pointer; outline:none; border:0; border-radius:999px; padding:8px 18px; "
+        + "font-family:var(--font-body); font-size:12px; font-weight:700; "
+        + (s.aiBusy ? "background:#9FDEDA; color:#1F5350" : "background:#2C8C88; color:#FFFFFF"),
+      aiGo: () => this.parsePlace(g),
+      aiErr: s.aiErr || "",
+      aiHasErr: !!s.aiErr,
+      aiHasDraft: !!s.aiDraft,
+      aiName: (s.aiDraft || {}).name || "",
+      aiAddr: (s.aiDraft || {}).addr || "",
+      aiMemo: (s.aiDraft || {}).memo || "",
+      onAiName: e => this.setAiDraft({ name:e.target.value }),
+      onAiAddr: e => this.setAiDraft({ addr:e.target.value }),
+      onAiMemo: e => this.setAiDraft({ memo:e.target.value }),
+      aiCatBtns: this.placeCats(g.id).map(c => ({
+        label: c,
+        style: "cursor:pointer; outline:none; border-radius:999px; padding:5px 13px; "
+          + "font-family:var(--font-body); font-size:11px; font-weight:700; "
+          + (((s.aiDraft || {}).category === c)
+             ? "border:1px solid #1F5350; background:#1F5350; color:#FFFFFF"
+             : "border:1px solid #CFF3F1; background:#FFFFFF; color:#1F5350"),
+        go: () => this.setAiDraft({ category:c })
+      })),
+      aiCancel: () => this.setState({ aiDraft:null, aiErr:"" }),
+      aiAdd: () => this.addParsedPlace(g),
+
+      draft: (s.guideDraft || {})[g.id + "|" + selId] || "",      onDraft: e => this.setState({ guideDraft:Object.assign({}, s.guideDraft || {}, { [g.id + "|" + selId]:e.target.value }) }),
       add: () => {
         const dk = g.id + "|" + selId;
         const v = String(((this.state.guideDraft || {})[dk]) || "").trim();
@@ -4092,13 +4160,21 @@ class Component extends DCLogic {
       this.gcity = "";
     }
     (this.gmarkers || []).forEach(m => m.setMap(null));
-    this.gmarkers = pins.map(p => new google.maps.Marker({
-      map:this.gmap, position:{ lat:p.lat, lng:p.lng }, title:p.cat + " · " + p.title
-    }));
+    this.gmarkers = pins.map(p => {
+      const mk = new google.maps.Marker({
+        map:this.gmap, position:{ lat:p.lat, lng:p.lng }, title:p.cat + " · " + p.title
+      });
+      mk.addListener("click", () => {
+        this.gmap.setCenter({ lat:p.lat, lng:p.lng });
+        this.gmap.setZoom(20);
+        this.gfocus = Date.now();
+      });
+      return mk;
+    });
     if (f && f.at !== this.gfocus) {
       this.gfocus = f.at;
       this.gmap.setCenter({ lat:f.lat, lng:f.lng });
-      this.gmap.setZoom(16);
+      this.gmap.setZoom(f.z || 16);
       return;
     }
     if (pins.length) {
@@ -4206,6 +4282,76 @@ class Component extends DCLogic {
         cb({ lat:p.lat(), lng:p.lng() });
       } else cb(null);
     });
+  }
+
+  // 地図の該当場所へ寄せ、地図が画面に入るところまでスクロールする
+  focusPlace(coord) {
+    if (!coord) return;
+    this.setState({ mapFocus:{ lat:coord.lat, lng:coord.lng, at:Date.now(), z:18 } });
+    try {
+      const sc = this.scroller, el = this.mapEl;
+      if (!sc || !el) return;
+      let top = 0;
+      for (let n = el; n && n !== sc; n = n.offsetParent) top += n.offsetTop;
+      this.smoothTo(top - 12);
+    } catch (e) {}
+  }
+
+  // 貼り付けたテキストから場所を読み取る（Supabase Edge Function 経由で Gemini）
+  placeCats(cityId) {
+    const out = [];
+    this.guidesOf(cityId).forEach(sec => {
+      if ((sec.kind || "place") === "place" && out.indexOf(sec.title) < 0) out.push(sec.title);
+    });
+    GUIDE_PRESETS.forEach(p => { if (p.kind === "place" && out.indexOf(p.name) < 0) out.push(p.name); });
+    return out;
+  }
+
+  setAiDraft(patch) {
+    this.setState({ aiDraft:Object.assign({}, this.state.aiDraft || {}, patch) });
+  }
+
+  parsePlace(g) {
+    const text = String(this.state.aiText || "").trim();
+    if (!text) { this.setState({ aiErr:"読み取る内容を貼り付けてください。" }); return; }
+    if (this.state.aiBusy) return;
+    this.setState({ aiBusy:true, aiErr:"", aiDraft:null });
+    const cats = this.placeCats(g.id);
+    fetch(PARSE_PLACE_URL, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({ text:text, city:g.q, categories:cats })
+    }).then(r => r.json()).then(d => {
+      if (!d || d.error) {
+        this.setState({ aiBusy:false, aiErr:"読み取れませんでした：" + ((d && d.error) || "不明なエラー") });
+        return;
+      }
+      this.setState({ aiBusy:false, aiDraft:{
+        name:d.name || "", addr:d.addr || "", memo:d.memo || "",
+        category:cats.indexOf(d.category) >= 0 ? d.category : cats[0]
+      } });
+    }).catch(err => {
+      this.setState({ aiBusy:false, aiErr:"通信に失敗しました：" + ((err && err.message) || "不明") });
+    });
+  }
+
+  addParsedPlace(g) {
+    const d = this.state.aiDraft;
+    if (!d) return;
+    const name = String(d.name || "").trim();
+    if (!name) { this.setState({ aiErr:"名前が空です。" }); return; }
+    const cat = d.category || this.placeCats(g.id)[0];
+    const secs = this.guidesOf(g.id).slice();
+    let i = secs.findIndex(x => x.title === cat && (x.kind || "place") === "place");
+    if (i < 0) { secs.push({ id:"g" + Date.now(), title:cat, kind:"place", items:[] }); i = secs.length - 1; }
+    const sec = secs[i];
+    secs[i] = Object.assign({}, sec, { items:(sec.items || []).concat({
+      id:"i" + Date.now(), t:name, addr:String(d.addr || "").trim(),
+      memo:String(d.memo || "").trim(), a:"", b:"", by:this.activeMe()
+    }) });
+    this.setGuides(g.id, secs);
+    this.setState({ aiText:"", aiDraft:null, aiErr:"",
+      guideSec:Object.assign({}, this.state.guideSec || {}, { [g.id]:secs[i].id }) });
   }
 
   confirmsOf(n) { return (this.state.confirms || {})[n] || {}; }
@@ -5984,7 +6130,7 @@ class Component extends DCLogic {
       })(),
       outbound: OUTBOUND, inbound: INBOUND, transit: TRANSIT, lodging: LODGING,
       weather: WEATHER, currencies: CURRENCIES, money: MONEY,
-      buildStamp: "版 2026-08-31 g（そこに行く）",
+      buildStamp: "版 2026-08-31 i（地図の操作を改善）",
       isAdmin: isAdmin,
       isAdminName: this.isAdminName(),
       adminNeedEnroll: this.isAdminName() && !this.adminEnrolled(),
