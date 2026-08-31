@@ -1617,6 +1617,9 @@
           <div style="flex:1 1 120px; min-width:0; font-family:var(--font-body); font-size:11.5px; font-weight:700; color:#1F5350">{{ gCityName }}</div>
           <div style="flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; color:#1F5350; background:#FFFFFF; border-radius:999px; padding:3px 10px; white-space:nowrap">{{ gPinCount }}</div>
         </div>
+        <sc-if value="{{ gMapErr }}" hint-placeholder-val="{{ false }}">
+          <div style="margin:0 13px 13px; font-family:var(--font-body); font-size:11px; font-weight:700; color:#8A2222; background:#FBE3E3; border-radius:var(--radius-md); padding:9px 11px; text-wrap:pretty">{{ gMapErrText }}</div>
+        </sc-if>
         <sc-if value="{{ gNeedKey }}" hint-placeholder-val="{{ true }}">
           <div style="margin:0 13px 13px; font-family:var(--font-body); font-size:11px; font-weight:700; color:#8A4A18; background:#FBEDE0; border-radius:var(--radius-md); padding:9px 11px; text-wrap:pretty">地図のキーが未登録です。設定ヘージの「地図の連携」で登録してください。</div>
         </sc-if>
@@ -4029,6 +4032,8 @@ class Component extends DCLogic {
 
       mapRef: (this._mapRef || (this._mapRef = el => { this.mapEl = el; })),
       needKey: !String(s.mapKey || "").trim(),
+      mapErr: s.mapAuthErr === true,
+      mapErrText: "Google がこのキーを受け付けませんでした。Google Cloud で① Maps JavaScript API の有効化、②請求先アカウントの紐付け、③キーのウェブサイト制限（https://8sgrhrk11.github.io/*）を確認してください。",
       pinCount: pins.length ? (pins.length + " 件を表示中") : "ピンなし",
       geoNote: s.geoMsg || ""
     };
@@ -4038,6 +4043,10 @@ class Component extends DCLogic {
   loadMaps() {
     const key = String(this.state.mapKey || "").trim();
     if (!key) return;
+    try {
+      window.gm_authFailure = () => this.setState({ mapAuthErr:true,
+        geoMsg:"Google にキーを拒否されました。キーの制限・API の有効化・請求先アカウントを確認してください。" });
+    } catch (e) {}
     if (window.google && window.google.maps) { this.drawMap(); return; }
     if (this.mapLoading === key) return;
     this.mapLoading = key;
@@ -5921,7 +5930,7 @@ class Component extends DCLogic {
       })(),
       outbound: OUTBOUND, inbound: INBOUND, transit: TRANSIT, lodging: LODGING,
       weather: WEATHER, currencies: CURRENCIES, money: MONEY,
-      buildStamp: "版 2026-08-31 d（座標取得の結果表示）",
+      buildStamp: "版 2026-08-31 e（地図エラーの表示）",
       isAdmin: isAdmin,
       isAdminName: this.isAdminName(),
       adminNeedEnroll: this.isAdminName() && !this.adminEnrolled(),
