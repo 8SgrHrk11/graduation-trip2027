@@ -1656,6 +1656,12 @@
                 <div style="font-family:var(--font-body); font-size:12px; color:#3B6866; white-space:pre-wrap; text-wrap:pretty">{{ r.memo }}</div>
               </sc-if>
               <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap">
+                <sc-if value="{{ r.canNav }}" hint-placeholder-val="{{ true }}">
+                  <a href="{{ r.navUrl }}" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:5px; text-decoration:none; border-radius:999px; padding:5px 13px; background:#1F5350; color:#FFFFFF; font-family:var(--font-body); font-size:11px; font-weight:700" style-hover="background:#2C8C88">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>
+                    そこに行く
+                  </a>
+                </sc-if>
                 <sc-if value="{{ r.pinned }}" hint-placeholder-val="{{ false }}">
                   <button type="button" onClick="{{ r.focusGo }}" style="cursor:pointer; outline:none; border:1px solid #9FDEDA; border-radius:999px; padding:5px 13px; background:#FFFFFF; color:#1F5350; font-family:var(--font-body); font-size:11px; font-weight:700">地図で見る</button>
                 </sc-if>
@@ -3987,6 +3993,10 @@ class Component extends DCLogic {
           del: () => putItems(items.filter((y, j) => j !== ii)),
           up: () => { if (ii === 0) return; const n = items.slice(); const tmp = n[ii - 1]; n[ii - 1] = n[ii]; n[ii] = tmp; putItems(n); },
           canUp: ii > 0,
+          canNav: kind === "place" && !!(coord || String(it.addr || "").trim() || String(it.t || "").trim()),
+          navUrl: "https://www.google.com/maps/dir/?api=1&travelmode=transit&destination="
+            + encodeURIComponent(coord ? (coord.lat + "," + coord.lng)
+                : this.searchQuery(it.addr, it.t, g)),
           focusGo: () => { if (coord) this.setState({ mapFocus:{ lat:coord.lat, lng:coord.lng, at:Date.now() } }); }
         };
       }),
@@ -5974,7 +5984,7 @@ class Component extends DCLogic {
       })(),
       outbound: OUTBOUND, inbound: INBOUND, transit: TRANSIT, lodging: LODGING,
       weather: WEATHER, currencies: CURRENCIES, money: MONEY,
-      buildStamp: "版 2026-08-31 f（短縮URLの場所検索）",
+      buildStamp: "版 2026-08-31 g（そこに行く）",
       isAdmin: isAdmin,
       isAdminName: this.isAdminName(),
       adminNeedEnroll: this.isAdminName() && !this.adminEnrolled(),
