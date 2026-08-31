@@ -4146,7 +4146,6 @@ class Component extends DCLogic {
   adminOn() {
     if (this.isPreview()) return true;
     if (!this.isAdminName()) return false;
-    if (!this.adminEnrolled()) return false;
     return this.state.adminOK === true;
   }
 
@@ -4216,7 +4215,7 @@ class Component extends DCLogic {
 
   unlockAdminPass() {
     const v = typeof window !== "undefined" && window.prompt ? window.prompt("合言葉を入力してください") : "";
-    if (String(v || "").trim() !== "卒業旅行の栀") { this.setState({ adminMsg:"合言葉が違います。" }); return; }
+    if (String(v || "").trim() !== "卒業旅行の栞") { this.setState({ adminMsg:"合言葉が違います。" }); return; }
     this.setAdminOK(true);
     this.setState({ adminMsg:"合言葉で解錠しました。" });
   }
@@ -5904,7 +5903,7 @@ class Component extends DCLogic {
       isAdmin: isAdmin,
       isAdminName: this.isAdminName(),
       adminNeedEnroll: this.isAdminName() && !this.adminEnrolled(),
-      adminLocked: this.isAdminName() && this.adminEnrolled() && !isAdmin,
+      adminLocked: this.isAdminName() && !isAdmin,
       adminUnlocked: isAdmin,
       adminMsg: s.adminMsg || "",
       hasAdminMsg: !!s.adminMsg,
