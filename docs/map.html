@@ -35,16 +35,13 @@ const CITY = {
   NCE:{ n:"ニース",   c:[7.26,43.70],  dx:9,   dy:13 },
   AMS:{ n:"アムステルダム", c:[4.90,52.37], dx:10, dy:-8 },
   OPO:{ n:"ポルト",   c:[-8.61,41.15], dx:-9,  dy:12, anchor:"end" },
+  LIS:{ n:"リスボン", c:[-9.14,38.72], dx:-9,  dy:12, anchor:"end" },
   FRA:{ n:"フランクフルト", c:[8.68,50.11], dx:10, dy:-8 }
 };
 const ROUTES = {
-  A:{ seq:["ROM","MIL","BCN","KRK","LON","ROM"], hl:["Italy","Spain","United Kingdom","Poland"] },
-  B:{ seq:["ROM","MIL","BCN","NCE","LON","ROM"], hl:["Italy","Spain","United Kingdom","France"] },
-  C:{ seq:["ROM","MIL","BCN","AMS","LON","ROM"], hl:["Italy","Spain","United Kingdom","Netherlands"] },
-  D:{ seq:["ROM","MIL","BCN","OPO","LON","ROM"], hl:["Italy","Spain","United Kingdom","Portugal"] },
-  E:{ seq:["ROM","MIL","BCN","FRA","LON","ROM"], hl:["Italy","Spain","United Kingdom","Germany"] }
+  D:{ seq:["ROM","MIL","LIS","BCN","LON","ROM"], hl:["Italy","Portugal","Spain","United Kingdom"] }
 };
-let current = new URLSearchParams(location.search).get("route") || "A";
+let current = new URLSearchParams(location.search).get("route") || "D";
 let land = null, svg, proj, path, g;
 
 function size(){ const w = document.getElementById("wrap"); return [w.clientWidth||360, w.clientHeight||420]; }

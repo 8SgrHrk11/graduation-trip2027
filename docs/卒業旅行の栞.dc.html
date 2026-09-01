@@ -872,8 +872,12 @@
                     </sc-for>
                   </div>
                 </sc-if>
-                <sc-if value="{{ d.editing }}" hint-placeholder-val="{{ true }}">
+                <sc-if value="{{ d.editing }}" hint-placeholder-val="{{ false }}">
                   <div style="display:grid; gap:9px">
+                    <div style="display:grid; gap:4px">
+                      <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--color-neutral-600)">この日のタイトル</div>
+                      <input class="input" value="{{ d.title }}" onChange="{{ d.onTitle }}" placeholder="例：ミラノ終日" style="width:100%; min-width:0; box-sizing:border-box; font-size:13px; font-weight:700">
+                    </div>
                     <sc-for list="{{ d.editRows }}" as="er" hint-placeholder-count="6">
                       <div style="display:flex; gap:7px; align-items:flex-start">
                         <input type="time" class="input" value="{{ er.t }}" onChange="{{ er.onTime }}" style="flex:none; width:104px; text-align:center; font-family:var(--font-heading)">
@@ -919,29 +923,59 @@
                       <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-600); text-wrap:pretty">選んだ場所は必ず組み込みます。時間が足りない場合は詰め込まず、入りきらない分を summary で伝えます。</div>
                     </div>
                   </sc-if>
-                  <sc-if value="{{ d.aiHasRows }}" hint-placeholder-val="{{ false }}">
-                    <div style="border-radius:var(--radius-lg); background:var(--color-accent-2-100); padding:13px 14px; display:grid; grid-template-columns:minmax(0,1fr); gap:10px; animation:floatUp .24s ease both">
-                      <sc-if value="{{ d.aiHasSummary }}" hint-placeholder-val="{{ false }}">
-                        <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-accent-2-900); text-wrap:pretty">{{ d.aiSummary }}</div>
-                      </sc-if>
-                      <div style="display:grid; gap:8px">
-                        <sc-for list="{{ d.aiRows }}" as="ar" hint-placeholder-count="6">
-                          <div style="display:flex; gap:10px; align-items:baseline">
-                            <div style="flex:none; width:44px; font-family:var(--font-heading); font-size:13px; color:var(--color-accent-700)">{{ ar.t }}</div>
+                  <sc-if value="{{ d.hasAiSaved }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:grid; grid-template-columns:minmax(0,1fr); gap:7px">
+                      <div style="font-family:var(--font-body); font-size:10.5px; font-weight:700; color:var(--color-neutral-600)">AI提案　{{ d.aiSavedCount }}</div>
+                      <sc-for list="{{ d.aiSaved }}" as="sp" hint-placeholder-count="1">
+                        <div style="border-radius:var(--radius-lg); background:var(--color-accent-2-100); padding:11px 13px; display:grid; grid-template-columns:minmax(0,1fr); gap:9px">
+                          <div onClick="{{ sp.toggle }}" style="cursor:pointer; display:flex; gap:9px; align-items:center">
+                            <div style="{{ sp.caret }}">
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            </div>
                             <div style="flex:1; min-width:0">
-                              <div style="font-family:var(--font-body); font-size:12.5px; line-height:1.45; text-wrap:pretty">{{ ar.x }}</div>
-                              <sc-if value="{{ ar.hasNote }}" hint-placeholder-val="{{ false }}">
-                                <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-700); margin-top:2px; text-wrap:pretty">{{ ar.n }}</div>
-                              </sc-if>
+                              <div style="font-family:var(--font-body); font-size:12px; font-weight:700; color:var(--color-accent-2-900)">{{ sp.head }}</div>
+                              <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-700); margin-top:1px">{{ sp.who }}</div>
                             </div>
                           </div>
-                        </sc-for>
-                      </div>
-                      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
-                        <button type="button" onClick="{{ d.aiApply }}" style="cursor:pointer; outline:none; border:0; border-radius:999px; padding:8px 18px; background:var(--color-accent-2-700); color:#FFFFFF; font-family:var(--font-body); font-size:12px; font-weight:700">日程表に反映</button>
-                        <button type="button" onClick="{{ d.aiClose }}" style="cursor:pointer; outline:none; background:transparent; border:0; padding:0; color:var(--color-neutral-700); font-family:var(--font-body); font-size:11.5px; font-weight:700">やめる</button>
-                        <div style="flex:1 1 100%; font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-600); text-wrap:pretty">反映すると今の予定を置き換えます。編集画面の「元に戻す」で戻せます。</div>
-                      </div>
+                          <sc-if value="{{ sp.open }}" hint-placeholder-val="{{ false }}">
+                            <div style="display:grid; grid-template-columns:minmax(0,1fr); gap:10px; animation:floatUp .22s ease both">
+                              <sc-if value="{{ sp.hasSummary }}" hint-placeholder-val="{{ false }}">
+                                <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-accent-2-900); text-wrap:pretty">{{ sp.summary }}</div>
+                              </sc-if>
+                              <div style="display:grid; gap:8px">
+                                <sc-for list="{{ sp.rows }}" as="ar" hint-placeholder-count="6">
+                                  <div style="display:flex; gap:9px; align-items:baseline; flex-wrap:wrap">
+                                    <div style="flex:none; width:44px; font-family:var(--font-heading); font-size:13px; color:var(--color-accent-700)">{{ ar.t }}</div>
+                                    <div style="flex:1 1 130px; min-width:0">
+                                      <div style="font-family:var(--font-body); font-size:12.5px; line-height:1.45; text-wrap:pretty">{{ ar.x }}</div>
+                                      <sc-if value="{{ ar.hasNote }}" hint-placeholder-val="{{ false }}">
+                                        <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-700); margin-top:2px; text-wrap:pretty">{{ ar.n }}</div>
+                                      </sc-if>
+                                    </div>
+                                    <div style="{{ ar.tagStyle }}">{{ ar.tag }}</div>
+                                    <sc-if value="{{ ar.isNew }}" hint-placeholder-val="{{ false }}">
+                                      <button type="button" onClick="{{ ar.add }}" style="flex:none; cursor:pointer; outline:none; border:1px solid var(--color-accent-2-600); border-radius:999px; padding:3px 11px; background:#FFFFFF; color:var(--color-accent-2-900); font-family:var(--font-body); font-size:10.5px; font-weight:700">この行だけ追加</button>
+                                    </sc-if>
+                                  </div>
+                                </sc-for>
+                              </div>
+                              <sc-if value="{{ sp.hasGone }}" hint-placeholder-val="{{ false }}">
+                                <div style="border-radius:var(--radius-md); background:var(--color-accent-100); padding:9px 11px; display:grid; gap:4px">
+                                  <div style="font-family:var(--font-body); font-size:10.5px; font-weight:700; color:var(--color-accent-800)">まるごと反映すると消える予定</div>
+                                  <sc-for list="{{ sp.gone }}" as="gn" hint-placeholder-count="1">
+                                    <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-accent-800); text-wrap:pretty">{{ gn.x }}</div>
+                                  </sc-for>
+                                </div>
+                              </sc-if>
+                              <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap">
+                                <button type="button" onClick="{{ sp.applyAll }}" style="cursor:pointer; outline:none; border:0; border-radius:999px; padding:8px 18px; background:var(--color-accent-2-700); color:#FFFFFF; font-family:var(--font-body); font-size:12px; font-weight:700">まるごと反映</button>
+                                <button type="button" onClick="{{ sp.del }}" style="cursor:pointer; outline:none; background:transparent; border:0; padding:0; color:var(--color-neutral-700); font-family:var(--font-body); font-size:11.5px; font-weight:700">この提案を削除</button>
+                                <div style="flex:1 1 100%; font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-600); text-wrap:pretty">反映しても提案は残ります。編集画面の「元に戻す」でいつでも戻せます。</div>
+                              </div>
+                            </div>
+                          </sc-if>
+                        </div>
+                      </sc-for>
                     </div>
                   </sc-if>
                 </div>
@@ -1746,11 +1780,11 @@
                     経路
                   </a>
                 </sc-if>
-                <sc-if value="{{ r.pinned }}" hint-placeholder-val="{{ false }}">
-                  <button type="button" onClick="{{ r.focusGo }}" style="display:inline-flex; align-items:center; gap:5px; cursor:pointer; outline:none; border:1px solid #9FDEDA; border-radius:999px; padding:5px 13px; background:#FFFFFF; color:#1F5350; font-family:var(--font-body); font-size:11px; font-weight:700">
+                <sc-if value="{{ r.canWeb }}" hint-placeholder-val="{{ true }}">
+                  <a href="{{ r.webUrl }}" target="_blank" rel="noopener" title="Googleで調べる" style="display:inline-flex; align-items:center; gap:5px; text-decoration:none; border:1px solid #9FDEDA; border-radius:999px; padding:5px 13px; background:#FFFFFF; color:#1F5350; font-family:var(--font-body); font-size:11px; font-weight:700" style-hover="background:#E7FCFB">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    検索
-                  </button>
+                    調べる
+                  </a>
                 </sc-if>
                 <sc-if value="{{ r.canUp }}" hint-placeholder-val="{{ true }}">
                   <button type="button" onClick="{{ r.up }}" title="上へ" style="cursor:pointer; width:26px; height:26px; border-radius:999px; border:1px solid #CFF3F1; background:#FFFFFF; color:#2C8C88; display:grid; place-items:center">
@@ -1866,6 +1900,22 @@
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:440,&quot;height&quot;:900}}">
 const KEY = "sotsuryo-eu-v1";
 
+const ITINERARY = [
+  { date:"2/13", dow:"土", stay:"機内", title:"関空発 → シンガポール乗継", notes:["SQ619 KIX 10:05発 → SIN 16:00着","SIN 01:55発 SQ366 に乗り継ぎ。搭乗口付近に00:55集合","機内で寝るための装備必須"] },
+  { date:"2/14", dow:"日", stay:"ミラノ", title:"ローマ着 → 高速鉄道でミラノ", notes:["08:10 FCO着。入国審査（EESの顔写真・指紋登録あり）。9人で30〜60分見る","レオナルド・エクスプレスでテルミニ 32分","Frecciarossaでミラノ 約3時間。到着は午後","夕方 ドゥオモ周辺。初日は無理をしない"] },
+  { date:"2/15", dow:"月", stay:"ミラノ", title:"ミラノ終日", notes:["午前 ドゥオモ屋上、ガッレリア、スフォルツェスコ城","最後の晩餐は要予約。取れなければ諦める前提で組む","午後は自由行動。ブレラ地区、ナヴィリオ運河"] },
+  { date:"2/16", dow:"火", stay:"リスボン", title:"ミラノ半日 → リスボンへ", notes:["午前はミラノ市内で自由行動","午後の便でリスボン（約3時間）","時差 −1時間。夕方にチェックイン"] },
+  { date:"2/17", dow:"水", stay:"リスボン", title:"ベレン地区と旧市街", notes:["ジェロニモス修道院とベレンの塔","アルファマ地区は坂が多い。トラム28番は混雑する","9人で細い道を歩くと分断される。集合場所を先に決める"] },
+  { date:"2/18", dow:"木", stay:"バルセロナ", title:"リスボン→バルセロナ", notes:["午前の便で移動（約2時間30分）。時差 +1時間","空港から市内は電車・バスで30〜40分","夕方 ゴシック地区、ボケリア市場周辺"] },
+  { date:"2/19", dow:"金", stay:"バルセロナ", title:"サグラダ・ファミリアとグエル公園", notes:["サグラダ・ファミリアは時間指定の事前予約","グエル公園の有料エリアも予約制","午後は自由行動。カサ・バトリョ、ピカソ美術館"] },
+  { date:"2/20", dow:"土", stay:"ロンドン", title:"バルセロナ→ロンドン", notes:["午前の便で移動（約2時間15分）","UK ETAの承認画面を全員がすぐ出せるようにしておく","夕方 ウェストミンスター周辺、テムズ川沿い"] },
+  { date:"2/21", dow:"日", stay:"ロンドン", title:"大英博物館と自由行動", notes:["大英博物館は入場無料。時間予約を取っておくと確実","地下鉄はコンタクトレスのタッチで乗れる。1日の上限額がある","日曜はボロー・マーケットやカムデンが賑わう"] },
+  { date:"2/22", dow:"月", stay:"ローマ", title:"ロンドン→ローマ", notes:["午前の便で移動（約2時間30分）","午後にはローマ市内。夕方 トレヴィの泉、パンテオン周辺"] },
+  { date:"2/23", dow:"火", stay:"ローマ", title:"コロッセオとバチカン、荷造り", notes:["コロッセオ・フォロロマーノは時間指定の事前予約","バチカン美術館とサン・ピエトロ大聖堂（日曜休館なので火曜のこの日に）","夜のうちに荷造り。Visit Japan Webの登録も済ませる","翌朝はFCOへ07:50着。タクシーは前日に手配"] },
+  { date:"2/24", dow:"水", stay:"機内", title:"ローマ発 → シンガポール乗継", notes:["SQ365 FCO 10:50発 → SIN 05:40着（翌朝）","3時間前の07:50には空港。VAT還付の書類がある人はさらに早く"] },
+  { date:"2/25", dow:"木", stay:"帰国", title:"シンガポール → 関空着", notes:["SQ620 SIN 08:25発 → KIX 15:30着。搭乗口付近に07:25集合","Visit Japan WebのQRで入国手続き"] }
+];
+
 const BASE_HEAD = [
   { date:"2/13", dow:"土", stay:"機内", title:"関空発 → シンガポール乗継", notes:["SQ619 KIX 10:05発 → SIN 16:00着","SIN 01:55発 SQ366 に乗り継ぎ。搭乗口付近に00:55集合","機内で寝るための装備必須"] },
   { date:"2/14", dow:"日", stay:"ミラノ", title:"ローマ着 → 高速鉄道でミラノ", notes:["08:10 FCO着。入国審査（EESの顔写真・指紋登録あり）。9人で30〜60分見る","レオナルド・エクスプレスでテルミニ 32分","Frecciarossaでミラノ 約3時間。到着は午後","夕方 ドゥオモ周辺。初日は無理をしない"] },
@@ -1965,7 +2015,7 @@ const TZ_CITY = {
   "ミラノ":"Europe/Rome", "ローマ":"Europe/Rome",
   "バルセロナ":"Europe/Madrid", "ロンドン":"Europe/London",
   "クラクフ":"Europe/Warsaw", "ニース":"Europe/Paris",
-  "アムステルダム":"Europe/Amsterdam", "ポルト":"Europe/Lisbon",
+  "アムステルダム":"Europe/Amsterdam", "ポルト":"Europe/Lisbon", "リスボン":"Europe/Lisbon",
   "フランクフルト":"Europe/Berlin"
 };
 const TZ_DATE = { "2/24":"Europe/Rome" };
@@ -1995,33 +2045,63 @@ const PLANS = {
     { t:"19:30", x:"夕食" }
   ],
   "2/15": [
-    { t:"08:00", x:"朝食。荷物は宿に預ける" },
+    { t:"08:00", x:"朝食" },
     { t:"09:00", x:"ドゥオモ 屋上テラス" },
     { t:"10:30", x:"ガッレリア・ヴィットーリオ・エマヌエーレ2世" },
     { t:"11:30", x:"スフォルツェスコ城（最後の晩餐が取れていればこの枠）" },
     { t:"13:00", x:"昼食" },
-    { t:"14:30", x:"空港へ移動" },
-    { t:"17:00", x:"ミラノ発 バルセロナ行き（約2時間）", n:"目安" },
-    { t:"19:00", x:"バルセロナ 着" },
-    { t:"20:30", x:"宿にチェックイン" },
-    { t:"21:30", x:"夕食" }
+    { t:"14:30", x:"自由行動。ブレラ地区、ナヴィリオ運河" },
+    { t:"19:30", x:"夕食" }
   ],
   "2/16": [
-    { t:"08:30", x:"朝食" },
-    { t:"09:30", x:"サグラダ・ファミリア（時間指定の予約）" },
-    { t:"11:30", x:"カサ・バトリョ／カサ・ミラ の外観" },
-    { t:"13:00", x:"昼食（ボケリア市場周辺）" },
-    { t:"15:00", x:"ゴシック地区・カテドラル。細い道なので集合場所を先に決める", k:1 },
-    { t:"17:00", x:"自由行動" },
+    { t:"08:30", x:"朝食。荷物は宿に預ける" },
+    { t:"09:30", x:"自由行動（ミラノ市内）" },
+    { t:"12:00", x:"昼食" },
+    { t:"13:30", x:"空港へ移動" },
+    { t:"16:00", x:"ミラノ発 リスボン行き（約3時間）", n:"目安" },
+    { t:"18:00", x:"リスボン 着（時差 −1時間）" },
+    { t:"19:00", x:"宿にチェックイン" },
     { t:"20:30", x:"夕食" }
   ],
   "2/17": [
-    { t:"09:00", x:"グエル公園（有料エリアは時間指定）" },
-    { t:"11:30", x:"モンジュイックの丘" },
+    { t:"08:30", x:"朝食" },
+    { t:"09:30", x:"ジェロニモス修道院" },
+    { t:"11:00", x:"ベレンの塔・発見のモニュメント" },
     { t:"13:00", x:"昼食" },
-    { t:"14:30", x:"自由行動。ピカソ美術館、ジローナ日帰りなど" },
+    { t:"14:30", x:"アルファマ地区・サン・ジョルジェ城。坂が多いので集合場所を先に決める", k:1 },
+    { t:"17:00", x:"自由行動" },
+    { t:"20:30", x:"夕食" }
+  ],
+  "2/18": [
+    { t:"07:00", x:"宿を出る", k:1 },
+    { t:"08:00", x:"リスボン空港 着" },
+    { t:"10:00", x:"リスボン発 バルセロナ行き（約2時間30分）", n:"目安" },
+    { t:"13:30", x:"バルセロナ 着（時差 +1時間）" },
+    { t:"14:30", x:"空港から市内へ（電車・バスで30〜40分）" },
+    { t:"15:30", x:"宿にチェックイン" },
+    { t:"17:00", x:"ゴシック地区・カテドラル。細い道なので集合場所を先に決める", k:1 },
+    { t:"20:30", x:"夕食（ボケリア市場周辺）" }
+  ],
+  "2/19": [
+    { t:"08:30", x:"朝食" },
+    { t:"09:30", x:"サグラダ・ファミリア（時間指定の予約）" },
+    { t:"11:30", x:"カサ・バトリョ／カサ・ミラ の外観" },
+    { t:"13:00", x:"昼食" },
+    { t:"14:30", x:"グエル公園（有料エリアは時間指定）" },
+    { t:"17:00", x:"自由行動。ピカソ美術館など" },
     { t:"20:30", x:"夕食" },
     { t:"22:00", x:"宿で翌日の移動を全員で確認", k:1 }
+  ],
+  "2/20": [
+    { t:"07:00", x:"宿を出る", k:1 },
+    { t:"08:00", x:"バルセロナ空港 着" },
+    { t:"10:00", x:"バルセロナ発 ロンドン行き（約2時間15分）", n:"目安" },
+    { t:"11:15", x:"ロンドン 着（時差 −1時間）。UK ETA の承認画面を出せるように" },
+    { t:"12:30", x:"市内へ" },
+    { t:"14:00", x:"宿にチェックイン" },
+    { t:"15:30", x:"ウェストミンスター・ビッグベン" },
+    { t:"17:00", x:"テムズ川沿い" },
+    { t:"19:30", x:"夕食" }
   ],
   "2/21": [
     { t:"09:00", x:"朝食" },
@@ -2234,18 +2314,16 @@ const PLANS = {
   ]
 };
 
-const ROUTES = OPTIONS.map(o => ({
-  id:o.id, name:o.name, tagline:o.tagline, pros:o.pros, cons:o.cons,
-  chain:["ミラノ 1泊","バルセロナ 3泊", o.slot + " 2泊","ロンドン 2泊","ローマ 1泊"],
-  days: BASE_HEAD.concat(o.days, BASE_TAIL).map(d => Object.assign({}, d, {
+const ROUTES = [{
+  id:"D", name:"確定行程", tagline:"", pros:[], cons:[],
+  chain:["ミラノ 2泊","リスボン 2泊","バルセロナ 2泊","ロンドン 2泊","ローマ 2泊"],
+  days: ITINERARY.map(d => Object.assign({}, d, {
     tz: TZ_DATE[d.date] || TZ_CITY[d.stay] || "Europe/Rome",
-    plan: PLANS[o.id + ":" + d.date] || PLANS[d.date] || []
+    plan: PLANS[d.date] || []
   }))
-}));
+}];
 
 const THEMES = [
-  { id:"route", label:"旅行ルート", sub:"2/18〜2/20の2泊をどこにするか", map:true,
-    options: ROUTES.map(r => ({ id:r.id, name:r.name, tagline:r.tagline, chain:r.chain, pros:r.pros, cons:r.cons })) },
   { id:"plan", label:"現地の行動方針", sub:"9人でどう動くか", options:[
     { id:"A", name:"必要なし", tagline:"", chain:[], pros:[], cons:[] },
     { id:"B", name:"必要に応じて実施した方が良い", tagline:"", chain:[], pros:[], cons:[] },
@@ -2310,7 +2388,7 @@ const TRANSIT = [
   { city:"ミラノ", x:"市内の主要スポットは徒歩圏。ドゥオモ〜スフォルツェスコ城は歩ける。空港連絡はマルペンサ・エクスプレスかバス" },
   { city:"バルセロナ", x:"T-casual（10回券）が定番。1枚を複数人で回し打ちできる仕様かは購入時に確認。空港はAerobúsで市内35分" },
   { city:"ロンドン", x:"クレジットカードのタッチで乗れる。1日・1週間の上限額が自動適用されるので切符は不要。各自別のカードで" },
-  { city:"ポルト", x:"Andanteカードにチャージして地下鉄とバス。空港から市内はE線で30分。坂が多くスーツケースは重い" }
+  { city:"リスボン", x:"Navegante（Viva Viagem）カードにチャージしてメトロ・トラム・バス。空港から市内はメトロで約30分。坂が多くスーツケースは重い" }
 ];
 
 const LODGING = [
@@ -2341,7 +2419,7 @@ const BOOKING = [
   { n:"バチカン美術館・システィーナ礼拝堂", lead:"2026-12-13", x:"日曜休館（最終日曜は無料で大混雑）。時間指定予約で列を回避" },
   { n:"コロッセオ・フォロロマーノ・パラティーノ", lead:"2027-01-13", x:"時間指定の入場。地下やアレーナ床は別チケットで枠が少ない" },
   { n:"グエル公園", lead:"2027-01-30", x:"有料エリアは時間指定。無料エリアだけなら予約不要" },
-  { n:"レロ書店（ポルト）", lead:"2027-02-08", x:"入場券が必要で時間制。券は書籍代に充当できる" },
+  { n:"ジェロニモス修道院（リスボン）", lead:"2027-02-08", x:"回廊は時間指定のオンライン予約が確実。当日券の列は長い" },
   { n:"9人で入るレストラン", lead:"2027-02-12", x:"大人数は当日の飛び込みで断られる。担当が前日までに電話かオンラインで" }
 ];
 
@@ -2350,7 +2428,7 @@ const WEATHER = [
   { c:"ミラノ", t:"1〜9℃", x:"曇りがち。霧の日は体感が下がる" },
   { c:"バルセロナ", t:"6〜15℃", x:"晴れた昼なら、服1枚で歩ける" },
   { c:"ロンドン", t:"3〜9℃", x:"風と霧・小雨が多い" },
-  { c:"ポルト", t:"8〜16℃", x:"比較的暖かいが、雨は多い" }
+  { c:"リスボン", t:"8〜16℃", x:"比較的暖かいが、雨は多い" }
 ];
 
 const PACKING = [
@@ -2397,7 +2475,7 @@ const MEALS = [
   { c:"ミラノ", x:"リゾット・ミラネーゼ、コトレッタ。夕方のアペリティーボ（1ドリンクで軽食が付く）は9人でも安く済む" },
   { c:"バルセロナ", x:"タパスとパエリア。バルは立ち食いで回転が速い。9人ならテーブル席を予約したほうが確実。夕食は21時からが普通" },
   { c:"ロンドン", x:"フィッシュ＆チップス、パブのサンデーロースト。物価が高いのでスーパー（Tesco、M&S）とマーケットを混ぜる" },
-  { c:"ポルト", x:"フランセジーニャ、バカリャウ、パステル・デ・ナタ。9人でも予算が読める" }
+  { c:"リスボン", x:"バカリャウ、イワシの網焼き、パステル・デ・ナタ。9人でも予算が読める" }
 ];
 
 const EMERGENCY = [
@@ -2459,8 +2537,8 @@ const MARKS = [
 
 const GUIDE_GROUPS = [
   { id:"A", city:"ミラノ", q:"Milan, Italy" },
-  { id:"B", city:"バルセロナ", q:"Barcelona, Spain" },
-  { id:"C", city:"ポルト", q:"Porto, Portugal" },
+  { id:"B", city:"リスボン", q:"Lisbon, Portugal" },
+  { id:"C", city:"バルセロナ", q:"Barcelona, Spain" },
   { id:"D", city:"ロンドン", q:"London, UK" },
   { id:"E", city:"ローマ", q:"Rome, Italy" }
 ];
@@ -2474,7 +2552,7 @@ const GUIDE_PRESETS = [
   { name:"その他行きたい場所", kind:"place" }
 ];
 
-const SHARED_KEYS = ["ballots","notes","deadlines","members","lineUrl","reads","meets","lodging","plans","hidden","booked","addBook","foodNotes","spotNotes","confirms","userLinks","themeAdds","themeEdits","themeDel","myTodos","todoEdits","bookEdits","resetV","todoWho","notifyOff","expenses","settledTx","settlements","payDue","defer","nudges","txKeyV","exDel","doneBy","adminCred","exResetV","planLog","delMsgs","guides","mapKey","geo"];
+const SHARED_KEYS = ["ballots","notes","deadlines","members","lineUrl","reads","meets","lodging","plans","hidden","booked","addBook","foodNotes","spotNotes","confirms","userLinks","themeAdds","themeEdits","themeDel","myTodos","todoEdits","bookEdits","resetV","todoWho","notifyOff","expenses","settledTx","settlements","payDue","defer","nudges","txKeyV","exDel","doneBy","adminCred","exResetV","planLog","delMsgs","guides","mapKey","geo","dayTitles","aiPlans"];
 const PAY_DUE_DEFAULT = "2027-03-11T23:59";
 const TRIP_YEAR = 2027;
 const TRIP_START = "2027-02-13";
@@ -2488,21 +2566,94 @@ const clockIn = tz => {
   try { return new Intl.DateTimeFormat("ja-JP", { timeZone:tz, hour:"2-digit", minute:"2-digit", hour12:false }).format(new Date()); }
   catch (e) { return ""; }
 };
-const LODGING_CITIES = ["ミラノ","バルセロナ","ポルト","ロンドン","ローマ"];
+const LODGING_CITIES = ["ミラノ","リスボン","バルセロナ","ロンドン","ローマ"];
 const PARSE_PLACE_URL = "https://bpelxjtdchjnqpwyrphf.supabase.co/functions/v1/parse-place";
 
 class Component extends DCLogic {
-  state = { tab:"home", route:DECIDED_ROUTE, theme:"route", sel:{}, me:DEFAULT_MEMBERS[0], members:DEFAULT_MEMBERS.slice(),
+  state = { tab:"home", route:DECIDED_ROUTE, theme:"plan", sel:{}, me:DEFAULT_MEMBERS[0], members:DEFAULT_MEMBERS.slice(),
             ballots:{}, confirms:{}, userLinks:{}, linkDraftN:{}, linkDraftU:{}, chatBase:null,
             themeAdds:[], themeEdits:{}, themeDel:{}, newThemeLabel:"", newThemeSub:"", adminOpen:false,
             notes:{}, deadlines:{}, packed:{}, done:{}, openDays:{},
             lineUrl:"", memos:[], draft:"", chat:[], chatDraft:"", sync:"off", reads:{}, identified:false,
-            meets:{}, lodging:{}, plans:{}, editDay:"", hidden:{}, booked:{}, addBook:[], newBook:"",
+            meets:{}, lodging:{}, plans:{}, dayTitles:{}, aiPlans:{}, aiOpenId:"", editDay:"", hidden:{}, booked:{}, addBook:[], newBook:"",
             foodNotes:{}, foodOpen:{}, foodDraft:{}, spotNotes:{}, spotOpen:{}, spotDraft:{},
             prepOpen:{}, myTodos:[], myPack:[], newTodo:"", newPack:"", todoEdits:{}, bookEdits:{}, prepEdit:{},
             privTodos:[], newPriv:"", adminOK:false, adminMsg:"" };
 
+  // カードのセクション名から検索語を変える
+  webSearchUrl(name, city, cat) {
+    const nm = String(name || "").trim();
+    const c = String(cat || "");
+    let tail = "観光記 OR おすすめ OR 解説";
+    if (/食|レストラン|グルメ|カフェ|バル|バー|屋台|スイーツ|酒/.test(c)) tail = "口コミ メニュー 予算";
+    else if (/宿|ホテル|泊|アパート|宿泊/.test(c)) tail = "アクセス 周辺 口コミ";
+    else if (/観光|スポット|名所|見どころ|美術|博物|教会|遠出/.test(c)) tail = "見どころ 所要時間 予約";
+    return "https://www.google.com/search?q="
+      + encodeURIComponent([nm, String(city || ""), tail].filter(Boolean).join(" "));
+  }
+
+  // 保存したAI提案と、今の予定との差分
+  aiDiff(rows, eff) {
+    const norm = v => String(v || "").replace(/\s+/g, "");
+    const cur = {};
+    (eff || []).forEach(q => { cur[norm(q.x)] = q.t; });
+    const seen = {};
+    const out = (rows || []).map(r => {
+      const key = norm(r.x);
+      seen[key] = 1;
+      const t0 = cur[key];
+      return Object.assign({}, r, {
+        tag: t0 === undefined ? "追加" : (t0 === r.t ? "そのまま" : t0 + " → " + r.t)
+      });
+    });
+    const gone = (eff || []).filter(q => !seen[norm(q.x)]).map(q => ({ x:q.t + "　" + q.x }));
+    return { rows:out, gone:gone };
+  }
+
+  aiPlansOf(pk) { return ((this.state.aiPlans || {})[pk] || []); }
+
+  aiPlanSave(pk, rows, summary) {
+    const id = "p" + Date.now();
+    const next = Object.assign({}, this.state.aiPlans || {});
+    next[pk] = [{ id:id, rows:rows, summary:summary || "", by:this.activeMe(), at:Date.now() }]
+      .concat(this.aiPlansOf(pk)).slice(0, 3);
+    this.save({ aiPlans:next });
+    this.setState({ aiOpenId:id });
+  }
+
+  aiPlanDrop(pk, id) {
+    const next = Object.assign({}, this.state.aiPlans || {});
+    next[pk] = this.aiPlansOf(pk).filter(p => p.id !== id);
+    this.save({ aiPlans:next });
+  }
+
   planKey(rid, d) { return rid + ":" + d.date; }
+
+  titleOf(rid, d) {
+    const ov = (this.state.dayTitles || {})[this.planKey(rid, d)];
+    return String(ov || "").trim() ? ov : (d.title || "");
+  }
+
+  setDayTitle(rid, d, v) {
+    const key = this.planKey(rid, d);
+    const next = Object.assign({}, this.state.dayTitles || {});
+    const t = String(v == null ? "" : v).trim();
+    if (!t || t === String(d.title || "").trim()) delete next[key];
+    else next[key] = v;
+    this.save({ dayTitles:next });
+  }
+
+  // 空文字で上書きされたタイトルを捨てる
+  cleanDayTitles() {
+    const cur = this.state.dayTitles || {};
+    const next = {};
+    let dirty = false;
+    Object.keys(cur).forEach(k => {
+      if (String(cur[k] || "").trim()) next[k] = cur[k];
+      else dirty = true;
+    });
+    if (dirty) this.save({ dayTitles:next });
+  }
 
   planOf(rid, d) {
     const ov = (this.state.plans || {})[this.planKey(rid, d)];
@@ -2811,6 +2962,8 @@ class Component extends DCLogic {
 
   componentDidMount() {
     this.pickBackground();
+    setTimeout(() => this.cleanDayTitles(), 1500);
+    setTimeout(() => this.cleanDayTitles(), 6000);
     try { if (sessionStorage.getItem("adminOK") === "1") this.setState({ adminOK:true }); } catch (e) {}
     this.loadFx();
     this.fxTimer = setInterval(() => this.loadFx(), 1800000);
@@ -2932,7 +3085,7 @@ class Component extends DCLogic {
           packed:s.packed, done:s.done, openDays:s.openDays, theme:s.theme, sel:s.sel,
           members:s.members, ballots:s.ballots, notes:s.notes, deadlines:s.deadlines,
           lineUrl:s.lineUrl, memos:s.memos, identified:s.identified,
-          meets:s.meets, lodging:s.lodging, reads:s.reads, plans:s.plans, hidden:s.hidden,
+          meets:s.meets, lodging:s.lodging, reads:s.reads, plans:s.plans, dayTitles:s.dayTitles, aiPlans:s.aiPlans, hidden:s.hidden,
           booked:s.booked, addBook:s.addBook, foodNotes:s.foodNotes, foodOpen:s.foodOpen, spotNotes:s.spotNotes,
           confirms:s.confirms, userLinks:s.userLinks,
           themeAdds:s.themeAdds, themeEdits:s.themeEdits, themeDel:s.themeDel,
@@ -4087,7 +4240,9 @@ class Component extends DCLogic {
           navUrl: "https://www.google.com/maps/dir/?api=1&travelmode=transit&destination="
             + encodeURIComponent(coord ? (coord.lat + "," + coord.lng)
                 : this.searchQuery(it.addr, it.t, g)),
-          focusGo: () => this.focusPlace(coord)
+          focusGo: () => this.focusPlace(coord),
+          canWeb: !!String(it.t || "").trim(),
+          webUrl: this.webSearchUrl(it.t, g && g.city, sec && sec.title)
         };
       }),
       hasRows: items.length > 0,
@@ -4337,7 +4492,8 @@ class Component extends DCLogic {
 
   // 現地での質問に、登録済みの場所と日程を踏まえて答える
   askContext() {
-    const route = ROUTES.find(r => r.id === this.state.route) || ROUTES[0];
+    try {
+      const route = ROUTES.find(r => r.id === this.state.route) || ROUTES[0];
     const iso = tz => { try { return new Intl.DateTimeFormat("sv-SE", { timeZone:tz }).format(new Date()); } catch (e) { return ""; } };
     const dayIso = d => TRIP_YEAR + "-" + String(Number(d.date.split("/")[0])).padStart(2,"0") + "-" + String(Number(d.date.split("/")[1])).padStart(2,"0");
     const i = route.days.findIndex(d => iso(d.tz) === dayIso(d));
@@ -4352,31 +4508,47 @@ class Component extends DCLogic {
       cityJa: city,
       date: d ? (d.date + "（" + d.dow + "）") : "",
       clock: clock,
-      title: d ? d.title : "",
+      title: d ? this.titleOf(route.id, d) : "",
       plan: d ? this.planOf(route.id, d).map(p => ({ t:p.t, x:p.x })) : [],
       places: found.list,
       allCities: GUIDE_GROUPS.map(g => ({ city:g.city, n:this.placesForCity(g.city).list.length }))
     };
+    } catch (e) {
+      return { onTrip:false, city:"", cityJa:"", date:"", clock:"", title:"", plan:[], places:[], allCities:[] };
+    }
   }
 
   askAi(q) {
     const body = String(q || this.state.askQ || "").trim();
     if (!body || this.state.askBusy) return;
-    const ctx = this.askContext();
+    let payload;
+    try {
+      payload = JSON.stringify(Object.assign(
+        { mode:"ask", q:body, party:this.roster().length || 9 }, this.askContext()));
+    } catch (e) {
+      this.setState({ askErr:"質問を送れませんでした：" + ((e && e.message) || "不明") });
+      return;
+    }
+    const tick = (this._askTick || 0) + 1;
+    this._askTick = tick;
+    const stop = msg => { if (this._askTick !== tick) return; this.setState({ askBusy:false, askQ:body, askErr:msg }); };
+    // 応答が戻らないときにボタンが回り続けないようにする
+    const timer = setTimeout(() => stop("応答が返ってこなかったので中断しました。もう一度試してください。"), 45000);
     this.setState({ askBusy:true, askErr:"", askQ:"" });
     fetch(PARSE_PLACE_URL, {
-      method:"POST", headers:{ "Content-Type":"application/json" },
-      body:JSON.stringify(Object.assign({ mode:"ask", q:body, party:this.roster().length || 9 }, ctx))
+      method:"POST", headers:{ "Content-Type":"application/json" }, body:payload
     }).then(r => r.json()).then(res => {
+      clearTimeout(timer);
+      if (this._askTick !== tick) return;
       if (!res || res.error || !res.answer) {
-        this.setState({ askBusy:false, askQ:body,
-          askErr:"答えを作れませんでした：" + ((res && res.error) || "結果が空でした") });
+        stop("答えを作れませんでした：" + ((res && res.error) || "結果が空でした"));
         return;
       }
       this.setState(st => ({ askBusy:false,
         askLog:(st.askLog || []).concat({ q:body, a:res.answer, at:Date.now() }).slice(-12) }));
     }).catch(err => {
-      this.setState({ askBusy:false, askQ:body, askErr:"通信に失敗しました：" + ((err && err.message) || "不明") });
+      clearTimeout(timer);
+      stop("通信に失敗しました：" + ((err && err.message) || "不明"));
     });
   }
 
@@ -4425,6 +4597,10 @@ class Component extends DCLogic {
     const picked = found.list.filter(p => sel[p.name] !== false);
     if (!picked.length) { this.setState({ aiPlanErr:"回る場所を 1 つ以上選んでください。" }); return; }
     const eff = this.planOf(rid, d);
+    const timer = setTimeout(() => {
+      if (!this.state.aiPlanBusy) return;
+      this.setState({ aiPlanBusy:false, aiPlanErr:"応答が返ってこなかったので中断しました。もう一度試してください。" });
+    }, 60000);
     this.setState({ aiPlanPk:pk, aiPlanBusy:true, aiPlanErr:"", aiPlanRows:[], aiPlanSummary:"" });
     fetch(PARSE_PLACE_URL, {
       method:"POST", headers:{ "Content-Type":"application/json" },
@@ -4436,26 +4612,41 @@ class Component extends DCLogic {
         note:[d.title].concat(d.notes || []).join(" / ").slice(0, 600)
       })
     }).then(r => r.json()).then(res => {
+      clearTimeout(timer);
       if (!res || res.error || !(res.rows || []).length) {
         this.setState({ aiPlanBusy:false,
           aiPlanErr:"提案を作れませんでした：" + ((res && res.error) || "結果が空でした") });
         return;
       }
-      this.setState({ aiPlanBusy:false, aiPlanRows:res.rows, aiPlanSummary:res.summary || "" });
+      this.setState({ aiPlanBusy:false, aiPlanPk:"", aiPlanRows:[], aiPlanSummary:"", aiPlanErr:"" });
+      this.aiPlanSave(pk, (res.rows || []).map(p => {
+        const o = { t:p.t, x:p.x };
+        if (p.n) o.n = p.n;
+        return o;
+      }), res.summary || "");
     }).catch(err => {
+      clearTimeout(timer);
       this.setState({ aiPlanBusy:false, aiPlanErr:"通信に失敗しました：" + ((err && err.message) || "不明") });
     });
   }
 
-  aiPlanApply(rid, d) {
-    const rows = (this.state.aiPlanRows || []).map(p => {
+  aiPlanApply(rid, d, rows) {
+    const list = (rows || []).map(p => {
       const o = { t:p.t, x:p.x };
       if (p.n) o.n = p.n;
       return o;
     });
-    if (!rows.length) return;
-    this.setPlan(rid, d, rows);
-    this.setState({ aiPlanPk:"", aiPlanRows:[], aiPlanSummary:"", aiPlanErr:"" });
+    if (!list.length) return;
+    this.setPlan(rid, d, list);
+  }
+
+  aiRowAdd(rid, d, r) {
+    const eff = this.planOf(rid, d).map(q => Object.assign({}, q));
+    const o = { t:r.t, x:r.x };
+    if (r.n) o.n = r.n;
+    eff.push(o);
+    eff.sort((a, b) => a.t < b.t ? -1 : 1);
+    this.setPlan(rid, d, eff);
   }
 
   // 地図の該当場所へ寄せ、地図が画面に入るところまでスクロールする
@@ -5491,7 +5682,7 @@ class Component extends DCLogic {
         const nowHM = clockIn(d.tz);
         const eff = this.planOf(route.id, d);
         return {
-          date:d.date, dow:d.dow, stay:d.stay, title:d.title, notes:d.notes,
+          date:d.date, dow:d.dow, stay:d.stay, title:this.titleOf(route.id, d), notes:d.notes,
           clock: nowHM ? (nowHM + " 現地時間") : "",
           plan: eff.map(p => ({
             t:p.t, x:p.x, note:p.n || "",
@@ -6167,7 +6358,8 @@ class Component extends DCLogic {
         const editing = s.editDay === pk;
         const write = rows => this.setPlan(route.id, d, rows);
         return {
-          date:d.date, dow:d.dow, stay:d.stay, title:d.title, notes:d.notes, open:on,
+          date:d.date, dow:d.dow, stay:d.stay, title:this.titleOf(route.id, d), notes:d.notes, open:on,
+          onTitle: e => this.setDayTitle(route.id, d, e.target.value),
           plan:eff, hasPlan:eff.length > 0,
           editing:editing, notEditing:!editing,
           editLabel: editing ? "編集を終了" : "時刻を編集",
@@ -6215,13 +6407,44 @@ class Component extends DCLogic {
           aiNone: () => { const sel = {}; this.placesForCity(d.stay).list.forEach(p => { sel[p.name] = false; }); this.setState({ aiPlanSel:sel }); },
           aiHasErr: s.aiPlanPk === pk && !!s.aiPlanErr,
           aiErr: s.aiPlanErr || "",
-          aiHasRows: s.aiPlanPk === pk && !!(s.aiPlanRows || []).length,
-          aiSummary: s.aiPlanSummary || "",
-          aiHasSummary: s.aiPlanPk === pk && !!s.aiPlanSummary,
-          aiRows: (s.aiPlanPk === pk ? (s.aiPlanRows || []) : []).map(p => ({
-            t:p.t, x:p.x, n:p.n || "", hasNote: !!p.n
-          })),
-          aiApply: () => this.aiPlanApply(route.id, d),
+          aiSavedCount: this.aiPlansOf(pk).length + " 件（最大3件）",
+          hasAiSaved: this.aiPlansOf(pk).length > 0,
+          aiSaved: this.aiPlansOf(pk).map((p, pi) => {
+            const open = s.aiOpenId === p.id;
+            const df = this.aiDiff(p.rows, eff);
+            let when = "";
+            try {
+              when = new Intl.DateTimeFormat("ja-JP", { month:"numeric", day:"numeric", hour:"2-digit", minute:"2-digit", hour12:false }).format(new Date(p.at));
+            } catch (e) {}
+            return {
+              head: "提案 " + (pi + 1) + "（" + p.rows.length + "行）",
+              who: p.by + "・" + when,
+              open: open,
+              toggle: () => this.setState({ aiOpenId: open ? "" : p.id }),
+              caret: "flex:none; width:20px; height:20px; border-radius:50%; display:grid; place-items:center; "
+                + "color:var(--color-accent-2-900); background:var(--color-accent-2-200); transition:transform .22s ease; "
+                + "transform:rotate(" + (open ? "90deg" : "0deg") + ")",
+              summary: p.summary || "",
+              hasSummary: !!p.summary,
+              rows: df.rows.map(r => ({
+                t:r.t, x:r.x, n:r.n || "", hasNote: !!r.n, tag:r.tag,
+                isNew: r.tag === "追加",
+                tagStyle: "flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; border-radius:999px; padding:2px 8px; white-space:nowrap; "
+                  + (r.tag === "追加" ? "background:var(--color-accent-2-600); color:#FFFFFF"
+                     : r.tag === "そのまま" ? "background:var(--color-neutral-200); color:var(--color-neutral-700)"
+                     : "background:var(--color-accent-200); color:var(--color-accent-800)"),
+                add: () => this.aiRowAdd(route.id, d, r)
+              })),
+              gone: df.gone,
+              hasGone: df.gone.length > 0,
+              applyAll: () => {
+                if (typeof window !== "undefined" && window.confirm
+                    && !window.confirm("この日の予定をこの提案で置き換えます。よろしいですか？")) return;
+                this.aiPlanApply(route.id, d, p.rows);
+              },
+              del: () => this.aiPlanDrop(pk, p.id)
+            };
+          }),
           aiClose: () => this.setState({ aiPlanPk:"", aiPlanRows:[], aiPlanSummary:"", aiPlanErr:"" }),
           sortRows: () => write(eff.map(q => Object.assign({}, q)).sort((a, b) => a.t < b.t ? -1 : 1)),
           canUndo: !!this.planUndoInfo(route.id, d),
@@ -6427,7 +6650,7 @@ class Component extends DCLogic {
         this.setState({ newThemeLabel:"", newThemeSub:"", newThemePick:1 });
       },
       roles: ROLES, meals: MEALS, emergency: EMERGENCY,
-      decidedRoute: "案" + DECIDED_ROUTE + "　" + ((ROUTES.find(r => r.id === DECIDED_ROUTE) || {}).name || ""),
+      decidedRoute: "ミラノ → リスボン → バルセロナ → ロンドン → ローマ",
       links: LINKS.map(g => {
         const adds = ((s.userLinks || {})[g.g] || []);
         const setAdds = arr => this.save({ userLinks:Object.assign({}, this.state.userLinks || {}, { [g.g]:arr }) });
