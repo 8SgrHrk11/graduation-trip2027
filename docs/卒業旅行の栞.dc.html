@@ -1559,9 +1559,30 @@
             </sc-for>
           </div>
           <div style="display:flex; gap:8px; align-items:flex-end">
-            <textarea class="input" style="flex:1; min-width:0; min-height:44px; background-color:#F6FEFE" placeholder="現地で困ったことを聞く" value="{{ askQ }}" onChange="{{ onAskQ }}" onKeyDown="{{ onAskKey }}"></textarea>
+            <textarea class="input" style="flex:1; min-width:0; min-height:44px; background-color:#F6FEFE" placeholder="例：9人で入れて安い夕食を探している" value="{{ askQ }}" onChange="{{ onAskQ }}" onKeyDown="{{ onAskKey }}"></textarea>
             <button type="button" onClick="{{ askGo }}" style="{{ askBtnStyle }}">{{ askBtnLabel }}</button>
           </div>
+          <sc-if value="{{ askHasNeed }}" hint-placeholder-val="{{ false }}">
+            <div style="border-radius:var(--radius-md); background:#F6FEFE; border:1px solid #CFF3F1; padding:12px 13px; display:grid; grid-template-columns:minmax(0,1fr); gap:11px; animation:floatUp .22s ease both">
+              <div style="font-family:var(--font-body); font-size:11.5px; font-weight:700; color:#1F5350; text-wrap:pretty">答える前にこれだけ教えてください</div>
+              <div style="font-family:var(--font-body); font-size:11px; color:#3B6866; text-wrap:pretty">質問：{{ askBase }}</div>
+              <sc-for list="{{ askNeed }}" as="an" hint-placeholder-count="3">
+                <div style="display:grid; grid-template-columns:minmax(0,1fr); gap:6px">
+                  <div style="font-family:var(--font-body); font-size:12.5px; font-weight:700; color:#123F3D; text-wrap:pretty">{{ an.q }}</div>
+                  <div style="display:flex; gap:6px; flex-wrap:wrap">
+                    <sc-for list="{{ an.opts }}" as="ao" hint-placeholder-count="3">
+                      <button type="button" onClick="{{ ao.go }}" style="{{ ao.style }}">{{ ao.label }}</button>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-for>
+              <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap">
+                <button type="button" onClick="{{ askNeedSend }}" style="{{ askBtnStyle }}">{{ askNeedLabel }}</button>
+                <button type="button" onClick="{{ askNeedSkip }}" style="cursor:pointer; outline:none; background:transparent; border:0; padding:0; color:#1F5350; font-family:var(--font-body); font-size:11.5px; font-weight:700">このまま答えて</button>
+                <button type="button" onClick="{{ askNeedCancel }}" style="cursor:pointer; outline:none; background:transparent; border:0; padding:0; color:#3B6866; font-family:var(--font-body); font-size:11.5px; font-weight:700">質問を書き直す</button>
+              </div>
+            </div>
+          </sc-if>
           <sc-if value="{{ askHasErr }}" hint-placeholder-val="{{ false }}">
             <div style="font-family:var(--font-body); font-size:11.5px; font-weight:700; color:#8A2222; background:#FBE3E3; border-radius:var(--radius-md); padding:9px 11px; text-wrap:pretty">{{ askErr }}</div>
           </sc-if>
@@ -1571,7 +1592,11 @@
                 <div style="display:grid; gap:6px; animation:floatUp .22s ease both">
                   <div style="justify-self:end; max-width:88%; background:#CFF3F1; border-radius:var(--radius-md); padding:8px 12px; font-family:var(--font-body); font-size:12.5px; color:#123F3D; text-wrap:pretty">{{ al.q }}</div>
                   <div style="background:#F6FEFE; border:1px solid #CFF3F1; border-radius:var(--radius-md); padding:11px 13px; font-family:var(--font-body); font-size:13px; line-height:1.6; white-space:pre-wrap; text-wrap:pretty">{{ al.a }}</div>
-                  <button type="button" onClick="{{ al.share }}" style="justify-self:start; cursor:pointer; outline:none; background:transparent; border:0; padding:0; color:#1F5350; font-family:var(--font-body); font-size:11px; font-weight:700">この答えをチャットに貼る</button>
+                  <div style="display:flex; gap:14px; align-items:center">
+                    <button type="button" onClick="{{ al.copy }}" style="cursor:pointer; outline:none; background:transparent; border:0; padding:0; color:#1F5350; font-family:var(--font-body); font-size:11px; font-weight:700">{{ al.copyLabel }}</button>
+                    <button type="button" onClick="{{ al.share }}" style="cursor:pointer; outline:none; background:transparent; border:0; padding:0; color:#1F5350; font-family:var(--font-body); font-size:11px; font-weight:700">共有</button>
+                    <button type="button" onClick="{{ al.del }}" style="cursor:pointer; outline:none; background:transparent; border:0; padding:0; color:#3B6866; font-family:var(--font-body); font-size:11px; font-weight:700">削除</button>
+                  </div>
                 </div>
               </sc-for>
             </div>
@@ -2631,7 +2656,7 @@ class Component extends DCLogic {
             themeAdds:[], themeEdits:{}, themeDel:{}, newThemeLabel:"", newThemeSub:"", adminOpen:false,
             notes:{}, deadlines:{}, packed:{}, done:{}, openDays:{},
             lineUrl:"", memos:[], draft:"", chat:[], chatDraft:"", sync:"off", reads:{}, identified:false,
-            meets:{}, lodging:{}, plans:{}, dayTitles:{}, aiPlans:{}, aiOpenId:"", cityAdds:{}, cityDel:{}, newCity:{}, editDay:"", hidden:{}, booked:{}, addBook:[], newBook:"",
+            meets:{}, lodging:{}, plans:{}, dayTitles:{}, aiPlans:{}, aiOpenId:"", cityAdds:{}, cityDel:{}, newCity:{}, askNeed:[], askPick:{}, askBase:"", editDay:"", hidden:{}, booked:{}, addBook:[], newBook:"",
             foodNotes:{}, foodOpen:{}, foodDraft:{}, spotNotes:{}, spotOpen:{}, spotDraft:{},
             prepOpen:{}, myTodos:[], myPack:[], newTodo:"", newPack:"", todoEdits:{}, bookEdits:{}, prepEdit:{},
             privTodos:[], newPriv:"", adminOK:false, adminMsg:"" };
@@ -4650,13 +4675,15 @@ class Component extends DCLogic {
     }
   }
 
-  askAi(q) {
+  askAi(q, opt) {
+    const o = opt || {};
     const body = String(q || this.state.askQ || "").trim();
     if (!body || this.state.askBusy) return;
     let payload;
     try {
       payload = JSON.stringify(Object.assign(
-        { mode:"ask", q:body, party:this.roster().length || 9 }, this.askContext()));
+        { mode:"ask", q:body, party:this.roster().length || 9,
+          force: o.force === true, answers: o.answers || [] }, this.askContext()));
     } catch (e) {
       this.setState({ askErr:"質問を送れませんでした：" + ((e && e.message) || "不明") });
       return;
@@ -4672,16 +4699,58 @@ class Component extends DCLogic {
     }).then(r => r.json()).then(res => {
       clearTimeout(timer);
       if (this._askTick !== tick) return;
+      const need = (res && Array.isArray(res.need)) ? res.need.filter(n => n && n.q) : [];
+      if (need.length && !o.force) {
+        this.setState({ askBusy:false, askBase:body, askNeed:need, askPick:{} });
+        return;
+      }
       if (!res || res.error || !res.answer) {
         stop("答えを作れませんでした：" + ((res && res.error) || "結果が空でした"));
         return;
       }
-      this.setState(st => ({ askBusy:false,
+      this.setState(st => ({ askBusy:false, askNeed:[], askPick:{}, askBase:"",
         askLog:(st.askLog || []).concat({ q:body, a:res.answer, at:Date.now() }).slice(-12) }));
     }).catch(err => {
       clearTimeout(timer);
       stop("通信に失敗しました：" + ((err && err.message) || "不明"));
     });
+  }
+
+  askSend(force) {
+    const need = this.state.askNeed || [];
+    const pick = this.state.askPick || {};
+    const answers = force ? [] : need
+      .map((n, i) => ({ q:n.q, a:pick[i] || "" }))
+      .filter(a => a.a);
+    this.askAi(this.state.askBase, { force:true, answers:answers });
+  }
+
+  copyAnswer(item) {
+    const txt = item.q + "\n" + item.a;
+    const done = () => this.setState({ askCopied:item.at, askErr:"" });
+    const fallback = () => {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = txt;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        if (ok) done();
+        else this.setState({ askErr:"コビーできませんでした。答えを長押しして選択してください。" });
+      } catch (e) {
+        this.setState({ askErr:"コビーできませんでした。答えを長押しして選択してください。" });
+      }
+    };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(done, fallback);
+        return;
+      }
+    } catch (e) {}
+    fallback();
   }
 
   shareAnswer(item) {
@@ -5885,6 +5954,24 @@ class Component extends DCLogic {
       onChatKey: e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); this.sendChat(); } },
       sendChat: () => this.sendChat(),
       askQ: s.askQ || "",
+      askHasNeed: (s.askNeed || []).length > 0,
+      askBase: s.askBase || "",
+      askNeed: (s.askNeed || []).map((n, i) => ({
+        q: n.q,
+        opts: (n.options || []).concat("こだわらない").map(o => ({
+          label: o,
+          style: "cursor:pointer; outline:none; border-radius:999px; padding:6px 13px; "
+            + "font-family:var(--font-body); font-size:11.5px; font-weight:700; transition:all .16s; "
+            + (((s.askPick || {})[i] || "") === o
+               ? "border:1px solid #1F5350; background:#1F5350; color:#FFFFFF"
+               : "border:1px solid #CFF3F1; background:#F6FEFE; color:#1F5350"),
+          go: () => this.setState({ askPick:Object.assign({}, s.askPick || {}, { [i]: (((s.askPick || {})[i] || "") === o ? "" : o) }) })
+        }))
+      })),
+      askNeedSend: () => this.askSend(false),
+      askNeedSkip: () => this.askSend(true),
+      askNeedCancel: () => this.setState({ askNeed:[], askPick:{}, askBase:"", askQ:s.askBase || "" }),
+      askNeedLabel: s.askBusy ? "考えています…" : "これで答えてもらう",
       askOpen: s.askOpen === true,
       askToggle: () => this.setState({ askOpen: !s.askOpen }),
       askCaret: "flex:none; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; color:#1F5350; "
@@ -5901,15 +5988,18 @@ class Component extends DCLogic {
       askHasErr: !!s.askErr,
       askErr: s.askErr || "",
       askHasLog: !!(s.askLog || []).length,
-      askLog: (s.askLog || []).slice().reverse().map(it => ({
-        q:it.q, a:it.a,
-        share: () => this.shareAnswer(it)
+      askLog: (s.askLog || []).map((it, i) => ({ it:it, i:i })).reverse().map(r => ({
+        q:r.it.q, a:r.it.a,
+        copyLabel: s.askCopied === r.it.at ? "コビーしました" : "コピー",
+        copy: () => this.copyAnswer(r.it),
+        share: () => this.shareAnswer(r.it),
+        del: () => this.setState(st => ({ askLog:(st.askLog || []).filter((x, j) => j !== r.i) }))
       })),
       askChips: [
+        "今日の天候に合った服装は？",
         "今から行ける？",
         "近くで安い店は？",
         "ここからの行き方は？",
-        "今日の残りはどう回る？",
         "雨でも行ける所は？"
       ].map(t => ({ label:t, go: () => this.askAi(t) })),
       askScope: (() => {
