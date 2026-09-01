@@ -513,35 +513,6 @@
       </div>
     </div>
 
-    <h3 style="font-size: 22px; margin: 26px 0 8px">AIに聞く</h3>
-    <div style="border-radius:var(--radius-lg); padding:14px; box-shadow:var(--shadow-sm); background-color:#FBF7F2; display:grid; grid-template-columns:minmax(0,1fr); gap:10px">
-      <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:#8A4A28; text-wrap:pretty">{{ askScope }}</div>
-      <div style="display:flex; gap:6px; flex-wrap:wrap">
-        <sc-for list="{{ askChips }}" as="ac" hint-placeholder-count="5">
-          <button type="button" onClick="{{ ac.go }}" style="cursor:pointer; outline:none; border:1px solid #E7CDBB; border-radius:999px; padding:6px 13px; background:#FFFFFF; color:#8A4A28; font-family:var(--font-body); font-size:11.5px; font-weight:700">{{ ac.label }}</button>
-        </sc-for>
-      </div>
-      <div style="display:flex; gap:8px; align-items:flex-end">
-        <textarea class="input" style="flex:1; min-width:0; min-height:44px; background-color:var(--color-neutral-100)" placeholder="現地で困ったことを聞く" value="{{ askQ }}" onChange="{{ onAskQ }}" onKeyDown="{{ onAskKey }}"></textarea>
-        <button type="button" onClick="{{ askGo }}" style="{{ askBtnStyle }}">{{ askBtnLabel }}</button>
-      </div>
-      <sc-if value="{{ askHasErr }}" hint-placeholder-val="{{ false }}">
-        <div style="font-family:var(--font-body); font-size:11.5px; font-weight:700; color:#8A2F14; background:#F6DAD2; border-radius:var(--radius-md); padding:9px 11px; text-wrap:pretty">{{ askErr }}</div>
-      </sc-if>
-      <sc-if value="{{ askHasLog }}" hint-placeholder-val="{{ false }}">
-        <div style="display:grid; gap:12px">
-          <sc-for list="{{ askLog }}" as="al" hint-placeholder-count="2">
-            <div style="display:grid; gap:6px; animation:floatUp .22s ease both">
-              <div style="justify-self:end; max-width:88%; background:#FBDAC8; border-radius:var(--radius-md); padding:8px 12px; font-family:var(--font-body); font-size:12.5px; color:#5A3320; text-wrap:pretty">{{ al.q }}</div>
-              <div style="background:#FFFFFF; border:1px solid #EADED2; border-radius:var(--radius-md); padding:11px 13px; font-family:var(--font-body); font-size:13px; line-height:1.6; white-space:pre-wrap; text-wrap:pretty">{{ al.a }}</div>
-              <button type="button" onClick="{{ al.share }}" style="justify-self:start; cursor:pointer; outline:none; background:transparent; border:0; padding:0; color:#8A4A28; font-family:var(--font-body); font-size:11px; font-weight:700">この答えをチャットに貼る</button>
-            </div>
-          </sc-for>
-        </div>
-        <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-600); text-wrap:pretty">やり取りは自分の端末だけに残ります。共有したいときは上のボタンでチャット欄に貼れます。</div>
-      </sc-if>
-    </div>
-
     <h3 style="font-size:18px; margin:26px 0 8px">プライベート</h3>
     <div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:16px; box-shadow:var(--shadow-sm)">
       <textarea class="input" style="min-height: 74px; background-color: var(--color-neutral-100)" placeholder="例）このチャットは、他人に共有されない。" value="{{ draft }}" onChange="{{ onDraft }}"></textarea>
@@ -1570,6 +1541,46 @@
   <section style="animation:floatUp .45s ease both">
     <h2 style="font-size:22px; margin:18px 0 4px">現地のこと</h2>
 
+    <div style="margin-top:12px; border-radius:var(--radius-lg); background:#FFFFFF; border:1.5px dashed #9FDEDA; box-shadow:var(--shadow-sm)">
+      <div onClick="{{ askToggle }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:13px 14px">
+        <div style="{{ askCaret }}">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
+        <div style="flex:1; min-width:0">
+          <div style="font-family:var(--font-body); font-size:13.5px; font-weight:700; color:#123F3D">AIに相談</div>
+          <div style="font-family:var(--font-body); font-size:10.5px; color:#3B6866; margin-top:1px; text-wrap:pretty">{{ askScope }}</div>
+        </div>
+      </div>
+      <sc-if value="{{ askOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:0 14px 14px; display:grid; grid-template-columns:minmax(0,1fr); gap:10px; animation:floatUp .22s ease both">
+          <div style="display:flex; gap:6px; flex-wrap:wrap">
+            <sc-for list="{{ askChips }}" as="ac" hint-placeholder-count="5">
+              <button type="button" onClick="{{ ac.go }}" style="cursor:pointer; outline:none; border:1px solid #CFF3F1; border-radius:999px; padding:6px 13px; background:#F6FEFE; color:#1F5350; font-family:var(--font-body); font-size:11.5px; font-weight:700">{{ ac.label }}</button>
+            </sc-for>
+          </div>
+          <div style="display:flex; gap:8px; align-items:flex-end">
+            <textarea class="input" style="flex:1; min-width:0; min-height:44px; background-color:#F6FEFE" placeholder="現地で困ったことを聞く" value="{{ askQ }}" onChange="{{ onAskQ }}" onKeyDown="{{ onAskKey }}"></textarea>
+            <button type="button" onClick="{{ askGo }}" style="{{ askBtnStyle }}">{{ askBtnLabel }}</button>
+          </div>
+          <sc-if value="{{ askHasErr }}" hint-placeholder-val="{{ false }}">
+            <div style="font-family:var(--font-body); font-size:11.5px; font-weight:700; color:#8A2222; background:#FBE3E3; border-radius:var(--radius-md); padding:9px 11px; text-wrap:pretty">{{ askErr }}</div>
+          </sc-if>
+          <sc-if value="{{ askHasLog }}" hint-placeholder-val="{{ false }}">
+            <div style="display:grid; gap:12px">
+              <sc-for list="{{ askLog }}" as="al" hint-placeholder-count="2">
+                <div style="display:grid; gap:6px; animation:floatUp .22s ease both">
+                  <div style="justify-self:end; max-width:88%; background:#CFF3F1; border-radius:var(--radius-md); padding:8px 12px; font-family:var(--font-body); font-size:12.5px; color:#123F3D; text-wrap:pretty">{{ al.q }}</div>
+                  <div style="background:#F6FEFE; border:1px solid #CFF3F1; border-radius:var(--radius-md); padding:11px 13px; font-family:var(--font-body); font-size:13px; line-height:1.6; white-space:pre-wrap; text-wrap:pretty">{{ al.a }}</div>
+                  <button type="button" onClick="{{ al.share }}" style="justify-self:start; cursor:pointer; outline:none; background:transparent; border:0; padding:0; color:#1F5350; font-family:var(--font-body); font-size:11px; font-weight:700">この答えをチャットに貼る</button>
+                </div>
+              </sc-for>
+            </div>
+            <div style="font-family:var(--font-body); font-size:10.5px; color:#3B6866; text-wrap:pretty">やり取りは自分の端末だけに残ります。共有したいときは上のボタンでチャット欄に貼れます。</div>
+          </sc-if>
+        </div>
+      </sc-if>
+    </div>
+
     <sc-if value="{{ localOld }}" hint-placeholder-val="{{ false }}">
     <div style="margin-top:8px; {{ sec.wx.card }}">
       <div onClick="{{ sec.wx.go }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:14px 16px">
@@ -1688,11 +1699,34 @@
     </sc-if>
 
     <div style="margin-top:18px">
-      <div style="display:flex; gap:6px">
+      <div onMouseLeave="{{ gMenuClose }}" style="position:relative; display:flex; gap:6px">
         <sc-for list="{{ gCityBtns }}" as="cb" hint-placeholder-count="5">
-          <button type="button" onClick="{{ cb.go }}" style="{{ cb.style }}">
-            <div style="font-size:13px">{{ cb.city }}</div>
-          </button>
+          <div style="flex:1 1 0; min-width:0; position:relative">
+            <sc-if value="{{ cb.open }}" hint-placeholder-val="{{ false }}">
+              <div onMouseEnter="{{ cb.enter }}" style="{{ cb.panel }}">
+                <div style="max-height:230px; overflow:auto; display:flex; flex-direction:column; gap:5px; padding:8px; border-radius:var(--radius-lg); background:#FFFFFF; border:1px solid #9FDEDA; box-shadow:0 10px 26px rgba(31,83,80,.20); animation:floatUp .18s ease both">
+                  <sc-for list="{{ cb.subs }}" as="sb" hint-placeholder-count="3">
+                    <div style="display:flex; align-items:center; gap:4px">
+                      <button type="button" onClick="{{ sb.go }}" style="{{ sb.style }}">
+                        <div style="font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ sb.city }}</div>
+                      </button>
+                      <sc-if value="{{ sb.canDel }}" hint-placeholder-val="{{ false }}">
+                        <button type="button" onClick="{{ sb.del }}" title="この都市を外す" style="flex:none; cursor:pointer; width:22px; height:22px; border-radius:999px; border:1px solid #CFF3F1; background:#FFFFFF; color:#3B6866; font-family:var(--font-body); font-size:12px; line-height:1; display:grid; place-items:center">×</button>
+                      </sc-if>
+                    </div>
+                  </sc-for>
+                  <div style="display:flex; align-items:center; gap:4px; border-top:1px solid #E4F7F6; padding-top:7px; margin-top:2px">
+                    <input class="input" value="{{ cb.newCity }}" onChange="{{ cb.onNewCity }}" placeholder="都市を追加" style="width:104px; box-sizing:border-box; font-size:11.5px; padding:6px 10px; background-color:#F6FEFE">
+                    <button type="button" onClick="{{ cb.addCity }}" title="追加" style="flex:none; cursor:pointer; width:22px; height:22px; border-radius:999px; border:1px solid #9FDEDA; background:#1F5350; color:#FFFFFF; font-family:var(--font-body); font-size:12px; line-height:1; display:grid; place-items:center">＋</button>
+                  </div>
+                  <div style="font-family:var(--font-body); font-size:9px; line-height:1.4; color:#3B6866; text-wrap:pretty; max-width:130px">例：ベルガモ / Bergamo</div>
+                </div>
+              </div>
+            </sc-if>
+            <button type="button" onClick="{{ cb.go }}" onMouseEnter="{{ cb.enter }}" style="{{ cb.style }}">
+              <div style="font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ cb.city }}</div>
+            </button>
+          </div>
         </sc-for>
       </div>
 
@@ -2536,11 +2570,33 @@ const MARKS = [
 ];
 
 const GUIDE_GROUPS = [
-  { id:"A", city:"ミラノ", q:"Milan, Italy" },
-  { id:"B", city:"リスボン", q:"Lisbon, Portugal" },
-  { id:"C", city:"バルセロナ", q:"Barcelona, Spain" },
-  { id:"D", city:"ロンドン", q:"London, UK" },
-  { id:"E", city:"ローマ", q:"Rome, Italy" }
+  { id:"A",  city:"ミラノ",         q:"Milan, Italy" },
+  { id:"A2", city:"ヴェネツィア",   q:"Venice, Italy" },
+  { id:"A3", city:"フィレンツェ",   q:"Florence, Italy" },
+  { id:"A4", city:"コモ", q:"Como, Italy" },
+  { id:"B",  city:"リスボン",       q:"Lisbon, Portugal" },
+  { id:"B2", city:"シントラ",         q:"Sintra, Portugal" },
+  { id:"B3", city:"ポルト",           q:"Porto, Portugal" },
+  { id:"C",  city:"バルセロナ",     q:"Barcelona, Spain" },
+  { id:"C2", city:"ジローナ",         q:"Girona, Spain" },
+  { id:"C3", city:"モンセラート",   q:"Montserrat, Spain" },
+  { id:"D",  city:"ロンドン",       q:"London, UK" },
+  { id:"D2", city:"ブライトン",     q:"Brighton, UK" },
+  { id:"D3", city:"リヴァプール",   q:"Liverpool, UK" },
+  { id:"D4", city:"マンチェスター", q:"Manchester, UK" },
+  { id:"D5", city:"リーズ",           q:"Leeds, UK" },
+  { id:"D6", city:"ノッティンガム", q:"Nottingham, UK" },
+  { id:"E",  city:"ローマ",         q:"Rome, Italy" },
+  { id:"E2", city:"ナポリ",           q:"Naples, Italy" },
+  { id:"E3", city:"ポンペイ",         q:"Pompeii, Italy" }
+];
+// 市内を分かれて回るときのために、拠点ごとに近郊都市をぶら下げで持つ
+const GUIDE_TABS = [
+  { id:"A", label:"ミラノ",     country:"Italy",    cities:["A","A2","A3","A4"] },
+  { id:"B", label:"リスボン",   country:"Portugal", cities:["B","B2","B3"] },
+  { id:"C", label:"バルセロナ", country:"Spain",    cities:["C","C2","C3"] },
+  { id:"D", label:"ロンドン",   country:"UK",       cities:["D","D2","D3","D4","D5","D6"] },
+  { id:"E", label:"ローマ",     country:"Italy",    cities:["E","E2","E3"] }
 ];
 // 場所を持つカテゴリだけ地図にピンが立つ。天候と交通手段は表で扱う
 const GUIDE_PRESETS = [
@@ -2552,7 +2608,7 @@ const GUIDE_PRESETS = [
   { name:"その他行きたい場所", kind:"place" }
 ];
 
-const SHARED_KEYS = ["ballots","notes","deadlines","members","lineUrl","reads","meets","lodging","plans","hidden","booked","addBook","foodNotes","spotNotes","confirms","userLinks","themeAdds","themeEdits","themeDel","myTodos","todoEdits","bookEdits","resetV","todoWho","notifyOff","expenses","settledTx","settlements","payDue","defer","nudges","txKeyV","exDel","doneBy","adminCred","exResetV","planLog","delMsgs","guides","mapKey","geo","dayTitles","aiPlans"];
+const SHARED_KEYS = ["ballots","notes","deadlines","members","lineUrl","reads","meets","lodging","plans","hidden","booked","addBook","foodNotes","spotNotes","confirms","userLinks","themeAdds","themeEdits","themeDel","myTodos","todoEdits","bookEdits","resetV","todoWho","notifyOff","expenses","settledTx","settlements","payDue","defer","nudges","txKeyV","exDel","doneBy","adminCred","exResetV","planLog","delMsgs","guides","mapKey","geo","dayTitles","aiPlans","cityAdds","cityDel"];
 const PAY_DUE_DEFAULT = "2027-03-11T23:59";
 const TRIP_YEAR = 2027;
 const TRIP_START = "2027-02-13";
@@ -2575,7 +2631,7 @@ class Component extends DCLogic {
             themeAdds:[], themeEdits:{}, themeDel:{}, newThemeLabel:"", newThemeSub:"", adminOpen:false,
             notes:{}, deadlines:{}, packed:{}, done:{}, openDays:{},
             lineUrl:"", memos:[], draft:"", chat:[], chatDraft:"", sync:"off", reads:{}, identified:false,
-            meets:{}, lodging:{}, plans:{}, dayTitles:{}, aiPlans:{}, aiOpenId:"", editDay:"", hidden:{}, booked:{}, addBook:[], newBook:"",
+            meets:{}, lodging:{}, plans:{}, dayTitles:{}, aiPlans:{}, aiOpenId:"", cityAdds:{}, cityDel:{}, newCity:{}, editDay:"", hidden:{}, booked:{}, addBook:[], newBook:"",
             foodNotes:{}, foodOpen:{}, foodDraft:{}, spotNotes:{}, spotOpen:{}, spotDraft:{},
             prepOpen:{}, myTodos:[], myPack:[], newTodo:"", newPack:"", todoEdits:{}, bookEdits:{}, prepEdit:{},
             privTodos:[], newPriv:"", adminOK:false, adminMsg:"" };
@@ -3085,7 +3141,7 @@ class Component extends DCLogic {
           packed:s.packed, done:s.done, openDays:s.openDays, theme:s.theme, sel:s.sel,
           members:s.members, ballots:s.ballots, notes:s.notes, deadlines:s.deadlines,
           lineUrl:s.lineUrl, memos:s.memos, identified:s.identified,
-          meets:s.meets, lodging:s.lodging, reads:s.reads, plans:s.plans, dayTitles:s.dayTitles, aiPlans:s.aiPlans, hidden:s.hidden,
+          meets:s.meets, lodging:s.lodging, reads:s.reads, plans:s.plans, dayTitles:s.dayTitles, aiPlans:s.aiPlans, cityAdds:s.cityAdds, cityDel:s.cityDel, hidden:s.hidden,
           booked:s.booked, addBook:s.addBook, foodNotes:s.foodNotes, foodOpen:s.foodOpen, spotNotes:s.spotNotes,
           confirms:s.confirms, userLinks:s.userLinks,
           themeAdds:s.themeAdds, themeEdits:s.themeEdits, themeDel:s.themeDel,
@@ -4098,9 +4154,59 @@ class Component extends DCLogic {
 
   guidesOf(g) { return ((this.state.guides || {})[g] || []).slice(); }
 
+  // 見定の都市＋各自で追加した都市（削除分を除く）
+  allGroups() {
+    const del = this.state.cityDel || {};
+    const adds = this.state.cityAdds || {};
+    const out = [];
+    GUIDE_TABS.forEach(t => {
+      t.cities.forEach(id => {
+        const b = GUIDE_GROUPS.find(x => x.id === id);
+        if (b && !del[id]) out.push(Object.assign({ tab:t.id }, b));
+      });
+      (adds[t.id] || []).forEach(c => {
+        if (!del[c.id]) out.push(Object.assign({ tab:t.id, added:true }, c));
+      });
+    });
+    return out;
+  }
+
+  citiesOfTab(tabId) { return this.allGroups().filter(x => x.tab === tabId); }
+
+  addCity(t) {
+    const raw = ((this.state.newCity || {})[t.id] || "").trim();
+    if (!raw) return;
+    const parts = raw.split(/[\/／,，]/).map(x => x.trim());
+    const name = parts[0];
+    const en = parts[1] || "";
+    if (!name) return;
+    if (this.allGroups().some(x => x.city === name)) {
+      this.setState({ geoMsg:"「" + name + "」はすでにあります。" });
+      return;
+    }
+    const id = t.id + "u" + Date.now();
+    const adds = Object.assign({}, this.state.cityAdds || {});
+    adds[t.id] = (adds[t.id] || []).concat({ id:id, city:name, q:(en || name) + ", " + t.country });
+    const nc = Object.assign({}, this.state.newCity || {});
+    nc[t.id] = "";
+    this.setState({ newCity:nc });
+    this.save({ cityAdds:adds });
+    this.setState({ guideCity:id });
+  }
+
+  delCity(x) {
+    if (typeof window !== "undefined" && window.confirm
+        && !window.confirm("「" + x.city + "」を一覧から外します。登録した場所は残りますが、見えなくなります。よろしいですか？")) return;
+    const del = Object.assign({}, this.state.cityDel || {});
+    del[x.id] = 1;
+    if (this.state.guideCity === x.id) this.setState({ guideCity:x.tab });
+    this.save({ cityDel:del });
+  }
+
   guideCity() {
+    const all = this.allGroups();
     const id = this.state.guideCity || "A";
-    return GUIDE_GROUPS.find(g => g.id === id) || GUIDE_GROUPS[0];
+    return all.find(g => g.id === id) || all[0] || GUIDE_GROUPS[0];
   }
 
   geoOf(addr) { return (this.state.geo || {})[String(addr || "").trim()] || null; }
@@ -4167,16 +4273,42 @@ class Component extends DCLogic {
     const pins = this.mapPins();
 
     return {
-      cityBtns: GUIDE_GROUPS.map(c => ({
-        label: "案" + c.id,
-        city: c.city,
-        style: "flex:1 1 0; min-width:0; cursor:pointer; outline:none; border-radius:var(--radius-md); padding:9px 6px; "
-          + "font-family:var(--font-body); font-weight:700; text-align:center; transition:all .18s; "
-          + (c.id === g.id
-             ? "border:1px solid #1F5350; background:#1F5350; color:#FFFFFF; box-shadow:0 2px 8px rgba(31,83,80,.26)"
-             : "border:1px solid #9FDEDA; background:#FFFFFF; color:#1F5350"),
-        go: () => this.setState({ guideCity:c.id })
-      })),
+      cityBtns: GUIDE_TABS.map((t, ti) => {
+        const kids = this.citiesOfTab(t.id);
+        const here = kids.some(x => x.id === g.id);
+        const open = s.guideMenu === t.id;
+        return {
+          label: t.label,
+          city: here ? g.city : t.label,
+          open: open,
+          panel: "position:absolute; " + (ti >= 3 ? "right:0" : "left:0") + "; top:100%; padding-top:8px; z-index:20",
+          style: "width:100%; box-sizing:border-box; cursor:pointer; outline:none; border-radius:var(--radius-md); padding:9px 6px; "
+            + "font-family:var(--font-body); font-weight:700; text-align:center; transition:all .18s; "
+            + (here
+               ? "border:1px solid #1F5350; background:#1F5350; color:#FFFFFF; box-shadow:0 2px 8px rgba(31,83,80,.26)"
+               : "border:1px solid #9FDEDA; background:#FFFFFF; color:#1F5350"),
+          enter: () => { clearTimeout(this._menuT); this.setState({ guideMenu:t.id }); },
+          go: () => this.setState({ guideCity: here ? g.id : (kids[0] || {}).id, guideMenu: open ? "" : t.id }),
+          newCity: (s.newCity || {})[t.id] || "",
+          onNewCity: e => this.setState({ newCity:Object.assign({}, s.newCity || {}, { [t.id]:e.target.value }) }),
+          addCity: () => this.addCity(t),
+          subs: kids.map((x, xi) => ({
+            city: x.city,
+            canDel: xi > 0,
+            del: () => this.delCity(x),
+            style: "width:104px; box-sizing:border-box; cursor:pointer; outline:none; border-radius:var(--radius-md); padding:8px 4px; "
+              + "font-family:var(--font-body); font-size:12px; font-weight:700; text-align:center; transition:all .18s; "
+              + (x.id === g.id
+                 ? "border:1px solid #1F5350; background:#1F5350; color:#FFFFFF; box-shadow:0 2px 8px rgba(31,83,80,.26)"
+                 : "border:1px solid #9FDEDA; background:#FFFFFF; color:#1F5350"),
+            go: () => this.setState({ guideCity:x.id, guideMenu:"" })
+          }))
+        };
+      }),
+      menuClose: () => {
+        clearTimeout(this._menuT);
+        this._menuT = setTimeout(() => this.setState({ guideMenu:"" }), 220);
+      },
       cityName: g.city,
       secBtns: secs.map(x => ({
         label: x.title,
@@ -4411,7 +4543,7 @@ class Component extends DCLogic {
     }
     const need = [];
     const seen = {};
-    GUIDE_GROUPS.forEach(c => {
+    this.allGroups().forEach(c => {
       this.guidesOf(c.id).forEach(sec => {
         if ((sec.kind || "place") !== "place") return;
         (sec.items || []).forEach(it => {
@@ -4511,7 +4643,7 @@ class Component extends DCLogic {
       title: d ? this.titleOf(route.id, d) : "",
       plan: d ? this.planOf(route.id, d).map(p => ({ t:p.t, x:p.x })) : [],
       places: found.list,
-      allCities: GUIDE_GROUPS.map(g => ({ city:g.city, n:this.placesForCity(g.city).list.length }))
+      allCities: this.allGroups().map(g => ({ city:g.city, n:this.placesForCity(g.city).list.length })).filter(x => x.n > 0)
     };
     } catch (e) {
       return { onTrip:false, city:"", cityJa:"", date:"", clock:"", title:"", plan:[], places:[], allCities:[] };
@@ -4558,7 +4690,7 @@ class Component extends DCLogic {
 
   // その日の回り方を AI に組んでもらう
   placesForCity(cityName) {
-    const g = GUIDE_GROUPS.find(x => x.city === cityName);
+    const g = this.allGroups().find(x => x.city === cityName);
     if (!g) return { g:null, list:[] };
     const list = [];
     this.guidesOf(g.id).forEach(sec => {
@@ -5753,6 +5885,11 @@ class Component extends DCLogic {
       onChatKey: e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); this.sendChat(); } },
       sendChat: () => this.sendChat(),
       askQ: s.askQ || "",
+      askOpen: s.askOpen === true,
+      askToggle: () => this.setState({ askOpen: !s.askOpen }),
+      askCaret: "flex:none; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; color:#1F5350; "
+        + "background:" + (s.askOpen ? "#CFF3F1" : "transparent")
+        + "; transition:transform .22s ease, background .2s; transform:rotate(" + (s.askOpen ? "90deg" : "0deg") + ")",
       onAskQ: e => this.setState({ askQ:e.target.value }),
       onAskKey: e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); this.askAi(); } },
       askGo: () => this.askAi(),
@@ -5760,7 +5897,7 @@ class Component extends DCLogic {
       askBtnLabel: s.askBusy ? "考えています…" : "聞く",
       askBtnStyle: "flex:none; cursor:pointer; outline:none; border:0; border-radius:999px; padding:11px 20px; "
         + "font-family:'Zen Maru Gothic', var(--font-body); font-size:13px; font-weight:700; "
-        + (s.askBusy ? "background:#E7CDBB; color:#8A4A28" : "background:#C4643A; color:#FFFFFF"),
+        + (s.askBusy ? "background:#CFF3F1; color:#1F5350" : "background:#1F5350; color:#FFFFFF"),
       askHasErr: !!s.askErr,
       askErr: s.askErr || "",
       askHasLog: !!(s.askLog || []).length,
