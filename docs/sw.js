@@ -1,5 +1,5 @@
 /* オフライン用 Service Worker：一度開けば以後はネット無しでも起動する */
-const CACHE = "trip-v1";
+const CACHE = "trip-v2";
 
 const SHELL = [
   "./",
@@ -16,10 +16,7 @@ const SHELL = [
   "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js",
   "https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap",
   "https://fonts.googleapis.com/css2?family=Caprasimo:wght@400&family=Figtree:wght@400;600;700&display=swap"
-].concat(
-  ["bg-lake"].concat(Array.from({ length: 14 }, (_, i) => "bg-" + (i + 1)))
-    .map(n => "./" + n + ".png")
-);
+];
 
 self.addEventListener("install", ev => {
   ev.waitUntil((async () => {

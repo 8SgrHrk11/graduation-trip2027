@@ -51,15 +51,11 @@
     .om-main { padding: 8px 40px 0 !important; }
     .om-foot { padding: 28px 40px 40px !important; }
   }
-  /* 背景写真（スマホは縦位置のまま、PCは中央の帯を使う） */
+  /* 背景（写真は通信量が大きいため廃止。暖色の無地に薄い陰影だけ） */
   .om-bg { background-color: #EFE7DB;
-    background-image: linear-gradient(rgba(252,249,245,.42), rgba(252,249,245,.42)), var(--bg-photo, url("bg-1.png"));
-    background-size: auto, cover;
-    background-position: center, center 12%;
+    background-image: radial-gradient(circle at 16% 6%, rgba(255,255,255,.72) 0, rgba(255,255,255,0) 46%),
+                      radial-gradient(circle at 86% 94%, rgba(122,138,94,.10) 0, rgba(122,138,94,0) 44%);
     background-repeat: no-repeat, no-repeat; }
-  @media (min-width: 780px) {
-    .om-bg { background-size: auto, 100% auto; background-position: center, center 42%; }
-  }
 </style>
 </helmet>
 
@@ -148,6 +144,16 @@
         <div style="background:rgba(255,255,255,.18); border-radius:var(--radius-md); padding:12px 14px; margin-top:14px">
           <div style="font-family:var(--font-body); font-size:11px; font-weight:700; opacity:.85; margin-bottom:6px">きょうの集合</div>
           <input class="input" placeholder="例：08:00 宿のロビー" value="{{ todayCard.meet }}" onChange="{{ todayCard.onMeet }}" style="background:rgba(255,255,255,.92)">
+          <sc-if value="{{ meetNoticeOn }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:9px; border-radius:var(--radius-md); background:rgba(255,255,255,.92); padding:11px 13px; display:grid; gap:8px">
+              <div style="font-family:var(--font-body); font-size:11.5px; font-weight:700; color:var(--color-neutral-900); white-space:pre-line; text-wrap:pretty">{{ meetNoticeText }}</div>
+              <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-600); text-wrap:pretty">サイトを閉じている人には通知が届きません。LINEで伝えてください。</div>
+              <div style="display:flex; gap:7px; flex-wrap:wrap">
+                <button type="button" onClick="{{ meetLineGo }}" style="cursor:pointer; border:0; border-radius:999px; padding:8px 16px; background:#06C755; color:#FFFFFF; font-family:var(--font-body); font-size:12.5px; font-weight:700">{{ meetLineLabel }}</button>
+                <button type="button" onClick="{{ meetNoticeSkip }}" style="cursor:pointer; border:1px solid var(--color-neutral-300); border-radius:999px; padding:8px 16px; background:#FFFFFF; color:var(--color-neutral-700); font-family:var(--font-body); font-size:12.5px; font-weight:700">閉じる</button>
+              </div>
+            </div>
+          </sc-if>
           <div style="font-family:var(--font-body); font-size:10.5px; opacity:.8; margin-top:6px">9人全員に同じ内容が表示されます。</div>
         </div>
 
@@ -188,7 +194,7 @@
       <div style="display:grid; gap:8px; margin-top:10px">
         <sc-if value="{{ todayCard.hasWeather }}" hint-placeholder-val="{{ true }}">
           <div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:14px 16px; box-shadow:var(--shadow-sm)">
-            <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--color-accent-700); margin-bottom:4px">きょうの気温</div>
+            <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:var(--color-accent-700); margin-bottom:4px">2月の気温の目安</div>
             <div style="font-family:var(--font-body); font-size:13px; color:var(--color-neutral-700); text-wrap:pretty">{{ todayCard.weather }}</div>
           </div>
         </sc-if>
@@ -209,7 +215,19 @@
 
     <sc-if value="{{ showTodo }}" hint-placeholder-val="{{ true }}">
       <div style="margin:18px 0 4px">
-        <div style="font-family: var(--font-body); font-size: 22px; letter-spacing: .18em; text-transform: uppercase; color: var(--color-neutral-900); font-weight: 700">To Do List</div>
+        <sc-if value="{{ todoFold }}" hint-placeholder-val="{{ false }}">
+          <div onClick="{{ todoGo }}" style="cursor:pointer; display:flex; align-items:center; gap:10px">
+            <div style="{{ todoCaret }}">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+            <div style="flex:1; min-width:0; font-family: var(--font-body); font-size: 22px; letter-spacing: .18em; text-transform: uppercase; color: var(--color-neutral-900); font-weight: 700">To Do List</div>
+            <div style="flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; color:var(--color-accent-800); background:#FFFCDA; border-radius:999px; padding:3px 10px; white-space:nowrap">{{ todoBadge }}</div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ todoPlain }}" hint-placeholder-val="{{ true }}">
+          <div style="font-family: var(--font-body); font-size: 22px; letter-spacing: .18em; text-transform: uppercase; color: var(--color-neutral-900); font-weight: 700">To Do List</div>
+        </sc-if>
+        <sc-if value="{{ todoBody }}" hint-placeholder-val="{{ true }}">
         <sc-if value="{{ noTodo }}" hint-placeholder-val="{{ false }}">
           <div style="font-family:var(--font-body); font-size:13px; color:var(--color-neutral-600); margin-top:8px; text-wrap:pretty">いま対応が必要なものはありません。</div>
         </sc-if>
@@ -232,6 +250,7 @@
             </div>
           </sc-for>
         </div>
+        </sc-if>
       </div>
     </sc-if>
 
@@ -246,6 +265,24 @@
     
 
     <div style="display:grid; gap:12px; margin-top:20px">
+      <sc-if value="{{ hasChanges }}" hint-placeholder-val="{{ false }}">
+        <div style="border-radius:var(--radius-lg); background:#FFFFFF; box-shadow:var(--shadow-sm); border:1px solid var(--color-accent-300); padding:14px 16px; display:grid; gap:10px; animation:floatUp .28s ease both">
+          <div style="display:flex; align-items:center; gap:10px">
+            <div style="flex:1; min-width:0; font-family:var(--font-body); font-size:14.5px; font-weight:700">前回見たときからの変更</div>
+            <div style="flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; background:var(--color-accent-200); color:var(--color-accent-800); border-radius:999px; padding:3px 10px; white-space:nowrap">{{ changeBadge }}</div>
+          </div>
+          <div style="display:grid; gap:7px">
+            <sc-for list="{{ changeItems }}" as="c" hint-placeholder-count="2">
+              <div onClick="{{ c.go }}" style="cursor:pointer; display:grid; gap:2px; border-radius:14px; background:var(--color-bg); padding:9px 13px">
+                <div style="font-family:var(--font-body); font-size:13px; font-weight:700">{{ c.x }}</div>
+                <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-700); text-wrap:pretty">{{ c.sub }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <button type="button" onClick="{{ changeSeenGo }}" style="justify-self:start; cursor:pointer; border:1px solid var(--color-neutral-300); border-radius:999px; padding:7px 15px; background:#FFFFFF; color:var(--color-neutral-700); font-family:var(--font-body); font-size:12px; font-weight:700">確認した</button>
+        </div>
+      </sc-if>
+
       <sc-if value="{{ hasHomeDues }}" hint-placeholder-val="{{ false }}">
         <div>
           <div onClick="{{ homeDuesGo }}" style="cursor:pointer; display:flex; align-items:baseline; gap:10px; margin-bottom:8px">
@@ -1133,6 +1170,169 @@
   </section>
   </sc-if>
 
+  <sc-if value="{{ isBook }}" hint-placeholder-val="{{ true }}">
+  <section style="animation:floatUp .45s ease both">
+    <h2 style="font-size:22px; margin:18px 0 4px">予約</h2>
+    <p style="font-family:var(--font-body); font-size:14px; color:var(--color-neutral-700); text-wrap:pretty">誰が取るか、いつまでに取るか、番号は何かを管理します。住所や地図は「現地のこと」に置いてください。</p>
+
+    <div style="display:flex; gap:7px; flex-wrap:wrap; margin-top:12px">
+      <sc-for list="{{ bkCounts }}" as="bc" hint-placeholder-count="2">
+        <div style="display:flex; align-items:center; gap:6px">
+          <div style="font-family:var(--font-body); font-size:11.5px; font-weight:700; color:var(--color-neutral-700)">{{ bc.label }}</div>
+          <div style="{{ bc.style }}">{{ bc.text }}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display:flex; gap:7px; flex-wrap:wrap; margin-top:10px">
+      <sc-for list="{{ bkSummary }}" as="bs" hint-placeholder-count="4">
+        <div style="{{ bs.style }}">{{ bs.label }} {{ bs.n }}</div>
+      </sc-for>
+    </div>
+
+    <sc-if value="{{ hasBkAlerts }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:12px; border-radius:var(--radius-lg); background:#FFFFFF; border:1px solid #E3C4BA; padding:13px 15px; display:grid; gap:7px">
+        <div style="font-family:var(--font-body); font-size:13px; font-weight:700; color:#8A2F14">キャンセル期限が近い予約</div>
+        <sc-for list="{{ bkAlerts }}" as="ba" hint-placeholder-count="1">
+          <div style="display:grid; gap:2px">
+            <div style="font-family:var(--font-body); font-size:13px; font-weight:700">{{ ba.x }}</div>
+            <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-700)">{{ ba.sub }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <div style="margin-top:14px; border-radius:var(--radius-lg); background:var(--color-surface); box-shadow:var(--shadow-sm); padding:14px 16px; display:grid; gap:9px">
+      <div style="font-family:var(--font-body); font-size:13px; font-weight:700">予約を追加</div>
+      <div style="display:flex; gap:7px; flex-wrap:wrap">
+        <sc-for list="{{ bkKindChips }}" as="kc" hint-placeholder-count="5">
+          <button type="button" onClick="{{ kc.go }}" style="{{ kc.style }}">{{ kc.label }}</button>
+        </sc-for>
+      </div>
+      <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-600)">{{ bkKindNote }}</div>
+      <input class="input" value="{{ bkTitle }}" onChange="{{ onBkTitle }}" placeholder="予約内容" style="background-color:#FFFDF7">
+      <div style="display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:7px">
+        <input class="input" value="{{ bkCity }}" onChange="{{ onBkCity }}" placeholder="都市" style="background-color:#FFFDF7">
+        <input class="input" type="datetime-local" value="{{ bkWhen }}" onChange="{{ onBkWhen }}" style="background-color:#FFFDF7">
+      </div>
+      <button type="button" onClick="{{ bkAddGo }}" style="justify-self:start; cursor:pointer; border:0; border-radius:999px; padding:9px 18px; background:#8A6A2F; color:#FFFFFF; font-family:var(--font-body); font-size:12.5px; font-weight:700">追加する</button>
+      <sc-if value="{{ bkErr }}" hint-placeholder-val="{{ false }}">
+        <div style="font-family:var(--font-body); font-size:11.5px; font-weight:700; color:#8A2F14">{{ bkErr }}</div>
+      </sc-if>
+      <sc-if value="{{ bkMsg }}" hint-placeholder-val="{{ false }}">
+        <div style="font-family:var(--font-body); font-size:11.5px; font-weight:700; color:#2F6B34">{{ bkMsg }}</div>
+      </sc-if>
+    </div>
+
+    <sc-if value="{{ bkEmpty }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:14px; font-family:var(--font-body); font-size:13px; color:var(--color-neutral-600); text-wrap:pretty">まだ予約がありません。交通と宿泊から登録していきましょう。</div>
+    </sc-if>
+
+    <div style="display:grid; gap:9px; margin-top:14px">
+      <sc-for list="{{ bkRows }}" as="bk" hint-placeholder-count="3">
+        <div style="border-radius:var(--radius-lg); background:var(--color-surface); box-shadow:var(--shadow-sm); overflow:hidden">
+          <div onClick="{{ bk.go }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:13px 15px">
+            <div style="{{ bk.caret }}">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+            <div style="flex:1; min-width:0; display:grid; gap:3px">
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap">
+                <sc-for list="{{ bk.kindTags }}" as="kt" hint-placeholder-count="1">
+                  <div style="{{ kt.style }}">{{ kt.label }}</div>
+                </sc-for>
+                <div style="font-family:var(--font-body); font-size:13.5px; font-weight:700; text-wrap:pretty">{{ bk.title }}</div>
+              </div>
+              <div style="font-family:var(--font-body); font-size:11.5px; color:var(--color-neutral-600); text-wrap:pretty">{{ bk.meta }}</div>
+            </div>
+            <div style="{{ bk.stStyle }}">{{ bk.stLabel }}</div>
+          </div>
+          <sc-if value="{{ bk.open }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:0 15px 15px; display:grid; gap:9px; animation:floatUp .24s ease both">
+              <div style="display:flex; gap:6px; flex-wrap:wrap">
+                <sc-for list="{{ bk.kindEdit }}" as="ke" hint-placeholder-count="5">
+                  <button type="button" onClick="{{ ke.go }}" style="{{ ke.style }}">{{ ke.label }}</button>
+                </sc-for>
+              </div>
+              <input class="input" value="{{ bk.fTitle }}" onChange="{{ bk.onTitle }}" placeholder="予約内容" style="background-color:#FFFDF7; font-size:12.5px">
+              <div style="display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:7px">
+                <input class="input" type="datetime-local" value="{{ bk.fWhen }}" onChange="{{ bk.onWhen }}" style="background-color:#FFFDF7; font-size:12.5px">
+                <input class="input" value="{{ bk.fCity }}" onChange="{{ bk.onCity }}" placeholder="都市" style="background-color:#FFFDF7; font-size:12.5px">
+              </div>
+              <div style="display:grid; grid-template-columns:minmax(0,1fr) 92px; gap:7px">
+                <input class="input" value="{{ bk.fWho }}" onChange="{{ bk.onWho }}" placeholder="担当者（名前の一部で検索）" style="background-color:#FFFDF7; font-size:12.5px">
+                <input class="input" value="{{ bk.fN }}" onChange="{{ bk.onN }}" placeholder="人数" inputMode="numeric" style="background-color:#FFFDF7; font-size:12.5px">
+              </div>
+              <div style="display:flex; gap:6px; flex-wrap:wrap">
+                <sc-for list="{{ bk.whoHits }}" as="wh" hint-placeholder-count="0">
+                  <button type="button" onClick="{{ wh.go }}" style="{{ wh.style }}">{{ wh.label }}</button>
+                </sc-for>
+              </div>
+              <sc-if value="{{ bk.whoWarn }}" hint-placeholder-val="{{ false }}">
+                <div style="font-family:var(--font-body); font-size:10.5px; color:#8A5A18">メンバー名と一致していません。候補から選ぶと立替の支払者として扱われます。</div>
+              </sc-if>
+              <div style="display:grid; gap:4px">
+                <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:#6B5527">予約の期限 / キャンセル期限</div>
+                <div style="display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:7px">
+                  <input class="input" type="date" value="{{ bk.fDue }}" onChange="{{ bk.onDue }}" style="background-color:#FFFDF7; font-size:12.5px">
+                  <input class="input" type="date" value="{{ bk.fCancel }}" onChange="{{ bk.onCancel }}" style="background-color:#FFFDF7; font-size:12.5px">
+                </div>
+              </div>
+              <input class="input" value="{{ bk.fCode }}" onChange="{{ bk.onCode }}" placeholder="確認番号・予約番号" style="background-color:#FFFDF7; font-size:12.5px">
+              <div style="display:grid; grid-template-columns:minmax(0,1fr) 92px; gap:7px">
+                <input class="input" value="{{ bk.fAmt }}" onChange="{{ bk.onAmt }}" placeholder="金額" inputMode="decimal" style="background-color:#FFFDF7; font-size:12.5px">
+                <select class="input" value="{{ bk.fCur }}" onChange="{{ bk.onCur }}" style="background-color:#FFFDF7; font-size:12.5px">
+                  <option value="EUR">EUR</option>
+                  <option value="GBP">GBP</option>
+                  <option value="JPY">JPY</option>
+                  <option value="USD">USD</option>
+                  <option value="SGD">SGD</option>
+                </select>
+              </div>
+              <input class="input" value="{{ bk.fUrl }}" onChange="{{ bk.onUrl }}" placeholder="予約サイトのURL" style="background-color:#FFFDF7; font-size:12.5px">
+              <textarea class="input" value="{{ bk.fMemo }}" onChange="{{ bk.onMemo }}" placeholder="メモ" rows="2" style="background-color:#FFFDF7; font-size:12.5px; resize:vertical"></textarea>
+
+              <div style="display:grid; gap:5px">
+                <div style="font-family:var(--font-body); font-size:11px; font-weight:700; color:#6B5527">対象メンバー（{{ bk.memberNote }}）</div>
+                <div style="display:flex; gap:6px; flex-wrap:wrap">
+                  <sc-for list="{{ bk.whoChips }}" as="wc" hint-placeholder-count="9">
+                    <button type="button" onClick="{{ wc.go }}" style="{{ wc.style }}">{{ wc.label }}</button>
+                  </sc-for>
+                </div>
+              </div>
+
+              <div onClick="{{ bk.noSplitGo }}" style="cursor:pointer; display:flex; align-items:flex-start; gap:9px; border-radius:14px; background:#FBF7EC; padding:10px 12px">
+                <div style="{{ bk.noSplitBox }}">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
+                <div style="flex:1; min-width:0; display:grid; gap:2px">
+                  <div style="font-family:var(--font-body); font-size:12.5px; font-weight:700; color:#6B5527">割り勘に送らない</div>
+                  <div style="font-family:var(--font-body); font-size:11px; color:var(--color-neutral-600); text-wrap:pretty">{{ bk.noSplitNote }}</div>
+                </div>
+              </div>
+
+              <div style="display:flex; gap:7px; flex-wrap:wrap; align-items:center">
+                <sc-if value="{{ bk.hasNext }}" hint-placeholder-val="{{ true }}">
+                  <button type="button" onClick="{{ bk.nextGo }}" style="cursor:pointer; border:0; border-radius:999px; padding:8px 16px; background:#2F6B34; color:#FFFFFF; font-family:var(--font-body); font-size:12px; font-weight:700">{{ bk.nextLabel }}</button>
+                </sc-if>
+                <sc-if value="{{ bk.hasBack }}" hint-placeholder-val="{{ false }}">
+                  <button type="button" onClick="{{ bk.backGo }}" style="cursor:pointer; border:1px solid var(--color-neutral-300); border-radius:999px; padding:8px 16px; background:#FFFFFF; color:var(--color-neutral-700); font-family:var(--font-body); font-size:12px; font-weight:700">{{ bk.backLabel }}</button>
+                </sc-if>
+                <sc-if value="{{ bk.hasUrl }}" hint-placeholder-val="{{ false }}">
+                  <a href="{{ bk.urlHref }}" target="_blank" rel="noopener" style="text-decoration:none; border:1px solid #DDD2B8; border-radius:999px; padding:8px 16px; background:#FFFFFF; color:#6B5527; font-family:var(--font-body); font-size:12px; font-weight:700">予約サイトを開く</a>
+                </sc-if>
+                <button type="button" onClick="{{ bk.delGo }}" style="cursor:pointer; border:1px solid #E3C4BA; border-radius:999px; padding:8px 16px; background:#FFFFFF; color:#8A2F14; font-family:var(--font-body); font-size:12px; font-weight:700">削除</button>
+              </div>
+              <sc-if value="{{ bk.sentNote }}" hint-placeholder-val="{{ false }}">
+                <div style="font-family:var(--font-body); font-size:10.5px; font-weight:700; color:#2C4A80">{{ bk.sentNote }}</div>
+              </sc-if>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+  </sc-if>
+
   <sc-if value="{{ isCost }}" hint-placeholder-val="{{ true }}">
   <section style="animation:floatUp .45s ease both">
     <h2 style="font-size:22px; margin:18px 0 4px">費用・割り勘</h2>
@@ -1753,7 +1953,28 @@
         </sc-for>
       </div>
 
-      <div style="margin-top:12px; border-radius:var(--radius-lg); overflow:hidden; background:#E7FCFB; box-shadow:var(--shadow-sm)">
+      <div style="margin-top:12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+        <button type="button" onClick="{{ gWxGo }}" style="cursor:pointer; border:1px solid #9FDEDA; border-radius:999px; padding:6px 14px; background:#FFFFFF; color:#1F5350; font-family:var(--font-body); font-size:11.5px; font-weight:700; display:flex; align-items:center; gap:6px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+          今日の天気
+        </button>
+        <div style="font-family:var(--font-body); font-size:10.5px; color:var(--color-neutral-600)">{{ gWxCityNote }}</div>
+      </div>
+      <sc-if value="{{ gWxOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:8px; border-radius:var(--radius-lg); background:#FFFFFF; border:1px solid #9FDEDA; padding:12px 14px; display:grid; gap:7px; animation:floatUp .24s ease both">
+          <sc-if value="{{ gWxLoading }}" hint-placeholder-val="{{ true }}">
+            <div style="font-family:var(--font-body); font-size:12px; color:#1F5350; font-weight:700">取得中…</div>
+          </sc-if>
+          <sc-for list="{{ gWxRows }}" as="w" hint-placeholder-count="0">
+            <div style="display:flex; align-items:baseline; gap:10px">
+              <div style="flex:none; width:74px; font-family:var(--font-body); font-size:11px; font-weight:700; color:#1F5350">{{ w.k }}</div>
+              <div style="flex:1; min-width:0; font-family:var(--font-body); font-size:13px; color:var(--color-neutral-800); text-wrap:pretty">{{ w.v }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <div style="margin-top:8px; border-radius:var(--radius-lg); overflow:hidden; background:#E7FCFB; box-shadow:var(--shadow-sm)">
         <div ref="{{ gMapRef }}" style="width:100%; height:300px; background:#DCF6F5"></div>
         <div style="display:flex; align-items:center; gap:9px; padding:9px 13px; flex-wrap:wrap">
           <div style="flex:1 1 120px; min-width:0; font-family:var(--font-body); font-size:11.5px; font-weight:700; color:#1F5350">{{ gCityName }}</div>
@@ -2411,6 +2632,7 @@ const TABS = [
   { id:"route", label:"検討・投票", theme:"#ecf4d9", btn:"#ecf4d9", hue:126, chroma:0.055 },
   { id:"plan",  label:"日程表",     theme:"#EEF7FF", btn:"#EEF7FF", hue:262, chroma:0.050 },
   { id:"prep",  label:"準備",       theme:"#FFF0F9", btn:"#FFF0F9", hue:350, chroma:0.055 },
+  { id:"book",  label:"予約",       theme:"#F5EEDC", btn:"#F5EEDC", hue:78,  chroma:0.038 },
   { id:"local", label:"現地のこと", theme:"#E7FCFB", btn:"#E7FCFB", hue:192, chroma:0.045 },
   { id:"cost",  label:"費用・割り勘", theme:"#E6E6FA", btn:"#E6E6FA", hue:278, chroma:0.035 },
   { id:"config", label:"設定",      theme:"#efefef", btn:"#efefef", hue:80,  chroma:0.006 }
@@ -2631,8 +2853,28 @@ const GUIDE_PRESETS = [
   { name:"その他行きたい場所", kind:"place" }
 ];
 
-const SHARED_KEYS = ["ballots","notes","deadlines","members","lineUrl","reads","meets","lodging","plans","hidden","booked","addBook","foodNotes","spotNotes","confirms","userLinks","themeAdds","themeEdits","themeDel","myTodos","todoEdits","bookEdits","resetV","todoWho","notifyOff","expenses","settledTx","settlements","payDue","defer","nudges","txKeyV","exDel","doneBy","adminCred","exResetV","planLog","delMsgs","guides","mapKey","geo","dayTitles","aiPlans","cityAdds","cityDel"];
+const SHARED_KEYS = ["ballots","notes","deadlines","members","lineUrl","reads","meets","lodging","plans","hidden","booked","addBook","foodNotes","spotNotes","confirms","userLinks","themeAdds","themeEdits","themeDel","myTodos","todoEdits","bookEdits","resetV","todoWho","notifyOff","expenses","settledTx","settlements","payDue","defer","nudges","txKeyV","exDel","doneBy","adminCred","exResetV","planLog","delMsgs","guides","mapKey","geo","dayTitles","aiPlans","cityAdds","cityDel","bookings"];
 const PAY_DUE_DEFAULT = "2027-03-11T23:59";
+// 項目ごとに積み上げていく共有データ。丸ごと上書きでなく、差分だけを送る
+const MERGE_KEYS = ["plans", "dayTitles", "lodging", "meets", "notes", "foodNotes", "spotNotes",
+  "guides", "hidden", "booked", "confirms", "doneBy", "ballots", "deadlines", "todoWho",
+  "todoEdits", "bookEdits", "cityAdds", "cityDel", "aiPlans", "planLog", "delMsgs", "defer",
+  "nudges", "settledTx", "notifyOff", "themeEdits", "bookings"];
+
+// 予約の種類。交通と宿泊は必須、他は適宜追加
+const BOOK_KINDS = [
+  { id:"transit", label:"交通",   color:"#E2EEF6", must:true },
+  { id:"stay",    label:"宿泊",   color:"#F3E7F1", must:true },
+  { id:"food",    label:"食事",   color:"#FBE7DC" },
+  { id:"spot",    label:"観光",   color:"#E4F1E4" },
+  { id:"other",   label:"その他", color:"#EDEAE2" }
+];
+const BOOK_STATUS = [
+  { id:"todo",   label:"未予約",   bg:"#FBE3E3", fg:"#8A2222" },
+  { id:"check",  label:"検討中",   bg:"#FBF0DC", fg:"#8A5A18" },
+  { id:"booked", label:"予約済み", bg:"#E2F0E2", fg:"#2F6B34" },
+  { id:"paid",   label:"支払済み", bg:"#E4EAF6", fg:"#2C4A80" }
+];
 const TRIP_YEAR = 2027;
 const TRIP_START = "2027-02-13";
 const TRIP_END = "2027-02-25";
@@ -2732,6 +2974,165 @@ class Component extends DCLogic {
       else dirty = true;
     });
     if (dirty) this.save({ dayTitles:next });
+  }
+
+  // 集合の変更。変えた本人に「LINEで知らせる」を出す（閉じている人には通知が届かないため）
+  setMeet(date, v) {
+    const before = String((this.state.meets || {})[date] || "").trim();
+    const after = String(v == null ? "" : v).trim();
+    this.save({ meets:Object.assign({}, this.state.meets, { [date]:v }) });
+    if (after === before) return;
+    this.setState({ meetNotice:{ date:date, before:before, after:after } });
+  }
+
+  meetNoticeText() {
+    const n = this.state.meetNotice;
+    if (!n) return "";
+    const head = "【集合の変更】" + n.date;
+    if (!n.after) return head + "\n" + (n.before || "") + " → 取り消し";
+    if (!n.before) return head + "\n" + n.after;
+    return head + "\n" + n.before + " → " + n.after;
+  }
+
+  tellLine() {
+    const text = this.meetNoticeText();
+    if (!text) return;
+    const url = String(this.state.lineUrl || "").trim();
+    const open = () => {
+      this.setState({ meetNotice:null });
+      if (url) { try { window.open(url, "_blank"); } catch (e) {} }
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(open).catch(open);
+    } else open();
+  }
+
+  // 前回見たときからの変更（集合・日程・日付タイトル）。この端末だけの記録
+  changeSnap() {
+    const meets = {}, plans = {}, titles = {};
+    const m = this.state.meets || {};
+    Object.keys(m).forEach(k => { if (String(m[k] || "").trim()) meets[k] = String(m[k]).trim(); });
+    const p = this.state.plans || {};
+    Object.keys(p).forEach(k => { plans[k] = JSON.stringify(p[k]); });
+    const t = this.state.dayTitles || {};
+    Object.keys(t).forEach(k => { titles[k] = String(t[k] || "").trim(); });
+    return { meets:meets, plans:plans, titles:titles };
+  }
+
+  changeList() {
+    if (!this.syncReady()) return [];
+    const seen = this.state.seen;
+    if (!seen) return [];
+    const now = this.changeSnap();
+    const out = [];
+    const dayOf = key => String(key || "").split("|").pop();
+    Object.keys(now.meets).forEach(d => {
+      if (seen.meets && seen.meets[d] === now.meets[d]) return;
+      out.push({ x:d + " の集合", sub:now.meets[d], tab:"home" });
+    });
+    Object.keys(seen.meets || {}).forEach(d => {
+      if (!now.meets[d]) out.push({ x:d + " の集合", sub:"取り消されました", tab:"home" });
+    });
+    Object.keys(now.plans).forEach(k => {
+      if (seen.plans && seen.plans[k] === now.plans[k]) return;
+      out.push({ x:dayOf(k) + " の予定", sub:"内容が変わりました", tab:"days" });
+    });
+    Object.keys(now.titles).forEach(k => {
+      if (seen.titles && seen.titles[k] === now.titles[k]) return;
+      out.push({ x:dayOf(k) + " のタイトル", sub:now.titles[k], tab:"days" });
+    });
+    return out.slice(0, 8);
+  }
+
+  markSeen() { this.setState({ seen:this.changeSnap() }); }
+
+  // ---- 予約 ----
+  bookRows() {
+    const b = this.state.bookings || {};
+    return Object.keys(b).map(k => b[k]).filter(Boolean)
+      .sort((x, y) => {
+        const a = String(x.when || "9999"), c = String(y.when || "9999");
+        if (a !== c) return a < c ? -1 : 1;
+        return Number(x.at || 0) - Number(y.at || 0);
+      });
+  }
+
+  bookWrite(id, patch) {
+    const b = Object.assign({}, this.state.bookings || {});
+    if (!b[id]) return;
+    b[id] = Object.assign({}, b[id], patch);
+    this.save({ bookings:b });
+  }
+
+  bookKinds(r) {
+    const list = (r && Array.isArray(r.kinds) && r.kinds.length) ? r.kinds : [(r && r.kind) || "other"];
+    return BOOK_KINDS.filter(k => list.indexOf(k.id) >= 0);
+  }
+
+  bookAdd() {
+    const s = this.state;
+    const title = String(s.bkTitle || "").trim();
+    if (!title) { this.setState({ bkErr:"予約内容を入力してください。" }); return; }
+    const kinds = (s.bkKinds && s.bkKinds.length) ? s.bkKinds.slice() : ["transit"];
+    const id = "bk" + Date.now();
+    const b = Object.assign({}, s.bookings || {});
+    b[id] = {
+      id:id, kind:kinds[0], kinds:kinds, title:title,
+      city:String(s.bkCity || "").trim(), when:String(s.bkWhen || ""),
+      status:"todo", n:"", who:"", due:"", cancel:"", code:"", amt:"", cur:"EUR",
+      url:"", memo:"", members:[], at:Date.now(), by:this.activeMe()
+    };
+    this.save({ bookings:b });
+    this.setState({ bkTitle:"", bkCity:"", bkWhen:"", bkErr:"", bkOpen:id });
+  }
+
+  bookDel(r) {
+    if (typeof window !== "undefined" && window.confirm
+        && !window.confirm("「" + r.title + "」を削除します。よろしいですか？")) return;
+    const b = Object.assign({}, this.state.bookings || {});
+    delete b[r.id];
+    this.save({ bookings:b });
+  }
+
+  // 予約済みになった時点で、金額が入っていれば立替記録へ自動で送る
+  bookStatus(r, st) {
+    const patch = { status:st };
+    const amt = Number(String(r.amt || "").replace(/[^0-9.]/g, ""));
+    // 各自が自分の分を決済したものは、割り勘に送ると誤った貸借が生まれる
+    const needSend = (st === "booked" || st === "paid") && !r.sentEx && !r.noSplit && amt > 0;
+    if (needSend) {
+      patch.sentEx = true;
+      const cur = r.cur || "EUR";
+      const who = r.who || this.activeMe();
+      const label = this.bookKinds(r).map(k => k.label).join("・") || "予約";
+      this.save({ expenses:(this.state.expenses || []).concat({
+        id:"e" + Date.now(), who:who, amt:amt, cur:cur,
+        rate: this.fxRates()[cur] || 1,
+        rateSrc: (cur === "JPY" || this.state.fxAt) ? "live" : "ref",
+        mode:"pool",
+        x:"[" + label + "] " + r.title,
+        for:(r.members || []).slice(),
+        roster: this.roster().slice(),
+        due: null, ts: Date.now(), edits:0, log:[]
+      }) });
+    }
+    this.bookWrite(r.id, patch);
+    if (needSend) this.setState({ bkMsg:"「" + r.title + "」を立替記録に送りました。" });
+  }
+
+  // キャンセル期限が近いもの（7日以内、または過ぎたもの）
+  bookCancelSoon() {
+    const lim = Date.now() + 7 * 86400000;
+    return this.bookRows().filter(r => {
+      if (!r.cancel) return false;
+      if (r.status === "todo") return false;
+      const t = new Date(String(r.cancel).replace(/-/g, "/").replace("T", " ")).getTime();
+      return isFinite(t) && t <= lim;
+    });
+  }
+
+  bookKindCount(kind) {
+    return this.bookRows().filter(r => this.bookKinds(r).some(k => k.id === kind)).length;
   }
 
   planOf(rid, d) {
@@ -2857,16 +3258,19 @@ class Component extends DCLogic {
     catch (e) { return; }
     this.setState({ sync:"connecting" });
 
-    this.db.from("trip_kv").select("k,v").then(({ data, error }) => {
-      if (error) { this.setState({ sync:"error" }); return; }
-      const patch = {};
-      (data || []).forEach(r => { if (SHARED_KEYS.indexOf(r.k) >= 0) patch[r.k] = r.v; });
-      if (patch.members && (!patch.members.length)) delete patch.members;
-      this.setState(Object.assign({ sync:"on" }, patch));
-    });
+    // 取得に失敗したまま放置すると、この端末の書き込みが一切届かなくなるので、
+    // 再試行と、復帰・再表示のタイミングでの再取得を仕掛けておく
+    this.loadShared(0);
+    try {
+      const wake = () => { if (!this.kvLoaded) this.loadShared(0); };
+      window.addEventListener("online", wake);
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") wake();
+      });
+    } catch (e) {}
 
-    this.db.from("trip_messages").select("*").order("created_at", { ascending:true }).limit(500)
-      .then(({ data }) => { if (data) this.setState({ chat:data }); });
+    this.db.from("trip_messages").select("*").order("created_at", { ascending:false }).limit(500)
+      .then(({ data }) => { if (data) this.setState({ chat:data.slice().reverse() }); });
 
     this.db.channel("trip")
       .on("postgres_changes", { event:"*", schema:"public", table:"trip_kv" }, p => {
@@ -2874,15 +3278,23 @@ class Component extends DCLogic {
         if (!r || SHARED_KEYS.indexOf(r.k) < 0) return;
         const mineAt = (this.sentAt || {})[r.k];
         if (mineAt && r.updated_at && r.updated_at <= mineAt) return;
+        this.remoteV = this.remoteV || {};
+        this.remoteV[r.k] = r.v;
         // 立替と精算は行ごとに突き合わせる（同時入力で片方が消えないように）
         if (r.k === "expenses" || r.k === "settlements" || r.k === "exDel") {
           const mine = this.state[r.k] || [];
           const remote = Array.isArray(r.v) ? r.v : [];
+          // 削除済みの id（exDel が墓標。これを見ないと、まだ手元に持っている端末が
+          // 突き合わせのときに消えた行を書き戻してしまい、削除が永久に効かない）
+          const dead = {};
+          const delLog = (r.k === "exDel" && Array.isArray(r.v)) ? r.v : (this.state.exDel || []);
+          (delLog || []).forEach(d => { if (d && d.id) dead[d.id] = 1; });
+          const buried = id => r.k === "expenses" && dead[id];
           const byId = {};
-          remote.forEach(x => { if (x && x.id) byId[x.id] = x; });
+          remote.forEach(x => { if (x && x.id && !buried(x.id)) byId[x.id] = x; });
           let added = 0;
           mine.forEach(x => {
-            if (!x || !x.id) return;
+            if (!x || !x.id || buried(x.id)) return;
             const o = byId[x.id];
             if (!o) { byId[x.id] = x; added++; return; }
             // 同じ行なら編集回数が多いほうを残す
@@ -2906,13 +3318,117 @@ class Component extends DCLogic {
       .subscribe();
   }
 
-  push(patch) {
+  // 共有データを一度も受け取っていない間は、この端末の状態を真に受けてはいけない。
+  // 新しい端末の空の初期値を全員に押し付けてしまうため
+  loadShared(n) {
     if (!this.db) return;
+    if (this.kvT) { clearTimeout(this.kvT); this.kvT = null; }
+    if (!this.kvLoaded) this.setState({ sync:"connecting" });
+    this.db.from("trip_kv").select("k,v").then(({ data, error }) => {
+      if (error) {
+        this.setState({ sync:"error" });
+        const wait = Math.min(30000, 1500 * Math.pow(2, n || 0));
+        this.kvT = setTimeout(() => this.loadShared((n || 0) + 1), wait);
+        return;
+      }
+      const patch = {};
+      (data || []).forEach(r => { if (SHARED_KEYS.indexOf(r.k) >= 0) patch[r.k] = r.v; });
+      if (patch.members && (!patch.members.length)) delete patch.members;
+      // 削除済みの立替が残っていたら、読み込みの時点で落とす
+      if (Array.isArray(patch.expenses)) {
+        const dead = {};
+        (Array.isArray(patch.exDel) ? patch.exDel : (this.state.exDel || []))
+          .forEach(d => { if (d && d.id) dead[d.id] = 1; });
+        patch.expenses = patch.expenses.filter(x => !(x && dead[x.id]));
+      }
+      // 届いた共有値を覚えておく。送るときに「自分が変えた項目」を見分ける基準になる
+      this.remoteV = Object.assign({}, this.remoteV || {}, patch);
+      // 届く前にこの端末で触った項目は、届いた値で上書きせずこちらを送る
+      const q = Object.keys(this.pendQ || {});
+      q.forEach(k => { delete patch[k]; });
+      // 共有データが届いた印。これが立つまでは一切書き戻してはいけない
+      this.kvLoaded = true;
+      this.setState(Object.assign({ sync:"on" }, patch), () => {
+        // 初めて届いたときの内容を「見たことにする」。新しい端末で全件が変更扱いにならないよう
+        if (!this.state.seen) this.setState({ seen:this.changeSnap() });
+        if (!q.length) return;
+        this.pendQ = null;
+        const out = {};
+        // 届く前の変更は「追加」としてしか扱わない。
+        // 共有値を知らない端末には、何かが削除されたと主張する根拠がない
+        q.forEach(k => {
+          out[k] = MERGE_KEYS.indexOf(k) >= 0
+            ? Object.assign({}, (this.remoteV || {})[k] || {}, this.state[k] || {})
+            : this.state[k];
+        });
+        this.setState(out);
+        this.push(out, true);
+      });
+    }).catch(() => {
+      this.setState({ sync:"error" });
+      this.kvT = setTimeout(() => this.loadShared((n || 0) + 1), Math.min(30000, 1500 * Math.pow(2, n || 0)));
+    });
+  }
+
+  syncReady() {
+    const cfg = (typeof window !== "undefined" && window.TRIP_SUPABASE) || {};
+    if (cfg.url && cfg.anonKey) return this.kvLoaded === true;
+    return true;
+  }
+
+  push(patch, additive) {
+    if (!this.db) return;
+    // 共有データが届く前の書き込みは送らずに覚えておき、届いたときにまとめて送る
+    if (!this.syncReady()) {
+      this.pendQ = this.pendQ || {};
+      Object.keys(patch || {}).forEach(k => { if (SHARED_KEYS.indexOf(k) >= 0) this.pendQ[k] = 1; });
+      return;
+    }
     this.sentAt = this.sentAt || {};
     const stamp = new Date().toISOString();
-    const rows = Object.keys(patch).filter(k => SHARED_KEYS.indexOf(k) >= 0)
-      .map(k => { this.sentAt[k] = stamp; return { k:k, v:patch[k], updated_at:stamp }; });
+    const keys = Object.keys(patch).filter(k => SHARED_KEYS.indexOf(k) >= 0);
+    const rows = [];
+    keys.forEach(k => {
+      // 日程表のような「項目ごとの入れ物」は、丸ごと上書きすると
+      // 同時に他の人が直した別の日が消える。変えた項目だけを差し換える
+      if (MERGE_KEYS.indexOf(k) >= 0) { this.pushMerged(k, patch[k], additive); return; }
+      this.sentAt[k] = stamp;
+      rows.push({ k:k, v:patch[k], updated_at:stamp });
+    });
     if (rows.length) this.db.from("trip_kv").upsert(rows).then(() => {});
+  }
+
+  // いまの共有値を読み直してから、この端末が変えた項目だけを上に置いて戻す。
+  // additive のときは削除を一切伝えない（共有値を知らないうちの変更なので）。
+  // 読み直しと書き戻しの間に他の人が書く約200ミリ秒の隙は残る（完全に消すなら
+  // Postgres 側で jsonb をマージする RPC が必要）
+  pushMerged(k, localVal, additive) {
+    const base = (this.remoteV || {})[k] || {};
+    const local = localVal || {};
+    const changed = {}, dropped = [];
+    Object.keys(local).forEach(sk => {
+      if (JSON.stringify(local[sk]) !== JSON.stringify(base[sk])) changed[sk] = local[sk];
+    });
+    if (!additive) Object.keys(base).forEach(sk => { if (!(sk in local)) dropped.push(sk); });
+    if (!Object.keys(changed).length && !dropped.length) return;
+
+    this.db.from("trip_kv").select("v").eq("k", k).maybeSingle().then(({ data }) => {
+      const remote = (data && data.v && typeof data.v === "object") ? data.v : {};
+      const merged = Object.assign({}, remote, changed);
+      dropped.forEach(sk => { delete merged[sk]; });
+      const stamp = new Date().toISOString();
+      this.sentAt = this.sentAt || {};
+      this.sentAt[k] = stamp;
+      this.remoteV = this.remoteV || {};
+      this.remoteV[k] = merged;
+      this.setState({ [k]:merged });
+      this.db.from("trip_kv").upsert([{ k:k, v:merged, updated_at:stamp }]).then(() => {});
+    }).catch(() => {
+      const stamp = new Date().toISOString();
+      this.sentAt = this.sentAt || {};
+      this.sentAt[k] = stamp;
+      this.db.from("trip_kv").upsert([{ k:k, v:local, updated_at:stamp }]).then(() => {});
+    });
   }
 
   // 本文の先頭に [@名前・名前] の形でメンションを埋め込む
@@ -3040,7 +3556,6 @@ class Component extends DCLogic {
   }
 
   componentDidMount() {
-    this.pickBackground();
     setTimeout(() => this.cleanDayTitles(), 1500);
     setTimeout(() => this.cleanDayTitles(), 6000);
     try { if (sessionStorage.getItem("adminOK") === "1") this.setState({ adminOK:true }); } catch (e) {}
@@ -3131,7 +3646,7 @@ class Component extends DCLogic {
   preSlide(tabId) {
     const main = this.trackEl;
     if (!main) return;
-    const DOM = ["home","config","talk","route","plan","prep","cost","local"];
+    const DOM = ["home","config","talk","route","plan","prep","book","cost","local"];
     const ids = TABS.map(t => t.id);
     const n = ids.length;
     const target = ids.indexOf(tabId);
@@ -3172,7 +3687,7 @@ class Component extends DCLogic {
           todoEdits:s.todoEdits, bookEdits:s.bookEdits, privTodos:s.privTodos, resetV:s.resetV,
           payDue:s.payDue, defer:s.defer, nudges:s.nudges, txKeyV:s.txKeyV, exDel:s.exDel, doneBy:s.doneBy,
           adminCred:s.adminCred, exResetV:s.exResetV, planLog:s.planLog, delMsgs:s.delMsgs, guides:s.guides,
-          mapKey:s.mapKey, geo:s.geo
+          mapKey:s.mapKey, geo:s.geo, seen:s.seen, bookings:s.bookings
         }));
       } catch (e) {}
       }, 350);
@@ -3187,6 +3702,7 @@ class Component extends DCLogic {
   // 端末の本人設定と管理者登録を一度だけ初期化する
   // 本人設定のリセットは端末ごとに1回。印を共有すると、1台走った時点で他の端末が飛ばしてしまう
   maybeResetIdentity() {
+    if (!this.syncReady()) return;
     let done = null;
     try { done = localStorage.getItem("idResetV"); } catch (e) {}
     if (done === IDENTITY_RESET) return;
@@ -3203,6 +3719,7 @@ class Component extends DCLogic {
 
   // 立替の記録を一度だけまるごと初期化する（何も立替が発生していない状態に戻す）
   maybeResetExpenses() {
+    if (!this.syncReady()) return;
     if (this.state.exResetV === EXPENSE_RESET) return;
     if (this.state.sync === "connecting") return;
     this.save({ expenses:[], settlements:[], settledTx:{}, defer:{}, nudges:{}, exDel:[],
@@ -3210,6 +3727,7 @@ class Component extends DCLogic {
   }
 
   maybeResetVotes() {
+    if (!this.syncReady()) return;
     if (this.state.resetV === VOTE_RESET) return;
     if (this.state.sync === "connecting") return;
     const openIds = this.themeList(true).filter(t => !this.isClosed(t.id)).map(t => t.id);
@@ -3285,7 +3803,7 @@ class Component extends DCLogic {
   layoutTrack(dx, anim) {
     const main = this.trackEl;
     if (!main) return;
-    const DOM = ["home","config","talk","route","plan","prep","cost","local"];
+    const DOM = ["home","config","talk","route","plan","prep","book","cost","local"];
     const secs = Array.prototype.filter.call(main.children, n => n.tagName === "SECTION");
     const visIds = DOM.filter(id => this.visTab(id));
     main.style.position = "relative";
@@ -3531,6 +4049,7 @@ class Component extends DCLogic {
         this.centerOn(this.confirmEl);
       } catch (e) {}
     }
+    if (this.state.wxOpen && this.visTab("local")) this.loadWx(this.guideCity());
     this.maybeResetVotes();
     this.maybeResetExpenses();
     this.maybeResetIdentity();
@@ -3664,15 +4183,7 @@ class Component extends DCLogic {
     return this.themeList().filter(t => !this.isClosed(t.id) && !this.hasVotedOn(t)).length;
   }
 
-  // 訪問ごとに背景写真をランダムに選ぶ（同一セッション中は固定）
-  pickBackground() {
-    try {
-      const N = 14;
-      let n = sessionStorage.getItem("bgPhoto");
-      if (!n) { n = String(1 + Math.floor(Math.random() * N)); sessionStorage.setItem("bgPhoto", n); }
-      document.documentElement.style.setProperty("--bg-photo", 'url("bg-' + n + '.png")');
-    } catch (e) {}
-  }
+  pickBackground() {}
 
   // 支払い期限：共通期限が既定値。立替1件ごとに上書きできる
   payDueBase() { return this.state.payDue || PAY_DUE_DEFAULT; }
@@ -4254,6 +4765,77 @@ class Component extends DCLogic {
     return out;
   }
 
+  // 現地の今日の天気（Open-Meteo。キー不要、時刻はその都市のタイムゾーンで返る）
+  wxCode(c) {
+    const n = Number(c);
+    if (n === 0) return "快晴";
+    if (n === 1) return "晴れ";
+    if (n === 2) return "薄曇り";
+    if (n === 3) return "曇り";
+    if (n === 45 || n === 48) return "霧";
+    if (n >= 51 && n <= 57) return "霧雨";
+    if (n >= 61 && n <= 65) return "雨";
+    if (n === 66 || n === 67) return "着氷性の雨";
+    if (n >= 71 && n <= 77) return "雪";
+    if (n >= 80 && n <= 82) return "にわか雨";
+    if (n === 85 || n === 86) return "にわか雪";
+    if (n >= 95) return "雷雨";
+    return "—";
+  }
+
+  loadWx(g) {
+    if (!g) return;
+    const key = g.id;
+    const cur = (this.state.wx || {})[key];
+    // 30分以内に取ったものはそのまま使う
+    if (cur && cur.at && Date.now() - cur.at < 1800000) return;
+    if (this.wxBusy && this.wxBusy[key]) return;
+    this.wxBusy = Object.assign({}, this.wxBusy || {}, { [key]:1 });
+    const put = v => {
+      this.wxBusy[key] = 0;
+      this.setState(st => ({ wx:Object.assign({}, st.wx || {}, { [key]:v }) }));
+    };
+    const name = String(g.q || g.city || "").split(",")[0].trim();
+    const fetchWx = (lat, lng) =>
+      fetch("https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lng
+        + "&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code"
+        + "&timezone=auto&forecast_days=1")
+        .then(r => r.json())
+        .then(d => {
+          const c = d && d.current, dy = d && d.daily;
+          if (!c || !dy) { put({ at:Date.now(), err:true }); return; }
+          put({
+            at: Date.now(),
+            city: g.city,
+            now: Math.round(Number(c.temperature_2m)) + "℃",
+            sky: this.wxCode(c.weather_code),
+            hi: Math.round(Number((dy.temperature_2m_max || [])[0])) + "℃",
+            lo: Math.round(Number((dy.temperature_2m_min || [])[0])) + "℃",
+            pop: Number((dy.precipitation_probability_max || [])[0] || 0) + "%",
+            time: String(c.time || "").replace("T", " ").slice(5, 16),
+            tz: String(d.timezone || "")
+          });
+        }).catch(() => put({ at:Date.now(), err:true }));
+
+    const geo = (this.state.wxGeo || {})[key];
+    if (geo) { fetchWx(geo.lat, geo.lng); return; }
+    fetch("https://geocoding-api.open-meteo.com/v1/search?count=1&language=ja&name=" + encodeURIComponent(name))
+      .then(r => r.json())
+      .then(d => {
+        const hit = d && d.results && d.results[0];
+        if (!hit) { put({ at:Date.now(), err:true }); return; }
+        this.setState(st => ({ wxGeo:Object.assign({}, st.wxGeo || {}, { [key]:{ lat:hit.latitude, lng:hit.longitude } }) }));
+        fetchWx(hit.latitude, hit.longitude);
+      }).catch(() => put({ at:Date.now(), err:true }));
+  }
+
+  wxToggle() {
+    const g = this.guideCity();
+    const on = !this.state.wxOpen;
+    this.setState({ wxOpen:on });
+    if (on) this.loadWx(g);
+  }
+
   mapPinsCalc() {
     const g = this.guideCity();
     const out = [];
@@ -4471,6 +5053,27 @@ class Component extends DCLogic {
 
       mapRef: (this._mapRef || (this._mapRef = el => { this.mapEl = el; })),
       needKey: !String(s.mapKey || "").trim(),
+
+      wxOpen: !!s.wxOpen,
+      wxGo: () => this.wxToggle(),
+      wxCity: this.guideCity().city,
+      wxCityNote: this.guideCity().city + "の現地時間",
+      wxRows: (() => {
+        const w = (s.wx || {})[this.guideCity().id];
+        if (!w) return [];
+        if (w.err) return [{ k:"取得できませんでした", v:"通信を確かめてもう一度お試しください" }];
+        return [
+          { k:"天候", v:w.sky },
+          { k:"いま", v:w.now },
+          { k:"最高 / 最低", v:w.hi + " / " + w.lo },
+          { k:"降水確率", v:w.pop },
+          { k:"現地時刻", v:w.time }
+        ];
+      })(),
+      wxLoading: (() => {
+        const w = (s.wx || {})[this.guideCity().id];
+        return !!s.wxOpen && !w;
+      })(),
       mapErr: s.mapAuthErr === true,
       mapErrText: "Google がこのキーを受け付けませんでした。Google Cloud で① Maps JavaScript API の有効化、②請求先アカウントの紐付け、③キーのウェブサイト制限（https://8sgrhrk11.github.io/*）を確認してください。",
       pinCount: pins.length ? (pins.length + " 件を表示中") : "ピンなし",
@@ -5870,6 +6473,15 @@ class Component extends DCLogic {
         return out;
       })(),
       noTodo: !this._todoN,
+      // 旅行中はホームを占領しないようたたんでおく。件数バッジだけは常に見せる
+      todoFold: phase === "during",
+      todoPlain: phase !== "during",
+      todoOpen: !!s.todoOpen,
+      todoBody: phase !== "during" || !!s.todoOpen,
+      todoBadge: String(this._todoN || 0) + " 件",
+      todoGo: () => this.setState({ todoOpen: !s.todoOpen }),
+      todoCaret: "flex:none; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; color:var(--color-accent-700); background:#FFFCDA; transition:transform .22s ease; transform:rotate("
+        + (s.todoOpen ? "90deg" : "0deg") + ")",
       todayCard: (() => {
         if (phase !== "during") return null;
         const i = todayIdx;
@@ -5896,7 +6508,7 @@ class Component extends DCLogic {
           })),
           hasPlan: eff.length > 0,
           meet: (s.meets || {})[d.date] || "",
-          onMeet: e => this.save({ meets:Object.assign({}, this.state.meets, { [d.date]:e.target.value }) }),
+          onMeet: e => this.setMeet(d.date, e.target.value),
           lodgeName: lg.name || "", lodgeIn: lg.addr || "", lodgeOut: lg.checkin || "", lodgeMap: lg.map || "",
           hasLodgeIn: !!String(lg.addr || "").trim(),
           hasLodgeOut: !!String(lg.checkin || "").trim(),
@@ -5942,7 +6554,7 @@ class Component extends DCLogic {
       syncOn: s.sync === "on",
       syncLabel: s.sync === "on" ? "共有中 · 9人の入力がリアルタイムで反映されます"
                : s.sync === "connecting" ? "接続中…"
-               : s.sync === "error" ? "接続できません。supabase-config.js の設定を確認してください"
+               : s.sync === "error" ? "つながりません。この端末に一時保存しています。電波が戻ると自動で送ります"
                : "この端末のみ · 共有するには supabase-config.js を設定してください",
       syncStyle: "font-family:var(--font-body); font-size:11.5px; font-weight:700; border-radius:999px; padding:5px 13px; display:inline-block; "
         + (s.sync === "on" ? "background:var(--color-accent-2-200); color:var(--color-accent-2-800)"
@@ -6102,6 +6714,139 @@ class Component extends DCLogic {
       }),
       hasMemos: (s.memos || []).length > 0,
       isPrep: this.visTab("prep"), isLocal: this.visTab("local"),
+      isBook: this.visTab("book"),
+
+      bkKind: s.bkKind || "transit",
+      bkKindChips: BOOK_KINDS.map(k => ({
+        label: k.label,
+        go: () => {
+          const cur = (s.bkKinds || ["transit"]).slice();
+          const i = cur.indexOf(k.id);
+          if (i >= 0) cur.splice(i, 1); else cur.push(k.id);
+          this.setState({ bkKinds:cur });
+        },
+        style: "cursor:pointer; border-radius:999px; padding:7px 15px; font-family:var(--font-body); font-size:12.5px; font-weight:700; outline:none; "
+          + ((s.bkKinds || ["transit"]).indexOf(k.id) >= 0
+             ? "border:1px solid #8A6A2F; background:#8A6A2F; color:#FFFFFF"
+             : "border:1px solid #DDD2B8; background:#FFFFFF; color:#6B5527")
+      })),
+      bkKindNote: "複数選べます（例：宿泊と交通のセット商品）",
+      bkTitle: s.bkTitle || "",
+      onBkTitle: e => this.setState({ bkTitle:e.target.value, bkErr:"" }),
+      bkCity: s.bkCity || "",
+      onBkCity: e => this.setState({ bkCity:e.target.value }),
+      bkWhen: s.bkWhen || "",
+      onBkWhen: e => this.setState({ bkWhen:e.target.value }),
+      bkAddGo: () => this.bookAdd(),
+      bkErr: s.bkErr || "",
+      bkMsg: s.bkMsg || "",
+      bkCounts: BOOK_KINDS.filter(k => k.must).map(k => ({
+        label: k.label,
+        text: this.bookKindCount(k.id) ? (this.bookKindCount(k.id) + " 件") : "未登録",
+        style: "font-family:var(--font-body); font-size:10.5px; font-weight:700; border-radius:999px; padding:3px 10px; white-space:nowrap; "
+          + (this.bookKindCount(k.id) ? "background:#E2F0E2; color:#2F6B34" : "background:#FBE3E3; color:#8A2222")
+      })),
+      bkSummary: BOOK_STATUS.map(st => ({
+        label: st.label,
+        n: String(this.bookRows().filter(r => (r.status || "todo") === st.id).length),
+        style: "font-family:var(--font-body); font-size:10.5px; font-weight:700; border-radius:999px; padding:4px 11px; white-space:nowrap; background:" + st.bg + "; color:" + st.fg
+      })),
+      bkAlerts: this.bookCancelSoon().map(r => ({
+        x: r.title,
+        sub: "キャンセル期限 " + String(r.cancel).replace("T", " ")
+      })),
+      hasBkAlerts: this.bookCancelSoon().length > 0,
+      bkEmpty: this.bookRows().length === 0,
+      bkRows: this.bookRows().map(r => {
+        const kinds = this.bookKinds(r);
+        const st = BOOK_STATUS.filter(x => x.id === (r.status || "todo"))[0] || BOOK_STATUS[0];
+        const open = s.bkOpen === r.id;
+        const idx = BOOK_STATUS.findIndex(x => x.id === (r.status || "todo"));
+        const set = (f, v) => this.bookWrite(r.id, { [f]:v });
+        const set2 = p => this.bookWrite(r.id, p);
+        return {
+          title: r.title,
+          kindTags: kinds.map(k => ({
+            label: k.label,
+            style: "flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; border-radius:999px; padding:2px 9px; white-space:nowrap; background:" + k.color + "; color:#4A3E22"
+          })),
+          kindEdit: BOOK_KINDS.map(k => ({
+            label: k.label,
+            go: () => {
+              const cur = kinds.map(x => x.id);
+              const i = cur.indexOf(k.id);
+              if (i >= 0) cur.splice(i, 1); else cur.push(k.id);
+              const next = cur.length ? cur : ["other"];
+              set2({ kinds:next, kind:next[0] });
+            },
+            style: "cursor:pointer; border-radius:999px; padding:5px 12px; font-family:var(--font-body); font-size:11.5px; font-weight:700; outline:none; "
+              + (kinds.some(x => x.id === k.id)
+                 ? "border:1px solid #8A6A2F; background:#8A6A2F; color:#FFFFFF"
+                 : "border:1px solid #DDD2B8; background:#FFFFFF; color:#6B5527")
+          })),
+          stLabel: st.label,
+          stStyle: "flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; border-radius:999px; padding:2px 9px; white-space:nowrap; background:" + st.bg + "; color:" + st.fg,
+          meta: [r.when ? String(r.when).replace("T", " ") : "日時未定", r.city, r.who ? ("担当 " + r.who) : ""].filter(Boolean).join(" ・ "),
+          go: () => this.setState({ bkOpen: open ? "" : r.id, bkMsg:"" }),
+          open: open,
+          caret: "flex:none; width:20px; height:20px; border-radius:50%; display:grid; place-items:center; color:#6B5527; background:#F0E8D4; transition:transform .2s ease; transform:rotate(" + (open ? "90deg" : "0deg") + ")",
+          nextLabel: idx < 0 || idx >= BOOK_STATUS.length - 1 ? "" : (BOOK_STATUS[idx + 1].label + "にする"),
+          hasNext: idx >= 0 && idx < BOOK_STATUS.length - 1,
+          nextGo: () => { if (idx >= 0 && idx < BOOK_STATUS.length - 1) this.bookStatus(r, BOOK_STATUS[idx + 1].id); },
+          backLabel: idx > 0 ? (BOOK_STATUS[idx - 1].label + "に戻す") : "",
+          hasBack: idx > 0,
+          backGo: () => { if (idx > 0) this.bookWrite(r.id, { status:BOOK_STATUS[idx - 1].id }); },
+          delGo: () => this.bookDel(r),
+          fTitle: r.title, onTitle: e => set("title", e.target.value),
+          fWhen: r.when || "", onWhen: e => set("when", e.target.value),
+          fCity: r.city || "", onCity: e => set("city", e.target.value),
+          fN: r.n || "", onN: e => set("n", e.target.value),
+          fWho: r.who || "", onWho: e => set("who", e.target.value),
+          whoHits: (() => {
+            const q = String(r.who || "").trim();
+            if (!q) return [];
+            const list = this.roster().filter(n => n.indexOf(q) >= 0 && n !== q);
+            return list.slice(0, 6).map(n => ({
+              label: n,
+              go: () => set("who", n),
+              style: "cursor:pointer; border:1px solid #DDD2B8; border-radius:999px; padding:5px 12px; background:#FFFFFF; color:#6B5527; font-family:var(--font-body); font-size:11.5px; font-weight:700; outline:none"
+            }));
+          })(),
+          whoOk: this.roster().indexOf(String(r.who || "").trim()) >= 0,
+          whoWarn: !!String(r.who || "").trim() && this.roster().indexOf(String(r.who || "").trim()) < 0,
+          fDue: r.due || "", onDue: e => set("due", e.target.value),
+          fCancel: r.cancel || "", onCancel: e => set("cancel", e.target.value),
+          fCode: r.code || "", onCode: e => set("code", e.target.value),
+          fAmt: r.amt || "", onAmt: e => set("amt", e.target.value),
+          fCur: r.cur || "EUR", onCur: e => set("cur", e.target.value),
+          fUrl: r.url || "", onUrl: e => set("url", e.target.value),
+          fMemo: r.memo || "", onMemo: e => set("memo", e.target.value),
+          hasUrl: !!String(r.url || "").trim(),
+          urlHref: String(r.url || "").trim(),
+          sentNote: r.sentEx ? "立替記録に送済み" : "",
+          noSplit: !!r.noSplit,
+          noSplitGo: () => set("noSplit", !r.noSplit),
+          noSplitBox: "flex:none; width:20px; height:20px; border-radius:6px; display:grid; place-items:center; border:1px solid "
+            + (r.noSplit ? "#8A6A2F; background:#8A6A2F; color:#FFFFFF" : "#DDD2B8; background:#FFFFFF; color:transparent"),
+          noSplitNote: r.noSplit
+            ? "各自が支払ったものとして扱います。割り勘には送りません"
+            : "予約済みにしたとき、金額を立替記録に送ります",
+          whoChips: this.roster().map(n => ({
+            label: n,
+            go: () => {
+              const cur = (r.members || []).slice();
+              const i = cur.indexOf(n);
+              if (i >= 0) cur.splice(i, 1); else cur.push(n);
+              set("members", cur);
+            },
+            style: "cursor:pointer; border-radius:999px; padding:5px 12px; font-family:var(--font-body); font-size:11.5px; font-weight:700; outline:none; "
+              + ((r.members || []).indexOf(n) >= 0
+                 ? "border:1px solid #8A6A2F; background:#8A6A2F; color:#FFFFFF"
+                 : "border:1px solid #DDD2B8; background:#FFFFFF; color:#6B5527")
+          })),
+          memberNote: (r.members || []).length ? ((r.members || []).length + " 人が対象") : "全員が対象"
+        };
+      }),
 
       isCost: this.visTab("cost"),
       // 選択チップ（フォーカスの黒枠を出さない）
@@ -6483,6 +7228,23 @@ class Component extends DCLogic {
         };
       }),
       hasHomeDues: this.myDues().length > 0 && Date.now() < new Date(2100, 0, 1, 0, 0).getTime(),
+
+      meetNoticeOn: !!s.meetNotice,
+      meetNoticeText: this.meetNoticeText(),
+      meetLineLabel: (s.lineUrl || "").trim() ? "LINEで知らせる" : "文をコビーする",
+      meetLineGo: () => this.tellLine(),
+      meetNoticeSkip: () => this.setState({ meetNotice:null }),
+
+      changeItems: (() => {
+        const list = this.changeList();
+        return list.map(c => ({
+          x: c.x, sub: c.sub,
+          go: () => { this.markSeen(); this.save({ tab:c.tab }); }
+        }));
+      })(),
+      hasChanges: this.changeList().length > 0,
+      changeBadge: "変更 " + this.changeList().length + " 件",
+      changeSeenGo: () => this.markSeen(),
       homeDuesGo: () => this.save({ tab:"cost" }),
       homeDuesMore: this.myDues().length > 5 ? ("ほか " + (this.myDues().length - 5) + " 件") : "",
       hasHomeDuesMore: this.myDues().length > 5,
