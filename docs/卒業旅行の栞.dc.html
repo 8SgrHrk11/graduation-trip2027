@@ -1175,21 +1175,6 @@
     <h2 style="font-size:22px; margin:18px 0 4px">予約</h2>
     <p style="font-family:var(--font-body); font-size:14px; color:var(--color-neutral-700); text-wrap:pretty">誰が取るか、いつまでに取るか、番号は何かを管理します。住所や地図は「現地のこと」に置いてください。</p>
 
-    <div style="display:flex; gap:7px; flex-wrap:wrap; margin-top:12px">
-      <sc-for list="{{ bkCounts }}" as="bc" hint-placeholder-count="2">
-        <div style="display:flex; align-items:center; gap:6px">
-          <div style="font-family:var(--font-body); font-size:11.5px; font-weight:700; color:var(--color-neutral-700)">{{ bc.label }}</div>
-          <div style="{{ bc.style }}">{{ bc.text }}</div>
-        </div>
-      </sc-for>
-    </div>
-
-    <div style="display:flex; gap:7px; flex-wrap:wrap; margin-top:10px">
-      <sc-for list="{{ bkSummary }}" as="bs" hint-placeholder-count="4">
-        <div style="{{ bs.style }}">{{ bs.label }} {{ bs.n }}</div>
-      </sc-for>
-    </div>
-
     <sc-if value="{{ hasBkAlerts }}" hint-placeholder-val="{{ false }}">
       <div style="margin-top:12px; border-radius:var(--radius-lg); background:#FFFFFF; border:1px solid #E3C4BA; padding:13px 15px; display:grid; gap:7px">
         <div style="font-family:var(--font-body); font-size:13px; font-weight:700; color:#8A2F14">キャンセル期限が近い予約</div>
@@ -1228,8 +1213,22 @@
       <div style="margin-top:14px; font-family:var(--font-body); font-size:13px; color:var(--color-neutral-600); text-wrap:pretty">まだ予約がありません。交通と宿泊から登録していきましょう。</div>
     </sc-if>
 
-    <div style="display:grid; gap:9px; margin-top:14px">
-      <sc-for list="{{ bkRows }}" as="bk" hint-placeholder-count="3">
+    <div style="display:grid; gap:11px; margin-top:14px">
+      <sc-for list="{{ bkGroups }}" as="bg" hint-placeholder-count="3">
+      <div>
+        <div onClick="{{ bg.go }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:4px 2px">
+          <div style="{{ bg.caret }}">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </div>
+          <div style="flex:1; min-width:0; font-family:var(--font-body); font-size:14.5px; font-weight:700">{{ bg.label }}</div>
+          <div style="{{ bg.badgeStyle }}">{{ bg.badge }}</div>
+        </div>
+        <sc-if value="{{ bg.open }}" hint-placeholder-val="{{ true }}">
+        <sc-if value="{{ bg.empty }}" hint-placeholder-val="{{ false }}">
+          <div style="font-family:var(--font-body); font-size:12px; color:var(--color-neutral-600); padding:4px 2px 2px">ここに入る予約はありません。</div>
+        </sc-if>
+        <div style="display:grid; gap:9px; margin-top:7px">
+      <sc-for list="{{ bg.rows }}" as="bk" hint-placeholder-count="2">
         <div style="border-radius:var(--radius-lg); background:var(--color-surface); box-shadow:var(--shadow-sm); overflow:hidden">
           <div onClick="{{ bk.go }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:13px 15px">
             <div style="{{ bk.caret }}">
@@ -1328,6 +1327,10 @@
             </div>
           </sc-if>
         </div>
+      </sc-for>
+        </div>
+        </sc-if>
+      </div>
       </sc-for>
     </div>
   </section>
@@ -2021,30 +2024,28 @@
         </sc-if>
       </div>
 
-      <sc-if value="{{ gHasSecs }}" hint-placeholder-val="{{ true }}">
-        <div style="margin-top:12px; display:flex; gap:6px; flex-wrap:wrap">
-          <sc-for list="{{ gSecBtns }}" as="sb" hint-placeholder-count="6">
-            <button type="button" onClick="{{ sb.go }}" style="{{ sb.style }}">{{ sb.label }}</button>
-          </sc-for>
-        </div>
-      </sc-if>
-
-      <sc-if value="{{ gHasSec }}" hint-placeholder-val="{{ true }}">
-        <div style="margin-top:10px; border-radius:var(--radius-lg); background:var(--color-surface); box-shadow:var(--shadow-sm); padding:13px 14px; display:grid; grid-template-columns:minmax(0,1fr); gap:9px">
-          <div style="display:flex; align-items:center; gap:8px">
-            <input class="input" value="{{ gSecTitle }}" onChange="{{ gOnSecTitle }}" placeholder="項目名" style="flex:1 1 0; min-width:0; font-size:14px; font-weight:700; background-color:#F2FEFD; border-radius:999px">
-            <button type="button" onClick="{{ gSecDel }}" title="この項目を削除" style="flex:none; cursor:pointer; width:28px; height:28px; border-radius:999px; border:1px solid #CFF3F1; background:#FFFFFF; color:#3B6866; font-family:var(--font-body); font-size:14px; line-height:1; display:grid; place-items:center">×</button>
+      <div style="margin-top:12px; display:grid; gap:11px">
+      <sc-for list="{{ gSecList }}" as="sx" hint-placeholder-count="3">
+      <div>
+        <div onClick="{{ sx.go }}" style="cursor:pointer; display:flex; align-items:center; gap:10px; padding:4px 2px">
+          <div style="{{ sx.caret }}">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
           </div>
+          <div style="flex:1; min-width:0; font-family:var(--font-body); font-size:14.5px; font-weight:700; color:#123F3D">{{ sx.secTitle }}</div>
+          <div style="flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; border-radius:999px; padding:3px 10px; white-space:nowrap; background:#CFF3F1; color:#1F5350">{{ sx.count }}</div>
+        </div>
 
-          <sc-if value="{{ gRowsEmpty }}" hint-placeholder-val="{{ false }}">
+      <sc-if value="{{ sx.open }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:7px; display:grid; grid-template-columns:minmax(0,1fr); gap:9px">
+          <sc-if value="{{ sx.rowsEmpty }}" hint-placeholder-val="{{ false }}">
             <div style="font-family:var(--font-body); font-size:12px; color:#3B6866; text-wrap:pretty">まだ何もありません。下の欄から追加してください。</div>
           </sc-if>
 
-          <sc-for list="{{ gRows }}" as="r" hint-placeholder-count="3">
-            <div style="border-radius:var(--radius-md); background:#F6FEFE; border:1px solid #CFF3F1; padding:11px 12px; display:grid; grid-template-columns:minmax(0,1fr); gap:7px">
+          <sc-for list="{{ sx.rows }}" as="r" hint-placeholder-count="2">
+            <div style="border-radius:var(--radius-md); background:#E7FCFB; border:1px solid #CFF3F1; padding:11px 12px; display:grid; grid-template-columns:minmax(0,1fr); gap:7px">
               <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
                 <div onClick="{{ r.focusGo }}" style="{{ r.nameStyle }}">{{ r.t }}</div>
-                <sc-if value="{{ gIsPlace }}" hint-placeholder-val="{{ true }}">
+                <sc-if value="{{ sx.isPlace }}" hint-placeholder-val="{{ true }}">
                   <div onClick="{{ r.focusGo }}" style="{{ r.pinStyle }}">{{ r.pinLabel }}</div>
                 </sc-if>
               </div>
@@ -2076,16 +2077,16 @@
               <sc-if value="{{ r.editing }}" hint-placeholder-val="{{ false }}">
                 <div style="background:#FFFFFF; border-radius:var(--radius-md); padding:11px 12px; display:grid; grid-template-columns:minmax(0,1fr); gap:7px; animation:floatUp .22s ease both">
                   <input class="input" value="{{ r.t }}" onChange="{{ r.onName }}" placeholder="名前" style="width:100%; min-width:0; box-sizing:border-box; font-size:13px; background-color:#F6FEFE">
-                  <sc-if value="{{ gIsPlace }}" hint-placeholder-val="{{ true }}">
+                  <sc-if value="{{ sx.isPlace }}" hint-placeholder-val="{{ true }}">
                     <input class="input" value="{{ r.addr }}" onChange="{{ r.onAddr }}" placeholder="住所または Google マップのURL" style="width:100%; min-width:0; box-sizing:border-box; font-size:12.5px; background-color:#F6FEFE">
                   </sc-if>
-                  <sc-if value="{{ gIsWeather }}" hint-placeholder-val="{{ false }}">
+                  <sc-if value="{{ sx.isWeather }}" hint-placeholder-val="{{ false }}">
                     <div style="display:flex; gap:7px">
                       <input class="input" value="{{ r.a }}" onChange="{{ r.onA }}" placeholder="気温（例 4〜13℃）" style="flex:1 1 0; min-width:0; font-size:12.5px; background-color:#F6FEFE">
                       <input class="input" value="{{ r.b }}" onChange="{{ r.onB }}" placeholder="服装・天気" style="flex:1 1 0; min-width:0; font-size:12.5px; background-color:#F6FEFE">
                     </div>
                   </sc-if>
-                  <sc-if value="{{ gIsTransit }}" hint-placeholder-val="{{ false }}">
+                  <sc-if value="{{ sx.isTransit }}" hint-placeholder-val="{{ false }}">
                     <div style="display:flex; gap:7px">
                       <input class="input" value="{{ r.a }}" onChange="{{ r.onA }}" placeholder="料金（例 €2.20）" style="flex:1 1 0; min-width:0; font-size:12.5px; background-color:#F6FEFE">
                       <input class="input" value="{{ r.b }}" onChange="{{ r.onB }}" placeholder="区間・行き先" style="flex:1 1 0; min-width:0; font-size:12.5px; background-color:#F6FEFE">
@@ -2098,11 +2099,14 @@
           </sc-for>
 
           <div style="display:flex; gap:7px">
-            <input class="input" placeholder="{{ gAddPlaceholder }}" value="{{ gDraft }}" onChange="{{ gOnDraft }}" style="flex:1 1 0; min-width:0; font-size:13px; background-color:#FFFFFF">
-            <button type="button" onClick="{{ gAdd }}" style="flex:none; cursor:pointer; outline:none; border:0; border-radius:999px; padding:9px 18px; background:#2C8C88; color:#FFFFFF; font-family:var(--font-body); font-size:12.5px; font-weight:700">追加</button>
+            <input class="input" placeholder="{{ sx.addPlaceholder }}" value="{{ sx.draft }}" onChange="{{ sx.onDraft }}" style="flex:1 1 0; min-width:0; font-size:13px; background-color:#FFFFFF">
+            <button type="button" onClick="{{ sx.add }}" style="flex:none; cursor:pointer; outline:none; border:0; border-radius:999px; padding:9px 18px; background:#2C8C88; color:#FFFFFF; font-family:var(--font-body); font-size:12.5px; font-weight:700">追加</button>
           </div>
         </div>
       </sc-if>
+      </div>
+      </sc-for>
+      </div>
 
       <div style="margin-top:10px; border-radius:var(--radius-lg); background:#F2FEFD; border:1px dashed #9FDEDA">
         <div onClick="{{ gAddToggle }}" style="cursor:pointer; display:flex; align-items:center; gap:9px; padding:12px 14px">
@@ -2870,7 +2874,6 @@ const BOOK_KINDS = [
   { id:"other",   label:"その他", color:"#EDEAE2" }
 ];
 const BOOK_STATUS = [
-  { id:"todo",   label:"未予約",   bg:"#FBE3E3", fg:"#8A2222" },
   { id:"check",  label:"検討中",   bg:"#FBF0DC", fg:"#8A5A18" },
   { id:"booked", label:"予約済み", bg:"#E2F0E2", fg:"#2F6B34" },
   { id:"paid",   label:"支払済み", bg:"#E4EAF6", fg:"#2C4A80" }
@@ -3064,6 +3067,12 @@ class Component extends DCLogic {
     this.save({ bookings:b });
   }
 
+  // 以前の「未予約」は検討中として扱う
+  bookSt(r) {
+    const v = String((r && r.status) || "");
+    return (v === "check" || v === "booked" || v === "paid") ? v : "check";
+  }
+
   bookKinds(r) {
     const list = (r && Array.isArray(r.kinds) && r.kinds.length) ? r.kinds : [(r && r.kind) || "other"];
     return BOOK_KINDS.filter(k => list.indexOf(k.id) >= 0);
@@ -3079,7 +3088,7 @@ class Component extends DCLogic {
     b[id] = {
       id:id, kind:kinds[0], kinds:kinds, title:title,
       city:String(s.bkCity || "").trim(), when:String(s.bkWhen || ""),
-      status:"todo", n:"", who:"", due:"", cancel:"", code:"", amt:"", cur:"EUR",
+      status:"check", n:"", who:"", due:"", cancel:"", code:"", amt:"", cur:"EUR",
       url:"", memo:"", members:[], at:Date.now(), by:this.activeMe()
     };
     this.save({ bookings:b });
@@ -3125,7 +3134,6 @@ class Component extends DCLogic {
     const lim = Date.now() + 7 * 86400000;
     return this.bookRows().filter(r => {
       if (!r.cancel) return false;
-      if (r.status === "todo") return false;
       const t = new Date(String(r.cancel).replace(/-/g, "/").replace("T", " ")).getTime();
       return isFinite(t) && t <= lim;
     });
@@ -3133,6 +3141,98 @@ class Component extends DCLogic {
 
   bookKindCount(kind) {
     return this.bookRows().filter(r => this.bookKinds(r).some(k => k.id === kind)).length;
+  }
+
+  bkRowVals(r) {
+    const s = this.state;
+    const kinds = this.bookKinds(r);
+        const st = BOOK_STATUS.filter(x => x.id === this.bookSt(r))[0] || BOOK_STATUS[0];
+        const open = s.bkOpen === r.id;
+        const idx = BOOK_STATUS.findIndex(x => x.id === this.bookSt(r));
+        const set = (f, v) => this.bookWrite(r.id, { [f]:v });
+        const set2 = p => this.bookWrite(r.id, p);
+        return {
+          title: r.title,
+          kindTags: kinds.map(k => ({
+            label: k.label,
+            style: "flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; border-radius:999px; padding:2px 9px; white-space:nowrap; background:" + k.color + "; color:#4A3E22"
+          })),
+          kindEdit: BOOK_KINDS.map(k => ({
+            label: k.label,
+            go: () => {
+              const cur = kinds.map(x => x.id);
+              const i = cur.indexOf(k.id);
+              if (i >= 0) cur.splice(i, 1); else cur.push(k.id);
+              const next = cur.length ? cur : ["other"];
+              set2({ kinds:next, kind:next[0] });
+            },
+            style: "cursor:pointer; border-radius:999px; padding:5px 12px; font-family:var(--font-body); font-size:11.5px; font-weight:700; outline:none; "
+              + (kinds.some(x => x.id === k.id)
+                 ? "border:1px solid #8A6A2F; background:#8A6A2F; color:#FFFFFF"
+                 : "border:1px solid #DDD2B8; background:#FFFFFF; color:#6B5527")
+          })),
+          stLabel: st.label,
+          stStyle: "flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; border-radius:999px; padding:2px 9px; white-space:nowrap; background:" + st.bg + "; color:" + st.fg,
+          meta: [r.when ? String(r.when).replace("T", " ") : "日時未定", r.city, r.who ? ("担当 " + r.who) : ""].filter(Boolean).join(" ・ "),
+          go: () => this.setState({ bkOpen: open ? "" : r.id, bkMsg:"" }),
+          open: open,
+          caret: "flex:none; width:20px; height:20px; border-radius:50%; display:grid; place-items:center; color:#6B5527; background:#F0E8D4; transition:transform .2s ease; transform:rotate(" + (open ? "90deg" : "0deg") + ")",
+          nextLabel: idx < 0 || idx >= BOOK_STATUS.length - 1 ? "" : (BOOK_STATUS[idx + 1].label + "にする"),
+          hasNext: idx >= 0 && idx < BOOK_STATUS.length - 1,
+          nextGo: () => { if (idx >= 0 && idx < BOOK_STATUS.length - 1) this.bookStatus(r, BOOK_STATUS[idx + 1].id); },
+          backLabel: idx > 0 ? (BOOK_STATUS[idx - 1].label + "に戻す") : "",
+          hasBack: idx > 0,
+          backGo: () => { if (idx > 0) this.bookWrite(r.id, { status:BOOK_STATUS[idx - 1].id }); },
+          delGo: () => this.bookDel(r),
+          fTitle: r.title, onTitle: e => set("title", e.target.value),
+          fWhen: r.when || "", onWhen: e => set("when", e.target.value),
+          fCity: r.city || "", onCity: e => set("city", e.target.value),
+          fN: r.n || "", onN: e => set("n", e.target.value),
+          fWho: r.who || "", onWho: e => set("who", e.target.value),
+          whoHits: (() => {
+            const q = String(r.who || "").trim();
+            if (!q) return [];
+            const list = this.roster().filter(n => n.indexOf(q) >= 0 && n !== q);
+            return list.slice(0, 6).map(n => ({
+              label: n,
+              go: () => set("who", n),
+              style: "cursor:pointer; border:1px solid #DDD2B8; border-radius:999px; padding:5px 12px; background:#FFFFFF; color:#6B5527; font-family:var(--font-body); font-size:11.5px; font-weight:700; outline:none"
+            }));
+          })(),
+          whoOk: this.roster().indexOf(String(r.who || "").trim()) >= 0,
+          whoWarn: !!String(r.who || "").trim() && this.roster().indexOf(String(r.who || "").trim()) < 0,
+          fDue: r.due || "", onDue: e => set("due", e.target.value),
+          fCancel: r.cancel || "", onCancel: e => set("cancel", e.target.value),
+          fCode: r.code || "", onCode: e => set("code", e.target.value),
+          fAmt: r.amt || "", onAmt: e => set("amt", e.target.value),
+          fCur: r.cur || "EUR", onCur: e => set("cur", e.target.value),
+          fUrl: r.url || "", onUrl: e => set("url", e.target.value),
+          fMemo: r.memo || "", onMemo: e => set("memo", e.target.value),
+          hasUrl: !!String(r.url || "").trim(),
+          urlHref: String(r.url || "").trim(),
+          sentNote: r.sentEx ? "立替記録に送済み" : "",
+          noSplit: !!r.noSplit,
+          noSplitGo: () => set("noSplit", !r.noSplit),
+          noSplitBox: "flex:none; width:20px; height:20px; border-radius:6px; display:grid; place-items:center; border:1px solid "
+            + (r.noSplit ? "#8A6A2F; background:#8A6A2F; color:#FFFFFF" : "#DDD2B8; background:#FFFFFF; color:transparent"),
+          noSplitNote: r.noSplit
+            ? "各自が支払ったものとして扱います。割り勘には送りません"
+            : "予約済みにしたとき、金額を立替記録に送ります",
+          whoChips: this.roster().map(n => ({
+            label: n,
+            go: () => {
+              const cur = (r.members || []).slice();
+              const i = cur.indexOf(n);
+              if (i >= 0) cur.splice(i, 1); else cur.push(n);
+              set("members", cur);
+            },
+            style: "cursor:pointer; border-radius:999px; padding:5px 12px; font-family:var(--font-body); font-size:11.5px; font-weight:700; outline:none; "
+              + ((r.members || []).indexOf(n) >= 0
+                 ? "border:1px solid #8A6A2F; background:#8A6A2F; color:#FFFFFF"
+                 : "border:1px solid #DDD2B8; background:#FFFFFF; color:#6B5527")
+          })),
+          memberNote: (r.members || []).length ? ((r.members || []).length + " 人が対象") : "全員が対象"
+    };
   }
 
   planOf(rid, d) {
@@ -4862,72 +4962,17 @@ class Component extends DCLogic {
     return out;
   }
 
-  guideGroupVals() {
+  // セクション1つ分の値。予約ページと同じ「見出し＋件数＋開閉」で並べるため切り出した
+  guideSecVals(g, secs, si) {
     const s = this.state;
-    const g = this.guideCity();
-    const secs = this.guidesOf(g.id);
-    const used = secs.map(x => x.title);
-    const write = list => this.setGuides(g.id, list);
-    const selId = (s.guideSec || {})[g.id] || (secs[0] ? secs[0].id : "");
-    const si = secs.findIndex(x => x.id === selId);
     const sec = si >= 0 ? secs[si] : null;
+    const selId = sec ? sec.id : "";
     const items = sec ? (sec.items || []).slice() : [];
     const kind = sec ? (sec.kind || "place") : "place";
+    const write = list => this.setGuides(g.id, list);
     const putItems = list => write(secs.map((x, i) => i === si ? Object.assign({}, x, { items:list }) : x));
     const ed = s.guideEdit || {};
-    const pins = this.mapPins();
-
     return {
-      cityBtns: GUIDE_TABS.map((t, ti) => {
-        const kids = this.citiesOfTab(t.id);
-        const here = kids.some(x => x.id === g.id);
-        const open = s.guideMenu === t.id;
-        return {
-          label: t.label,
-          city: here ? g.city : t.label,
-          open: open,
-          panel: "position:absolute; " + (ti >= 3 ? "right:0" : "left:0") + "; top:100%; padding-top:8px; z-index:20",
-          style: "width:100%; box-sizing:border-box; cursor:pointer; outline:none; border-radius:var(--radius-md); padding:9px 6px; "
-            + "font-family:var(--font-body); font-weight:700; text-align:center; transition:all .18s; "
-            + (here
-               ? "border:1px solid #1F5350; background:#1F5350; color:#FFFFFF; box-shadow:0 2px 8px rgba(31,83,80,.26)"
-               : "border:1px solid #9FDEDA; background:#FFFFFF; color:#1F5350"),
-          enter: () => { clearTimeout(this._menuT); this.setState({ guideMenu:t.id }); },
-          go: () => this.setState({ guideCity: here ? g.id : (kids[0] || {}).id, guideMenu: open ? "" : t.id }),
-          newCity: (s.newCity || {})[t.id] || "",
-          onNewCity: e => this.setState({ newCity:Object.assign({}, s.newCity || {}, { [t.id]:e.target.value }) }),
-          addCity: () => this.addCity(t),
-          subs: kids.map((x, xi) => ({
-            city: x.city,
-            canDel: xi > 0,
-            del: () => this.delCity(x),
-            style: "width:104px; box-sizing:border-box; cursor:pointer; outline:none; border-radius:var(--radius-md); padding:8px 4px; "
-              + "font-family:var(--font-body); font-size:12px; font-weight:700; text-align:center; transition:all .18s; "
-              + (x.id === g.id
-                 ? "border:1px solid #1F5350; background:#1F5350; color:#FFFFFF; box-shadow:0 2px 8px rgba(31,83,80,.26)"
-                 : "border:1px solid #9FDEDA; background:#FFFFFF; color:#1F5350"),
-            go: () => this.setState({ guideCity:x.id, guideMenu:"" })
-          }))
-        };
-      }),
-      menuClose: () => {
-        clearTimeout(this._menuT);
-        this._menuT = setTimeout(() => this.setState({ guideMenu:"" }), 220);
-      },
-      cityName: g.city,
-      secBtns: secs.map(x => ({
-        label: x.title,
-        count: (x.items || []).length ? String((x.items || []).length) : "",
-        hasCount: (x.items || []).length > 0,
-        style: "cursor:pointer; outline:none; border-radius:999px; padding:7px 15px; white-space:nowrap; "
-          + "font-family:var(--font-body); font-size:12.5px; font-weight:700; transition:all .18s; "
-          + (x.id === selId
-             ? "border:1px solid #2C8C88; background:#2C8C88; color:#FFFFFF"
-             : "border:1px solid #9FDEDA; background:#FFFFFF; color:#1F5350"),
-        go: () => this.setState({ guideSec:Object.assign({}, s.guideSec || {}, { [g.id]:x.id }) })
-      })),
-      hasSecs: secs.length > 0,
-      noSecs: !secs.length,
       secTitle: sec ? sec.title : "",
       hasSec: !!sec,
       isPlace: kind === "place",
@@ -4984,6 +5029,86 @@ class Component extends DCLogic {
       }),
       hasRows: items.length > 0,
       rowsEmpty: !items.length,
+      draft: (s.guideDraft || {})[g.id + "|" + selId] || "",      onDraft: e => this.setState({ guideDraft:Object.assign({}, s.guideDraft || {}, { [g.id + "|" + selId]:e.target.value }) }),
+      add: () => {
+        const dk = g.id + "|" + selId;
+        const v = String(((this.state.guideDraft || {})[dk]) || "").trim();
+        if (!v || !sec) return;
+        putItems(items.concat({ id:"i" + Date.now(), t:v, addr:"", memo:"", a:"", b:"", by:this.activeMe() }));
+        this.setState({ guideDraft:Object.assign({}, this.state.guideDraft || {}, { [dk]:"" }) });
+      },
+      addPlaceholder: kind === "weather" ? "日付を追加（例 2/14）"
+        : kind === "transit" ? "路線・手段を追加（例 メトロ M1）"
+        : "名前を追加",
+    };
+  }
+
+  guideGroupVals() {
+    const s = this.state;
+    const g = this.guideCity();
+    const secs = this.guidesOf(g.id);
+    const used = secs.map(x => x.title);
+    const write = list => this.setGuides(g.id, list);
+    const selId = (s.guideSec || {})[g.id] || (secs[0] ? secs[0].id : "");
+    const si = secs.findIndex(x => x.id === selId);
+    const sec = si >= 0 ? secs[si] : null;
+    const items = sec ? (sec.items || []).slice() : [];
+    const kind = sec ? (sec.kind || "place") : "place";
+    const putItems = list => write(secs.map((x, i) => i === si ? Object.assign({}, x, { items:list }) : x));
+    const ed = s.guideEdit || {};
+    const pins = this.mapPins();
+
+    const V = {
+      cityBtns: GUIDE_TABS.map((t, ti) => {
+        const kids = this.citiesOfTab(t.id);
+        const here = kids.some(x => x.id === g.id);
+        const open = s.guideMenu === t.id;
+        return {
+          label: t.label,
+          city: here ? g.city : t.label,
+          open: open,
+          panel: "position:absolute; " + (ti >= 3 ? "right:0" : "left:0") + "; top:100%; padding-top:8px; z-index:20",
+          style: "width:100%; box-sizing:border-box; cursor:pointer; outline:none; border-radius:var(--radius-md); padding:9px 6px; "
+            + "font-family:var(--font-body); font-weight:700; text-align:center; transition:all .18s; "
+            + (here
+               ? "border:1px solid #1F5350; background:#1F5350; color:#FFFFFF; box-shadow:0 2px 8px rgba(31,83,80,.26)"
+               : "border:1px solid #9FDEDA; background:#FFFFFF; color:#1F5350"),
+          enter: () => { clearTimeout(this._menuT); this.setState({ guideMenu:t.id }); },
+          go: () => this.setState({ guideCity: here ? g.id : (kids[0] || {}).id, guideMenu: open ? "" : t.id }),
+          newCity: (s.newCity || {})[t.id] || "",
+          onNewCity: e => this.setState({ newCity:Object.assign({}, s.newCity || {}, { [t.id]:e.target.value }) }),
+          addCity: () => this.addCity(t),
+          subs: kids.map((x, xi) => ({
+            city: x.city,
+            canDel: xi > 0,
+            del: () => this.delCity(x),
+            style: "width:104px; box-sizing:border-box; cursor:pointer; outline:none; border-radius:var(--radius-md); padding:8px 4px; "
+              + "font-family:var(--font-body); font-size:12px; font-weight:700; text-align:center; transition:all .18s; "
+              + (x.id === g.id
+                 ? "border:1px solid #1F5350; background:#1F5350; color:#FFFFFF; box-shadow:0 2px 8px rgba(31,83,80,.26)"
+                 : "border:1px solid #9FDEDA; background:#FFFFFF; color:#1F5350"),
+            go: () => this.setState({ guideCity:x.id, guideMenu:"" })
+          }))
+        };
+      }),
+      menuClose: () => {
+        clearTimeout(this._menuT);
+        this._menuT = setTimeout(() => this.setState({ guideMenu:"" }), 220);
+      },
+      cityName: g.city,
+      secBtns: secs.map(x => ({
+        label: x.title,
+        count: (x.items || []).length ? String((x.items || []).length) : "",
+        hasCount: (x.items || []).length > 0,
+        style: "cursor:pointer; outline:none; border-radius:999px; padding:7px 15px; white-space:nowrap; "
+          + "font-family:var(--font-body); font-size:12.5px; font-weight:700; transition:all .18s; "
+          + (x.id === selId
+             ? "border:1px solid #2C8C88; background:#2C8C88; color:#FFFFFF"
+             : "border:1px solid #9FDEDA; background:#FFFFFF; color:#1F5350"),
+        go: () => this.setState({ guideSec:Object.assign({}, s.guideSec || {}, { [g.id]:x.id }) })
+      })),
+      hasSecs: secs.length > 0,
+      noSecs: !secs.length,
 
       aiCityLabel: g.city,
       aiText: s.aiText || "",
@@ -5015,17 +5140,6 @@ class Component extends DCLogic {
       aiCancel: () => this.setState({ aiDraft:null, aiErr:"" }),
       aiAdd: () => this.addParsedPlace(g),
 
-      draft: (s.guideDraft || {})[g.id + "|" + selId] || "",      onDraft: e => this.setState({ guideDraft:Object.assign({}, s.guideDraft || {}, { [g.id + "|" + selId]:e.target.value }) }),
-      add: () => {
-        const dk = g.id + "|" + selId;
-        const v = String(((this.state.guideDraft || {})[dk]) || "").trim();
-        if (!v || !sec) return;
-        putItems(items.concat({ id:"i" + Date.now(), t:v, addr:"", memo:"", a:"", b:"", by:this.activeMe() }));
-        this.setState({ guideDraft:Object.assign({}, this.state.guideDraft || {}, { [dk]:"" }) });
-      },
-      addPlaceholder: kind === "weather" ? "日付を追加（例 2/14）"
-        : kind === "transit" ? "路線・手段を追加（例 メトロ M1）"
-        : "名前を追加",
       colA: kind === "weather" ? "気温" : kind === "transit" ? "料金" : "",
       colB: kind === "weather" ? "服装・天気" : kind === "transit" ? "区間・行き先" : "",
 
@@ -5077,8 +5191,20 @@ class Component extends DCLogic {
       mapErr: s.mapAuthErr === true,
       mapErrText: "Google がこのキーを受け付けませんでした。Google Cloud で① Maps JavaScript API の有効化、②請求先アカウントの紐付け、③キーのウェブサイト制限（https://8sgrhrk11.github.io/*）を確認してください。",
       pinCount: pins.length ? (pins.length + " 件を表示中") : "ピンなし",
-      geoNote: s.geoMsg || ""
+      geoNote: s.geoMsg || "",
+      secList: secs.map((x, i) => {
+        const key = g.id + "|" + x.id;
+        const n = (x.items || []).length;
+        const open = (s.guideOpen || {})[key] !== undefined ? !!(s.guideOpen || {})[key] : i === 0;
+        return Object.assign({
+          open: open,
+          count: n + " 件",
+          go: () => this.setState({ guideOpen:Object.assign({}, s.guideOpen || {}, { [key]: !open }) }),
+          caret: "flex:none; width:20px; height:20px; border-radius:50%; display:grid; place-items:center; color:#1F5350; background:#CFF3F1; transition:transform .2s ease; transform:rotate(" + (open ? "90deg" : "0deg") + ")"
+        }, this.guideSecVals(g, secs, i));
+      })
     };
+    return Object.assign(V, this.guideSecVals(g, secs, si));
   }
 
   // Google マップ（Maps JavaScript API）。キーは設定ページから入れる
@@ -6757,94 +6883,18 @@ class Component extends DCLogic {
       })),
       hasBkAlerts: this.bookCancelSoon().length > 0,
       bkEmpty: this.bookRows().length === 0,
-      bkRows: this.bookRows().map(r => {
-        const kinds = this.bookKinds(r);
-        const st = BOOK_STATUS.filter(x => x.id === (r.status || "todo"))[0] || BOOK_STATUS[0];
-        const open = s.bkOpen === r.id;
-        const idx = BOOK_STATUS.findIndex(x => x.id === (r.status || "todo"));
-        const set = (f, v) => this.bookWrite(r.id, { [f]:v });
-        const set2 = p => this.bookWrite(r.id, p);
+      bkGroups: BOOK_STATUS.map((g, gi) => {
+        const rows = this.bookRows().filter(r => this.bookSt(r) === g.id);
+        const open = (s.bkGrp || {})[g.id] !== undefined ? !!(s.bkGrp || {})[g.id] : gi === 0;
         return {
-          title: r.title,
-          kindTags: kinds.map(k => ({
-            label: k.label,
-            style: "flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; border-radius:999px; padding:2px 9px; white-space:nowrap; background:" + k.color + "; color:#4A3E22"
-          })),
-          kindEdit: BOOK_KINDS.map(k => ({
-            label: k.label,
-            go: () => {
-              const cur = kinds.map(x => x.id);
-              const i = cur.indexOf(k.id);
-              if (i >= 0) cur.splice(i, 1); else cur.push(k.id);
-              const next = cur.length ? cur : ["other"];
-              set2({ kinds:next, kind:next[0] });
-            },
-            style: "cursor:pointer; border-radius:999px; padding:5px 12px; font-family:var(--font-body); font-size:11.5px; font-weight:700; outline:none; "
-              + (kinds.some(x => x.id === k.id)
-                 ? "border:1px solid #8A6A2F; background:#8A6A2F; color:#FFFFFF"
-                 : "border:1px solid #DDD2B8; background:#FFFFFF; color:#6B5527")
-          })),
-          stLabel: st.label,
-          stStyle: "flex:none; font-family:var(--font-body); font-size:10px; font-weight:700; border-radius:999px; padding:2px 9px; white-space:nowrap; background:" + st.bg + "; color:" + st.fg,
-          meta: [r.when ? String(r.when).replace("T", " ") : "日時未定", r.city, r.who ? ("担当 " + r.who) : ""].filter(Boolean).join(" ・ "),
-          go: () => this.setState({ bkOpen: open ? "" : r.id, bkMsg:"" }),
+          label: g.label,
+          badge: rows.length + " 件",
+          badgeStyle: "flex:none; font-family:var(--font-body); font-size:10.5px; font-weight:700; border-radius:999px; padding:3px 10px; white-space:nowrap; background:" + g.bg + "; color:" + g.fg,
           open: open,
+          go: () => this.setState({ bkGrp:Object.assign({}, s.bkGrp || {}, { [g.id]: !open }) }),
           caret: "flex:none; width:20px; height:20px; border-radius:50%; display:grid; place-items:center; color:#6B5527; background:#F0E8D4; transition:transform .2s ease; transform:rotate(" + (open ? "90deg" : "0deg") + ")",
-          nextLabel: idx < 0 || idx >= BOOK_STATUS.length - 1 ? "" : (BOOK_STATUS[idx + 1].label + "にする"),
-          hasNext: idx >= 0 && idx < BOOK_STATUS.length - 1,
-          nextGo: () => { if (idx >= 0 && idx < BOOK_STATUS.length - 1) this.bookStatus(r, BOOK_STATUS[idx + 1].id); },
-          backLabel: idx > 0 ? (BOOK_STATUS[idx - 1].label + "に戻す") : "",
-          hasBack: idx > 0,
-          backGo: () => { if (idx > 0) this.bookWrite(r.id, { status:BOOK_STATUS[idx - 1].id }); },
-          delGo: () => this.bookDel(r),
-          fTitle: r.title, onTitle: e => set("title", e.target.value),
-          fWhen: r.when || "", onWhen: e => set("when", e.target.value),
-          fCity: r.city || "", onCity: e => set("city", e.target.value),
-          fN: r.n || "", onN: e => set("n", e.target.value),
-          fWho: r.who || "", onWho: e => set("who", e.target.value),
-          whoHits: (() => {
-            const q = String(r.who || "").trim();
-            if (!q) return [];
-            const list = this.roster().filter(n => n.indexOf(q) >= 0 && n !== q);
-            return list.slice(0, 6).map(n => ({
-              label: n,
-              go: () => set("who", n),
-              style: "cursor:pointer; border:1px solid #DDD2B8; border-radius:999px; padding:5px 12px; background:#FFFFFF; color:#6B5527; font-family:var(--font-body); font-size:11.5px; font-weight:700; outline:none"
-            }));
-          })(),
-          whoOk: this.roster().indexOf(String(r.who || "").trim()) >= 0,
-          whoWarn: !!String(r.who || "").trim() && this.roster().indexOf(String(r.who || "").trim()) < 0,
-          fDue: r.due || "", onDue: e => set("due", e.target.value),
-          fCancel: r.cancel || "", onCancel: e => set("cancel", e.target.value),
-          fCode: r.code || "", onCode: e => set("code", e.target.value),
-          fAmt: r.amt || "", onAmt: e => set("amt", e.target.value),
-          fCur: r.cur || "EUR", onCur: e => set("cur", e.target.value),
-          fUrl: r.url || "", onUrl: e => set("url", e.target.value),
-          fMemo: r.memo || "", onMemo: e => set("memo", e.target.value),
-          hasUrl: !!String(r.url || "").trim(),
-          urlHref: String(r.url || "").trim(),
-          sentNote: r.sentEx ? "立替記録に送済み" : "",
-          noSplit: !!r.noSplit,
-          noSplitGo: () => set("noSplit", !r.noSplit),
-          noSplitBox: "flex:none; width:20px; height:20px; border-radius:6px; display:grid; place-items:center; border:1px solid "
-            + (r.noSplit ? "#8A6A2F; background:#8A6A2F; color:#FFFFFF" : "#DDD2B8; background:#FFFFFF; color:transparent"),
-          noSplitNote: r.noSplit
-            ? "各自が支払ったものとして扱います。割り勘には送りません"
-            : "予約済みにしたとき、金額を立替記録に送ります",
-          whoChips: this.roster().map(n => ({
-            label: n,
-            go: () => {
-              const cur = (r.members || []).slice();
-              const i = cur.indexOf(n);
-              if (i >= 0) cur.splice(i, 1); else cur.push(n);
-              set("members", cur);
-            },
-            style: "cursor:pointer; border-radius:999px; padding:5px 12px; font-family:var(--font-body); font-size:11.5px; font-weight:700; outline:none; "
-              + ((r.members || []).indexOf(n) >= 0
-                 ? "border:1px solid #8A6A2F; background:#8A6A2F; color:#FFFFFF"
-                 : "border:1px solid #DDD2B8; background:#FFFFFF; color:#6B5527")
-          })),
-          memberNote: (r.members || []).length ? ((r.members || []).length + " 人が対象") : "全員が対象"
+          empty: rows.length === 0,
+          rows: rows.map(r => this.bkRowVals(r))
         };
       }),
 
